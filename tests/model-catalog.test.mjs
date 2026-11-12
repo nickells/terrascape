@@ -80,3 +80,37 @@ test('curated seed contains 60 prepared, self-contained models with actual previ
     assert.match(asset.source_photo_url,/^https:\/\//);
   }
 });
+
+test('additional curated assets retain their individual source and license', async () => {
+  const entries=JSON.parse(readFileSync(path.join(root,'assets/models/catalog.json'),'utf8'));
+  const supplied=Object.fromEntries(entries.map(a=>[a.id,a]));
+  const {assets,unavailable}=await getModelCatalogues(async()=>({}),async()=>({}),async()=>supplied);
+  assert.deepEqual(unavailable,[]);
+  assert.equal(assets['local:oil-palm'].source,'Innerscene');
+  assert.equal(assets['local:oil-palm'].license,'CC0');
+  assert.equal(assets['local:oil-palm'].curated,true);
+  for(const asset of entries){
+    const data=readFileSync(path.resolve(root,asset.url));
+    assert.equal(createHash('sha256').update(data).digest('hex'),asset.sha256);
+    assert.equal(data.readUInt32LE(8),data.length);
+    const gltf=JSON.parse(data.toString('utf8',20,20+data.readUInt32LE(12)));
+    assert.deepEqual(gltf.extensionsRequired||[],[]);
+    assert.ok(gltf.nodes.some(node=>node.extras?.license==='CC0-1.0'));
+    assert.ok(readFileSync(path.resolve(root,asset.thumbnail_url)).length>0);
+  }
+});
+
+test('an additional catalog outage leaves existing libraries available', async () => {
+  const {assets,unavailable}=await getModelCatalogues(async()=>({tree:{name:'Tree'}}),async()=>({}),async()=>{throw new Error('offline');});
+  assert.deepEqual(unavailable,['Curated models']);
+  assert.equal(assets.tree.source,'Poly Haven');
+});
+
+
+test('category filters combine source vocabularies', async () => {
+  const {assets}=await getModelCatalogues(
+    async()=>({lamp:{name:'Lamp',categories:['lighting','table']}}),
+    async()=>({'furnimesh:lamp':{name:'Lamp',categories:['Lighting','Tables']}}),
+  );
+  assert.deepEqual(assets.lamp.categories,assets['furnimesh:lamp'].categories);
+});

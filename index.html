@@ -90,7 +90,7 @@
   .choice.on{border-color:#000 #fff #fff #000;box-shadow:inset 1px 1px #808080;background:#d8d8d8;font-weight:bold;}
   .choice{padding:4px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .dialog.ph{max-width:none;width:720px;top:48%;}
-  .phbar{display:grid;grid-template-columns:155px 1fr 145px 115px;gap:4px;padding:6px 6px 4px;}
+  .phbar{display:grid;grid-template-columns:1fr 145px 115px;gap:4px;padding:6px 6px 4px;}
   .phbar input{width:100%;}
   .phgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:4px 6px;height:380px;overflow-y:auto;background:#fff;margin:0 6px;border:2px solid;border-color:#808080 #fff #fff #808080;align-content:start;}
   .tile{display:flex;flex-direction:column;align-items:center;gap:1px;padding:3px;min-width:0;}
@@ -181,7 +181,7 @@ import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-
 import { createTracer, KIND, MOON_GLSL, MOON_R } from './tracer.js';
 import { startPixelEmoji } from './emoji.js';
 import { SAVED_SCENES, loadSavedScene } from './saved-scenes.js';
-import { getFurniMeshCatalogue, getModelCatalogues, isIndexedModel, getIndexedModel } from './model-catalog.js';
+import { getLocalCatalogue, getFurniMeshCatalogue, getModelCatalogues, isIndexedModel, getIndexedModel } from './model-catalog.js';
 
 // fast click-picking on the big Poly Haven meshes
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
@@ -2012,14 +2012,14 @@ $('objList').addEventListener('dblclick', e => { if (e.target.closest('.li') && 
 
 
 // ---------- model browser: Poly Haven scans + curated FurniMesh furniture and architecture ----------
-let phDlg = null, modelBrowserSource = 'FurniMesh';
+let phDlg = null;
 let recentModels = ['tree', 'trunk', 'bust', 'statue', 'horse', 'urn', 'boulder', 'rock'];   // Objects menu shortcuts; Poly Haven picks go to the top
 async function openBrowser() {
   if (phDlg) { phDlg.querySelector('input').focus(); return; }
   phDlg = document.createElement('div'); phDlg.className = 'dialog ph';
   phDlg.innerHTML = `<div class="title"><span>Model Library · free models</span><span class="tb"><b>×</b></span></div>
-    <div class="phbar"><select class="source" aria-label="Model source"><option value="">All sources</option><option value="Poly Haven">Poly Haven</option><option value="FurniMesh">FurniMesh · curated</option></select><input type="text" aria-label="Search models" placeholder="Search furniture, houses, cars…"><select class="cat" aria-label="Model category"></select><select class="sort" aria-label="Sort models">
-      <option value="pop">Most downloaded</option><option value="light">Lightest first</option><option value="name">By name</option></select></div>
+    <div class="phbar"><input type="text" aria-label="Search models" placeholder="Search furniture, trees, architecture…"><select class="cat" aria-label="Model category"></select><select class="sort" aria-label="Sort models">
+      <option value="pop">Recommended</option><option value="light">Lightest first</option><option value="name">By name</option></select></div>
     <div class="phgrid"><div class="hint" style="padding:10px">Loading libraries…</div></div>
     <div class="phfoot"><span class="n"></span><span class="library-note">Click a model to add it · License shown on each model</span></div>`;
   $('win').appendChild(phDlg);
@@ -2027,24 +2027,20 @@ async function openBrowser() {
   const close = () => { dialogEl.remove(); if (phDlg === dialogEl) phDlg = null; };
   phDlg._close = close;
   phDlg.querySelector('.tb b').onclick = close;
-  const sourceSel = phDlg.querySelector('.source');
-  sourceSel.value = modelBrowserSource;
   const q = phDlg.querySelector('input'), catSel = phDlg.querySelector('.cat'), sortSel = phDlg.querySelector('.sort'), grid = phDlg.querySelector('.phgrid');
   q.addEventListener('keydown', e => { if (e.key === 'Escape') close(); e.stopPropagation(); });
   q.focus();
   let cat, unavailable;
-  try { ({ assets:cat, unavailable } = await getModelCatalogues(getCatalogue, getFurniMeshCatalogue)); }
+  try { ({ assets:cat, unavailable } = await getModelCatalogues(getCatalogue, getFurniMeshCatalogue, getLocalCatalogue)); }
   catch (e) { grid.innerHTML = `<div class="hint" style="padding:10px">${e.message}</div>`; return; }
   if (phDlg !== dialogEl) return;
-  if (unavailable.includes(sourceSel.value)) sourceSel.value = '';
-  if (unavailable.length) dialogEl.querySelector('.library-note').textContent = `${unavailable.join(' and ')} unavailable; showing the other library.`;
+  if (unavailable.length) dialogEl.querySelector('.library-note').textContent = `${unavailable.join(' and ')} unavailable; showing available models.`;
   const all = Object.entries(cat).map(([id, a]) => ({ id, ...a, hay: [a.name, a.source, ...(a.tags || []), ...(a.categories || [])].join(' ').toLowerCase() }))
-    .sort((a, b) => (b.download_count || 0) - (a.download_count || 0));
+    .sort((a, b) => Number(!!b.featured) - Number(!!a.featured) || Number(b.curated) - Number(a.curated) || (b.download_count || 0) - (a.download_count || 0));
   function updateCategories() {
-    sortSel.querySelector('[value="pop"]').textContent = sourceSel.value === 'FurniMesh' ? 'Curated order' : 'Most downloaded';
     const counts = {}, previous = catSel.value;
-    all.filter(a => !sourceSel.value || a.source === sourceSel.value).forEach(a => (a.categories || []).forEach(c => {
-      if (!c.startsWith('collection')) counts[c] = (counts[c] || 0) + 1;
+    all.forEach(a => (a.categories || []).forEach(c => {
+      if (!c.toLowerCase().startsWith('collection')) counts[c] = (counts[c] || 0) + 1;
     }));
     catSel.innerHTML = `<option value="">All categories</option>` + Object.entries(counts).sort((a,b) => a[0].localeCompare(b[0])).map(([c,n]) => `<option value="${c}">${c} (${n})</option>`).join('');
     if (previous in counts) catSel.value = previous;
@@ -2054,18 +2050,17 @@ async function openBrowser() {
   const fmtTris = n => n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? Math.round(n / 1e3) + 'k' : n;
   const draw = () => {
     const words = q.value.toLowerCase().split(/\s+/).filter(Boolean), c = catSel.value;
-    const hits = all.filter(a => (!sourceSel.value || a.source === sourceSel.value) && (!c || (a.categories || []).includes(c)) && words.every(w => a.hay.includes(w)));
+    const hits = all.filter(a => (!c || (a.categories || []).includes(c)) && words.every(w => a.hay.includes(w)));
     if (sortSel.value === 'light') hits.sort((a, b) => (a.polycount || 0) - (b.polycount || 0));
     else if (sortSel.value === 'name') hits.sort((a, b) => a.name.localeCompare(b.name));
     dialogEl.querySelector('.n').textContent = `${Math.min(limit,hits.length)} of ${hits.length} models`;
     grid.innerHTML = hits.slice(0, limit).map(a => `<button class="tile" data-id="${a.id}" title="${a.name} · ${a.source} · ${a.license} · ${(a.polycount || 0).toLocaleString()} triangles">
       <img loading="lazy" src="${a.thumbnail_url}" alt="">
-      <span class="nm">${a.name}</span><span class="pc${a.polycount > 500000 ? ' heavy' : ''}">${a.source} · ${fmtTris(a.polycount || 0)} tris</span></button>`).join('')
+      <span class="nm">${a.name}</span><span class="pc${a.polycount > 500000 ? ' heavy' : ''}">${(a.categories || [])[0] || 'Model'} · ${fmtTris(a.polycount || 0)} tris</span></button>`).join('')
       + (hits.length > limit ? `<button data-more style="grid-column:1/-1">Show more models (${hits.length-limit} remaining)</button>` : '');
   };
   const reset = () => { limit = 150; draw(); };
   q.addEventListener('input', reset); catSel.addEventListener('change', reset); sortSel.addEventListener('change', reset);
-  sourceSel.addEventListener('change', () => { modelBrowserSource = sourceSel.value; updateCategories(); reset(); });
   grid.addEventListener('click', async e => {
     if (e.target.closest('[data-more]')) { limit += 150; draw(); return; }
     const t = e.target.closest('.tile'); if (!t || t.classList.contains('busy')) return;

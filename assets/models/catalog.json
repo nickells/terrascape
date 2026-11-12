@@ -1,0 +1,32 @@
+[
+  {
+    "id": "local:oil-palm",
+    "name": "Oil palm tree",
+    "source": "Innerscene",
+    "license": "CC0",
+    "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source_url": "https://www.innerscene.com/tools/library/3d-parts/mature-oil-palm-tree-with-fruit-bunches-c8b8a16c",
+    "download_url": "https://www.innerscene.com/api/library/mature-oil-palm-tree-with-fruit-bunches-c8b8a16c/download",
+    "url": "./assets/models/oil-palm.glb",
+    "thumbnail_url": "./assets/models/oil-palm.png",
+    "categories": [
+      "Nature",
+      "Trees"
+    ],
+    "tags": [
+      "palm",
+      "tropical",
+      "island",
+      "coast",
+      "oil palm",
+      "foliage"
+    ],
+    "displayHeight": 70,
+    "polycount": 38766,
+    "bytes": 4021448,
+    "original_bytes": 5771028,
+    "texture_size": 1024,
+    "sha256": "86a33d5d5e697b274538adf37e6cab89c1686704473dacf4b42dc85b3e166be2",
+    "featured": true
+  }
+]
