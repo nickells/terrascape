@@ -1,0 +1,52 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>FurniMesh model checks</title>
+<style>
+body{font:13px system-ui;background:#eee8df;color:#292722;margin:16px}header{display:flex;align-items:center;gap:12px;margin-bottom:12px}h1{font-size:19px;margin:0}#status{flex:1}main{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}article{background:#fff;border:1px solid #ddd6cc;padding:8px;min-width:0}img{width:100%;height:195px;object-fit:contain}h2{font-size:13px;margin:5px 0}p{margin:2px 0;color:#665e54}.bad{border-color:#b33}button,select{padding:6px;font:inherit}canvas{position:fixed;left:-1000px;top:0}
+</style>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.170.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.170.0/examples/jsm/"}}</script>
+</head><body>
+<header><h1>Curated FurniMesh · actual 3D previews</h1><span id="status">Preparing studio…</span><select id="page" aria-label="Preview page"><option value="0">1–10</option><option value="1">11–20</option><option value="2">21–30</option><option value="3">31–40</option><option value="4">41–50</option><option value="5">51–60</option></select><button id="export" disabled>Export thumbnails</button></header>
+<main></main>
+<script type="module">
+import * as THREE from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setSize(256,256);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.9;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;document.body.append(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color('#eeeae3');
+const pmrem=new THREE.PMREMGenerator(renderer);const env=pmrem.fromScene(new RoomEnvironment(),.04).texture;scene.environment=env;
+scene.add(new THREE.HemisphereLight('#ffffff','#b8aa96',1.2));
+const sun=new THREE.DirectionalLight('#fff4df',2);sun.position.set(-3,5,4);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);Object.assign(sun.shadow.camera,{left:-3,right:3,top:3,bottom:-3,near:.1,far:20});sun.shadow.bias=-.0002;scene.add(sun);
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.MeshStandardMaterial({color:'#e7e0d5',roughness:.8}));floor.rotation.x=-Math.PI/2;floor.position.y=-.006;floor.receiveShadow=true;scene.add(floor);
+const camera=new THREE.PerspectiveCamera(35,1,.01,100);const loader=new GLTFLoader();
+const assets=await (await fetch('../assets/furnimesh/catalog.json')).json();
+const previews=[],errors=[];const main=document.querySelector('main');
+const pageSelect=document.querySelector('#page');
+const showPage=()=>main.querySelectorAll('article').forEach((card,i)=>card.hidden=Math.floor(i/10)!==+pageSelect.value);
+pageSelect.onchange=showPage;
+for(let i=0;i<assets.length;i++){
+ const asset=assets[i],card=document.createElement('article');card.dataset.model=asset.id;
+ const image=document.createElement('img'),name=document.createElement('h2'),info=document.createElement('p');
+ name.textContent=`${i+1}. ${asset.name}`;info.textContent=`${asset.categories.join(' · ')} · ${Math.round(asset.polycount/1000)}k triangles`;
+ card.append(image,name,info);main.append(card);showPage();
+ try{
+  const gltf=await loader.loadAsync(new URL('../'+asset.url.replace(/^\.\//,''),location.href).href);
+  const object=gltf.scene,box=new THREE.Box3().setFromObject(object),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3());
+  const scale=2/Math.max(size.x,size.y,size.z);if(!Number.isFinite(scale))throw new Error('Invalid model bounds');
+  const wrapper=new THREE.Group();wrapper.add(object);wrapper.scale.setScalar(scale);wrapper.position.set(-center.x*scale,-box.min.y*scale,-center.z*scale);
+  object.traverse(n=>{if(n.isMesh){n.castShadow=true;n.receiveShadow=true;}});
+  const cy=size.y*scale/2;camera.position.set(2.6,cy+1.65,3.7);camera.lookAt(0,cy,0);
+  scene.add(wrapper);renderer.render(scene,camera);
+  const png=renderer.domElement.toDataURL('image/png');image.src=png;image.alt=asset.name;
+  previews.push({id:asset.id,name:asset.name,png});
+  scene.remove(wrapper);
+  object.traverse(n=>{if(!n.isMesh)return;n.geometry.dispose();for(const material of(Array.isArray(n.material)?n.material:[n.material])){for(const value of Object.values(material))if(value?.isTexture&&value!==env)value.dispose();material.dispose();}});
+  renderer.renderLists.dispose();
+ }catch(error){card.classList.add('bad');info.textContent=error.message;errors.push({id:asset.id,error:error.message});}
+ document.querySelector('#status').textContent=`Checked ${i+1}/${assets.length} · ${errors.length} errors`;
+ await new Promise(requestAnimationFrame);
+}
+document.querySelector('#export').disabled=false;
+document.querySelector('#export').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({previews,errors})],{type:'application/json'}));a.download='furnimesh-thumbnails.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);};
+</script></body></html>

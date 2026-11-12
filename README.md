@@ -9,7 +9,7 @@ A 90s-style landscape renderer in the browser, built on three.js: fractal terrai
 - Ray tracing as the main Render action; output quality and size in the toolbar
 - Independent terrain and surface heights: raising water or a floor never reshapes the landscape
 - Landscape presets, floating isles, clouds, night sky with NASA's LRO moon map
-- Free CC0 models from [Poly Haven](https://polyhaven.com), loaded live
+- Model browser with live [Poly Haven](https://polyhaven.com) scans, curated [FurniMesh](https://furnimesh.com/library/) furniture and architecture; filter by source or category. Poly Haven models are CC0; FurniMesh models retain their source license.
 
 ## Run locally
 
@@ -24,5 +24,21 @@ Credits: three.js, three-mesh-bvh, Poly Haven (CC0), NASA LRO moon map via Wikim
 ## Checks
 
 ```bash
-node --test tests/terrain.test.mjs
+npm test
 ```
+
+## Coastal house scene
+
+Open [The Quiet Coast](scenes/the-quiet-coast.tsc) through File → Open for a
+minimal coastal interior with detailed FurniMesh furniture. The original geometric study is
+also saved in `scenes/the-quiet-coast-original.tsc`.
+
+## Adding detailed furniture
+
+`python3 scripts/import_furnimesh.py MODEL_PAGE --id stable-model-name --height 11`
+imports a publicly downloadable FurniMesh model, optimizes its textures and updates
+the searchable catalog. It uses Python 3 and macOS `sips`; no API key is needed.
+The app includes 60 curated pieces with actual-model previews. Run `npm install`
+and `npm run seed:furnimesh` to rebuild the selection in
+`assets/furnimesh/seed.json`. See `assets/furnimesh/README.md` for the review
+workflow, sources and license details.

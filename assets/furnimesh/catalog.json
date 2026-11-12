@@ -1,0 +1,1775 @@
+[
+  {
+    "id": "furnimesh:chrome-armchair",
+    "name": "Tan and chrome armchair",
+    "source": "FurniMesh",
+    "categories": [
+      "Seating"
+    ],
+    "tags": [
+      "tan",
+      "and",
+      "chrome",
+      "armchair"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/seating/armchair/a-contemporary-armchair-featuring-a-polished-tubular-84ynug/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/WctiFLreDoq_QBN6RFEvx.glb",
+    "thumbnail_url": "./assets/furnimesh/chrome-armchair.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/9mLGwhv3MIpZZrxi6AhCN.webp",
+    "url": "./assets/furnimesh/chrome-armchair.glb",
+    "polycount": 79998,
+    "original_polycount": 293061,
+    "displayHeight": 11,
+    "original_bytes": 45593524,
+    "bytes": 7476328,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "7bfdfd1b1b4ffcad32f009ccb531879f91b5cd19ab087ea091afccf302dc450a"
+  },
+  {
+    "id": "furnimesh:plum-lounge-chair",
+    "name": "Plum velvet lounge chair",
+    "source": "FurniMesh",
+    "categories": [
+      "Seating"
+    ],
+    "tags": [
+      "plum",
+      "velvet",
+      "lounge",
+      "chair"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/seating/armchair/a-modern-deepseated-lounge-chair-featuring-plush-50yeou/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/ku_CpvkeT4mLuIttt9M_E.glb",
+    "thumbnail_url": "./assets/furnimesh/plum-lounge-chair.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/Cd_OdHoOI0IfURw241UT-.jpeg",
+    "url": "./assets/furnimesh/plum-lounge-chair.glb",
+    "polycount": 80870,
+    "original_polycount": 299367,
+    "displayHeight": 8.5,
+    "original_bytes": 33342280,
+    "bytes": 6332668,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "5c5fa6f89cef2587ce3d8e58cc95c5c451560f9962bf848c98aab65160901496"
+  },
+  {
+    "id": "furnimesh:slatted-walnut-chair",
+    "name": "Slatted walnut dining chair",
+    "source": "FurniMesh",
+    "categories": [
+      "Seating"
+    ],
+    "tags": [
+      "slatted",
+      "walnut",
+      "dining",
+      "chair"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/seating/chair/a-vintage-midcentury-modern-wooden-side-chair-5oms7f/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/jzzl2-g0-5HNveN45DilU.glb",
+    "thumbnail_url": "./assets/furnimesh/slatted-walnut-chair.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/v2KXl6FvXvkxD6i0EYOZU.webp",
+    "url": "./assets/furnimesh/slatted-walnut-chair.glb",
+    "polycount": 79998,
+    "original_polycount": 293595,
+    "displayHeight": 10,
+    "original_bytes": 39380988,
+    "bytes": 6412232,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "4cba21ab5061d58781a684fd4e7dcd7e5f2e63fd25a51556d1d2c851c610c895"
+  },
+  {
+    "id": "furnimesh:ivory-chaise",
+    "name": "Ivory upholstered chaise",
+    "source": "FurniMesh",
+    "categories": [
+      "Seating"
+    ],
+    "tags": [
+      "ivory",
+      "upholstered",
+      "chaise"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/seating/chaise-lounge/a-contemporary-creamcolored-upholstered-chaise-lounge-featuring-gcrjua/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/nOAsMjsW9jFaZV2bS0Vjw.glb",
+    "thumbnail_url": "./assets/furnimesh/ivory-chaise.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/-vJzQ8IL43iFSSTSVugjK.jpeg",
+    "url": "./assets/furnimesh/ivory-chaise.glb",
+    "polycount": 80000,
+    "original_polycount": 281450,
+    "displayHeight": 8,
+    "original_bytes": 24621884,
+    "bytes": 5241304,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "2c48578ef5534e6241075daa25cdfcfb5a5cdf0740b1dd06148c1e3171250b8d"
+  },
+  {
+    "id": "furnimesh:olive-crescent-chair",
+    "name": "Olive crescent lounge chair",
+    "source": "FurniMesh",
+    "categories": [
+      "Seating"
+    ],
+    "tags": [
+      "olive",
+      "crescent",
+      "lounge",
+      "chair"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/seating/armchair/a-singleperson-upholstered-chair-featuring-a-round-bntyyt/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/qNILLwByISxOWda_Q-oYR.glb",
+    "thumbnail_url": "./assets/furnimesh/olive-crescent-chair.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/dW7-ttUPSet3d_lISwS-Y.jpeg",
+    "url": "./assets/furnimesh/olive-crescent-chair.glb",
+    "polycount": 105002,
+    "original_polycount": 278587,
+    "displayHeight": 8.5,
+    "original_bytes": 17431028,
+    "bytes": 7425952,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "35848d33733e2a87f4738b59e84e407d5b47f5923554b55e867851427fcd59ad"
+  },
+  {
+    "id": "furnimesh:walnut-boucle-chair",
+    "name": "Walnut and boucle armchair",
+    "source": "FurniMesh",
+    "categories": [
+      "Seating"
+    ],
+    "tags": [
+      "walnut",
+      "and",
+      "boucle",
+      "armchair"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/seating/armchair/a-contemporary-lounge-chair-featuring-a-sculpted-x5jbfh/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/cVo2sbkRuCeSUM3ASm6HV.glb",
+    "thumbnail_url": "./assets/furnimesh/walnut-boucle-chair.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/v4MnzwohYIJpfH64lt7KR.jpeg",
+    "url": "./assets/furnimesh/walnut-boucle-chair.glb",
+    "polycount": 83652,
+    "original_polycount": 284511,
+    "displayHeight": 11,
+    "original_bytes": 13680572,
+    "bytes": 5424364,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "c49bdf71e29c4c9af8c78bb2beee32633e20f445ffc068e4f1618eb83a20fd29"
+  },
+  {
+    "id": "furnimesh:folded-olive-chair",
+    "name": "Folded olive lounge chair",
+    "source": "FurniMesh",
+    "categories": [
+      "Seating"
+    ],
+    "tags": [
+      "folded",
+      "olive",
+      "lounge",
+      "chair"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/seating/armchair/a-contemporary-lounge-chair-with-a-unique-beh1mt/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/857roH7lZyUyK5Uh6EVhf.glb",
+    "thumbnail_url": "./assets/furnimesh/folded-olive-chair.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/n9gtJLxKDqgU4aRVvHxZx.jpeg",
+    "url": "./assets/furnimesh/folded-olive-chair.glb",
+    "polycount": 80000,
+    "original_polycount": 285360,
+    "displayHeight": 10,
+    "original_bytes": 11331952,
+    "bytes": 4489212,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "22dac2810a2d6f48c6082bf1517bcedaec9482659e17c97e1c6b19c4237c6796"
+  },
+  {
+    "id": "furnimesh:cream-sectional",
+    "name": "Cream tufted sectional",
+    "source": "FurniMesh",
+    "categories": [
+      "Sofas"
+    ],
+    "tags": [
+      "cream",
+      "tufted",
+      "sectional"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/sofas/sectional/an-lshaped-modern-sectional-sofa-upholstered-in-qh1rj8/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/HZiQ1ONjs7Ek2WxEXKuHS.glb",
+    "thumbnail_url": "./assets/furnimesh/cream-sectional.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/wTijtzepuO_jTDl03SJFl.jpeg",
+    "url": "./assets/furnimesh/cream-sectional.glb",
+    "polycount": 80000,
+    "original_polycount": 297341,
+    "displayHeight": 11,
+    "original_bytes": 15908716,
+    "bytes": 4089284,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "398bbefe951582c0f6da5015a09ad9da79bb6701737b94840fc3f4c9b93c2c31"
+  },
+  {
+    "id": "furnimesh:curved-greige-sofa",
+    "name": "Curved greige sofa",
+    "source": "FurniMesh",
+    "categories": [
+      "Sofas"
+    ],
+    "tags": [
+      "curved",
+      "greige",
+      "sofa"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/sofas/sofa/a-contemporary-curved-twoseater-sofa-featuring-a-ukk68h/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/Npc_vHeCi5T-V-lcEiVRa.glb",
+    "thumbnail_url": "./assets/furnimesh/curved-greige-sofa.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/96u6FoDEufpmpNDsrIpat.png",
+    "url": "./assets/furnimesh/curved-greige-sofa.glb",
+    "polycount": 82766,
+    "original_polycount": 289415,
+    "displayHeight": 10,
+    "original_bytes": 33446680,
+    "bytes": 6735420,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "77313a991d80d953c8d1ac369fc84590e86c923ea834ce288c5644adc1a5d3a8"
+  },
+  {
+    "id": "furnimesh:sage-bubble-sofa",
+    "name": "Sage sculptural sofa",
+    "source": "FurniMesh",
+    "categories": [
+      "Sofas"
+    ],
+    "tags": [
+      "sage",
+      "sculptural",
+      "sofa"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/sofas/sofa/a-contemporary-twoseater-sofa-featuring-a-rounded-x2y09q/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/mVmLSyAym0Yw-l6wIjiUt.glb",
+    "thumbnail_url": "./assets/furnimesh/sage-bubble-sofa.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/sHDEfCBYyr5Apxrh6J6tj.jpeg",
+    "url": "./assets/furnimesh/sage-bubble-sofa.glb",
+    "polycount": 79998,
+    "original_polycount": 281273,
+    "displayHeight": 10,
+    "original_bytes": 12511752,
+    "bytes": 4147196,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "fc59771125558c659ca55a7fd77a1c12c75cf177caa893156ba2e14ac896cd2f"
+  },
+  {
+    "id": "furnimesh:midcentury-green-sofa",
+    "name": "Mid-century green sofa",
+    "source": "FurniMesh",
+    "categories": [
+      "Sofas"
+    ],
+    "tags": [
+      "mid",
+      "century",
+      "green",
+      "sofa"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/sofas/sofa/a-stylish-threeseater-sofa-featuring-a-distinctive-ptxtqn/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/_8j0DIIq3U7w43b-hajlT.glb",
+    "thumbnail_url": "./assets/furnimesh/midcentury-green-sofa.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/X4DVcO60fLfssxCop8__2.jpeg",
+    "url": "./assets/furnimesh/midcentury-green-sofa.glb",
+    "polycount": 79998,
+    "original_polycount": 298135,
+    "displayHeight": 10,
+    "original_bytes": 13466168,
+    "bytes": 3951676,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "00fb1406b62ba95da0471b4549fb9290732a6346d3a1be56932fe2a9dfa81efb"
+  },
+  {
+    "id": "furnimesh:oak-sculptural-console",
+    "name": "Sculptural oak console",
+    "source": "FurniMesh",
+    "categories": [
+      "Tables"
+    ],
+    "tags": [
+      "sculptural",
+      "oak",
+      "console"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/tables/console-table/a-minimalist-and-sculptural-console-table-crafted-22atvc/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/HL7BLZsT98SubmgBSRUQK.glb",
+    "thumbnail_url": "./assets/furnimesh/oak-sculptural-console.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/NWz45Aza8YNYz1aUPb4b-.jpeg",
+    "url": "./assets/furnimesh/oak-sculptural-console.glb",
+    "polycount": 79998,
+    "original_polycount": 281254,
+    "displayHeight": 8.5,
+    "original_bytes": 29621216,
+    "bytes": 6052544,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "436c38db00ab1cb39be130289648787a30885d175706e6f6e564c5a35f58aea5"
+  },
+  {
+    "id": "furnimesh:fluted-stone-side-table",
+    "name": "Fluted stone side table",
+    "source": "FurniMesh",
+    "categories": [
+      "Tables"
+    ],
+    "tags": [
+      "fluted",
+      "stone",
+      "side",
+      "table"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/tables/side-table/a-sculptural-lightcolored-accent-table-featuring-a-9dq1x0/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/hkxIenVUXgRf3FV0vQSDZ.glb",
+    "thumbnail_url": "./assets/furnimesh/fluted-stone-side-table.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/OLoKIclcyY6qyOL_Ndvo0.jpeg",
+    "url": "./assets/furnimesh/fluted-stone-side-table.glb",
+    "polycount": 80000,
+    "original_polycount": 279030,
+    "displayHeight": 6,
+    "original_bytes": 22897352,
+    "bytes": 4699404,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "a72c60e6110b0f99765c8c3e3ce4a85bc962f1ee092e838a28de5b1690e03a40"
+  },
+  {
+    "id": "furnimesh:green-pedestal-dining-table",
+    "name": "Green pedestal dining table",
+    "source": "FurniMesh",
+    "categories": [
+      "Tables"
+    ],
+    "tags": [
+      "green",
+      "pedestal",
+      "dining",
+      "table"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/tables/dining-table/a-modern-round-dining-table-featuring-a-n0zixh/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/VhFfdx6ir_HbSwDbNcxDt.glb",
+    "thumbnail_url": "./assets/furnimesh/green-pedestal-dining-table.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/dKBOMUZOMTOjqGWEFIzZo.jpeg",
+    "url": "./assets/furnimesh/green-pedestal-dining-table.glb",
+    "polycount": 79999,
+    "original_polycount": 279147,
+    "displayHeight": 8,
+    "original_bytes": 11868324,
+    "bytes": 3707468,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "e87f223e5e928d572dc055ca8da54f57a914cc44e6fa31b0dcd8038159e5e966"
+  },
+  {
+    "id": "furnimesh:teak-root-console",
+    "name": "Teak root console",
+    "source": "FurniMesh",
+    "categories": [
+      "Tables"
+    ],
+    "tags": [
+      "teak",
+      "root",
+      "console"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/tables/console-table/a-console-table-crafted-from-natural-teak-bbv9yo/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/IePtlHi8x9-y3tu8IiBVk.glb",
+    "thumbnail_url": "./assets/furnimesh/teak-root-console.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/Voh_PGKWu8PBhMGhd5cTJ.webp",
+    "url": "./assets/furnimesh/teak-root-console.glb",
+    "polycount": 128096,
+    "original_polycount": 298401,
+    "displayHeight": 8.5,
+    "original_bytes": 19208716,
+    "bytes": 8608576,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "bf2d4172be94003c5f52361046e47e439969963f5b0e4500337fda8547f443ad"
+  },
+  {
+    "id": "furnimesh:walnut-brass-coffee-table",
+    "name": "Walnut and brass coffee table",
+    "source": "FurniMesh",
+    "categories": [
+      "Tables"
+    ],
+    "tags": [
+      "walnut",
+      "and",
+      "brass",
+      "coffee",
+      "table"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/tables/coffee-table/a-contemporary-coffee-table-featuring-a-biomorphic-5xl02e/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/JXN5dY6kM62PgDL1UoPx9.glb",
+    "thumbnail_url": "./assets/furnimesh/walnut-brass-coffee-table.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/BDVNdED6YkDJHUOHyHTdn.png",
+    "url": "./assets/furnimesh/walnut-brass-coffee-table.glb",
+    "polycount": 80000,
+    "original_polycount": 290871,
+    "displayHeight": 4.5,
+    "original_bytes": 32976252,
+    "bytes": 5924108,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "9fa4d0910f6e3d5b4ae8a4f3a19356f249594598ea41958b9acfa4af14bcc6cb"
+  },
+  {
+    "id": "furnimesh:travertine-coffee-table",
+    "name": "Rounded travertine coffee table",
+    "source": "FurniMesh",
+    "categories": [
+      "Tables"
+    ],
+    "tags": [
+      "rounded",
+      "travertine",
+      "coffee",
+      "table"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/tables/coffee-table/a-lowprofile-square-coffee-table-with-a-3pall3/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/z2usMV58b8ztySMjeYEVo.glb",
+    "thumbnail_url": "./assets/furnimesh/travertine-coffee-table.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/WfFJUg3pCnp-n5QU4Ma6y.jpeg",
+    "url": "./assets/furnimesh/travertine-coffee-table.glb",
+    "polycount": 79999,
+    "original_polycount": 278134,
+    "displayHeight": 4,
+    "original_bytes": 12417340,
+    "bytes": 3796772,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "bc7cc778f664fc7b8a094aa25e4a86ef13eae937c1f9512c9b3d5d8bb1a4e4e3"
+  },
+  {
+    "id": "furnimesh:bronze-stone-tiered-table",
+    "name": "Bronze and stone tiered table",
+    "source": "FurniMesh",
+    "categories": [
+      "Tables"
+    ],
+    "tags": [
+      "bronze",
+      "and",
+      "stone",
+      "tiered",
+      "table"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/tables/coffee-table/a-multitier-coffee-table-featuring-organic-freeform-e9zo2k/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/X7A-Jp1_dAPtulxE8IIhx.glb",
+    "thumbnail_url": "./assets/furnimesh/bronze-stone-tiered-table.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/d6CRi5Spu4XsrzNdRIPob.jpeg",
+    "url": "./assets/furnimesh/bronze-stone-tiered-table.glb",
+    "polycount": 80000,
+    "original_polycount": 284246,
+    "displayHeight": 5,
+    "original_bytes": 18382740,
+    "bytes": 6441796,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "43676debf79ea3e0fab23aeb484a2fc37ef72a31da83151f9e1d6e16017d5718"
+  },
+  {
+    "id": "furnimesh:mesh-cantilever-lamp",
+    "name": "Black mesh cantilever lamp",
+    "source": "FurniMesh",
+    "categories": [
+      "Lighting"
+    ],
+    "tags": [
+      "black",
+      "mesh",
+      "cantilever",
+      "lamp"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/lighting/floor-lamp/a-modern-cantilever-floor-lamp-featuring-a-zc4fqz/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/eqfelwLrR-e1FBJFdp4R6.glb",
+    "thumbnail_url": "./assets/furnimesh/mesh-cantilever-lamp.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/w8qUaqC9r07DU_RCgPwRg.png",
+    "url": "./assets/furnimesh/mesh-cantilever-lamp.glb",
+    "polycount": 80000,
+    "original_polycount": 286158,
+    "displayHeight": 18,
+    "original_bytes": 41383844,
+    "bytes": 7623640,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "0668829b921242695b0b39d041763ea1bb9b18b951fe2022dd9563a8b3208f53"
+  },
+  {
+    "id": "furnimesh:alabaster-pendant",
+    "name": "Stacked alabaster pendant",
+    "source": "FurniMesh",
+    "categories": [
+      "Lighting"
+    ],
+    "tags": [
+      "stacked",
+      "alabaster",
+      "pendant"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/lighting/pendant-light/a-modern-pendant-light-featuring-a-stacked-3g8uwf/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/cwpo6NwdKgdIFDRXThMtC.glb",
+    "thumbnail_url": "./assets/furnimesh/alabaster-pendant.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/KdCGUj8GaMe5yMcd86_qf.jpeg",
+    "url": "./assets/furnimesh/alabaster-pendant.glb",
+    "polycount": 80000,
+    "original_polycount": 292536,
+    "displayHeight": 7,
+    "original_bytes": 16366332,
+    "bytes": 5998936,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "dfe0a3983bb5841d7d26b601d8ba233938950864932c69c989eca8e4fb66f103"
+  },
+  {
+    "id": "furnimesh:linen-dome-table-lamp",
+    "name": "Linen dome table lamp",
+    "source": "FurniMesh",
+    "categories": [
+      "Lighting"
+    ],
+    "tags": [
+      "linen",
+      "dome",
+      "table",
+      "lamp"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/lighting/table-lamp/a-modern-table-lamp-featuring-a-large-0sqpw8/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/N2LXeapJgs750SP_C1n_W.glb",
+    "thumbnail_url": "./assets/furnimesh/linen-dome-table-lamp.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/gsf8LGM8yU3zKvdMAzI8B.jpeg",
+    "url": "./assets/furnimesh/linen-dome-table-lamp.glb",
+    "polycount": 266154,
+    "original_polycount": 286930,
+    "displayHeight": 7,
+    "original_bytes": 18110344,
+    "bytes": 14782044,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "d57c0abde04f5d86abe50e04a80d1306bdfc531ca0b3f6c94f21a6aedd0b2c5f"
+  },
+  {
+    "id": "furnimesh:stained-glass-table-lamp",
+    "name": "Stained-glass table lamp",
+    "source": "FurniMesh",
+    "categories": [
+      "Lighting"
+    ],
+    "tags": [
+      "stained",
+      "glass",
+      "table",
+      "lamp"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/lighting/table-lamp/a-tiffanystyle-table-lamp-featuring-a-domeshaped-pr88kt/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/hr3uavo607Vc2OvkAjD_P.glb",
+    "thumbnail_url": "./assets/furnimesh/stained-glass-table-lamp.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/6mAHyx5mFlKLSriR98hy8.jpeg",
+    "url": "./assets/furnimesh/stained-glass-table-lamp.glb",
+    "polycount": 80000,
+    "original_polycount": 299747,
+    "displayHeight": 8,
+    "original_bytes": 25117536,
+    "bytes": 7475432,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "22fd126d182d8cf215b6047289d5474c0492a3f1d2176a774bef96cc19fa500f"
+  },
+  {
+    "id": "furnimesh:organic-bronze-floor-lamp",
+    "name": "Organic bronze floor lamp",
+    "source": "FurniMesh",
+    "categories": [
+      "Lighting"
+    ],
+    "tags": [
+      "organic",
+      "bronze",
+      "floor",
+      "lamp"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/lighting/floor-lamp/a-tall-sculptural-floor-lamp-with-an-adinuh/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/74H09FZrrjoVwgW7W_bVn.glb",
+    "thumbnail_url": "./assets/furnimesh/organic-bronze-floor-lamp.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/QJsXmqKu7jy5m-wYmH1Si.png",
+    "url": "./assets/furnimesh/organic-bronze-floor-lamp.glb",
+    "polycount": 79998,
+    "original_polycount": 293616,
+    "displayHeight": 18,
+    "original_bytes": 12912908,
+    "bytes": 4868636,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "515664ca03c41c5fdb4a5c27d2f95daee5488881859c40efc4706256a0251017"
+  },
+  {
+    "id": "furnimesh:weathered-handled-pot",
+    "name": "Weathered two-handled pot",
+    "source": "FurniMesh",
+    "categories": [
+      "Decor"
+    ],
+    "tags": [
+      "weathered",
+      "two",
+      "handled",
+      "pot"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/decor/vase/a-dark-gray-twohandled-ceramic-pot-with-1sfcn7/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/wE70nCoY9HWETVSWlN364.glb",
+    "thumbnail_url": "./assets/furnimesh/weathered-handled-pot.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/-Gy4BYpoE6pDbf5Kk1GV0.png",
+    "url": "./assets/furnimesh/weathered-handled-pot.glb",
+    "polycount": 80000,
+    "original_polycount": 294830,
+    "displayHeight": 5,
+    "original_bytes": 20946136,
+    "bytes": 5065712,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "e37a6468a2a328e96fa0c8d4b09b888220b55ecef2a7ccdc1a9972ab23e7805c"
+  },
+  {
+    "id": "furnimesh:organic-ceramic-vase",
+    "name": "Organic ceramic vase",
+    "source": "FurniMesh",
+    "categories": [
+      "Decor"
+    ],
+    "tags": [
+      "organic",
+      "ceramic",
+      "vase"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/decor/vase/a-lightcolored-matte-ceramic-vase-with-an-ezshna/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/x_VmXb8_nN6VaYpKn2t5r.glb",
+    "thumbnail_url": "./assets/furnimesh/organic-ceramic-vase.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/uSvDwFJ92el-7O34uRxNf.png",
+    "url": "./assets/furnimesh/organic-ceramic-vase.glb",
+    "polycount": 80000,
+    "original_polycount": 285971,
+    "displayHeight": 5.5,
+    "original_bytes": 13807468,
+    "bytes": 3807268,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "0101d40c607b4929d3cdfd619ab0342741f79526875135b911256191ccf052c0"
+  },
+  {
+    "id": "furnimesh:sculptural-wall-mirror",
+    "name": "Sculptural wall mirror",
+    "source": "FurniMesh",
+    "categories": [
+      "Decor"
+    ],
+    "tags": [
+      "sculptural",
+      "wall",
+      "mirror"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/decor/mirror/a-wallmounted-mirror-featuring-an-irregularly-shaped-dsodcc/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/SpmeoSKxGmn6RzLtXXCbf.glb",
+    "thumbnail_url": "./assets/furnimesh/sculptural-wall-mirror.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/GL_uiW25M0kB-ntMA_QwN.jpeg",
+    "url": "./assets/furnimesh/sculptural-wall-mirror.glb",
+    "polycount": 79998,
+    "original_polycount": 283296,
+    "displayHeight": 13,
+    "original_bytes": 19383792,
+    "bytes": 6461272,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "832fa5cb93ca92875ce844cadbc034cebc6295093422ba759f796835ec9010ed"
+  },
+  {
+    "id": "furnimesh:lotus-relief",
+    "name": "Carved lotus relief",
+    "source": "FurniMesh",
+    "categories": [
+      "Decor"
+    ],
+    "tags": [
+      "carved",
+      "lotus",
+      "relief"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/decor/sculpture/a-circular-basrelief-decorative-object-featuring-a-lpdci6/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/TKYBR9HLUtNoDCwYBFGOW.glb",
+    "thumbnail_url": "./assets/furnimesh/lotus-relief.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/EU526izmZiU1ziT3XzQna.jpeg",
+    "url": "./assets/furnimesh/lotus-relief.glb",
+    "polycount": 80000,
+    "original_polycount": 287446,
+    "displayHeight": 9,
+    "original_bytes": 10708756,
+    "bytes": 3928412,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "b0db23513348afeb41e086166bb68fa2aeec6752516e3bd3e3795eda9daca879"
+  },
+  {
+    "id": "furnimesh:rounded-wood-credenza",
+    "name": "Rounded wood credenza",
+    "source": "FurniMesh",
+    "categories": [
+      "Storage"
+    ],
+    "tags": [
+      "rounded",
+      "wood",
+      "credenza"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/storage/sideboard/a-long-low-rectangular-wooden-credenza-or-81jggx/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/Uszhr7wrQ5ZmYVhaJKfQj.glb",
+    "thumbnail_url": "./assets/furnimesh/rounded-wood-credenza.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/Rh4NOfHk8iGHS-qMnuIBd.png",
+    "url": "./assets/furnimesh/rounded-wood-credenza.glb",
+    "polycount": 79998,
+    "original_polycount": 296064,
+    "displayHeight": 8,
+    "original_bytes": 20325252,
+    "bytes": 6412408,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "e64c8e090699ee81f7573947aaac30d78cc3ef2f2060faa32b1f6ab174156252"
+  },
+  {
+    "id": "furnimesh:rounded-wood-bookcase",
+    "name": "Rounded wood bookcase",
+    "source": "FurniMesh",
+    "categories": [
+      "Storage"
+    ],
+    "tags": [
+      "rounded",
+      "wood",
+      "bookcase"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/storage/bookshelf/a-freestanding-bookshelf-crafted-from-solid-wood-naotht/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/v5rL67DdG_Po5yoRCO9Fc.glb",
+    "thumbnail_url": "./assets/furnimesh/rounded-wood-bookcase.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/9vUuB5dNRs08scAqfxMEY.jpeg",
+    "url": "./assets/furnimesh/rounded-wood-bookcase.glb",
+    "polycount": 79998,
+    "original_polycount": 290967,
+    "displayHeight": 24,
+    "original_bytes": 11781968,
+    "bytes": 3752984,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "730e12a4dc8049de5ce869f7fc5c659faf74379c8afc52503758c7f1bf270259"
+  },
+  {
+    "id": "furnimesh:arched-marble-shelves",
+    "name": "Arched marble display niches",
+    "source": "FurniMesh",
+    "categories": [
+      "Storage"
+    ],
+    "tags": [
+      "arched",
+      "marble",
+      "display",
+      "niches"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/storage/shelving/a-contemporary-display-unit-featuring-three-arched-t32nvj/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/Asv0sOqpgeoQC-392E1xl.glb",
+    "thumbnail_url": "./assets/furnimesh/arched-marble-shelves.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/DJi3sreDULYaDVz6PtH5l.png",
+    "url": "./assets/furnimesh/arched-marble-shelves.glb",
+    "polycount": 79998,
+    "original_polycount": 286757,
+    "displayHeight": 22,
+    "original_bytes": 14878244,
+    "bytes": 5244688,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "689b0be1025b0ebf512ff05c76b19b7fa85d9656be6a8882a32de1529a172b1d"
+  },
+  {
+    "id": "furnimesh:wraparound-linen-bed",
+    "name": "Wraparound linen bed",
+    "source": "FurniMesh",
+    "categories": [
+      "Beds"
+    ],
+    "tags": [
+      "wraparound",
+      "linen",
+      "bed"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/beds/bed/a-modern-upholstered-bed-featuring-a-distinctive-szs2yw/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/aLee0knQiEVCwdI7dtFZ7.glb",
+    "thumbnail_url": "./assets/furnimesh/wraparound-linen-bed.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/Yd-jusuFal-KY9qlWEwSu.png",
+    "url": "./assets/furnimesh/wraparound-linen-bed.glb",
+    "polycount": 79998,
+    "original_polycount": 296506,
+    "displayHeight": 13,
+    "original_bytes": 15284752,
+    "bytes": 5272356,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "eae1503ab9f7279a1996f5ae3e381d36eb54115a9e238aa360e7d16adc29f8f7"
+  },
+  {
+    "id": "furnimesh:dark-leather-platform-bed",
+    "name": "Dark leather platform bed",
+    "source": "FurniMesh",
+    "categories": [
+      "Beds"
+    ],
+    "tags": [
+      "dark",
+      "leather",
+      "platform",
+      "bed"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/beds/bed/a-modern-dark-brown-leather-platform-bed-av2dzs/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/NAbRAULkf4SEHPvlBV6No.glb",
+    "thumbnail_url": "./assets/furnimesh/dark-leather-platform-bed.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/fXVoB2u9QfbuBpep_e0FF.jpeg",
+    "url": "./assets/furnimesh/dark-leather-platform-bed.glb",
+    "polycount": 80000,
+    "original_polycount": 289282,
+    "displayHeight": 10,
+    "original_bytes": 15982224,
+    "bytes": 4751464,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "3f63dc92ffe1eaf9d9407f0da12da8c1df6c7b720ce2ab5664ec9c4133607d60"
+  },
+  {
+    "id": "furnimesh:striped-upholstered-daybed",
+    "name": "Striped upholstered bed",
+    "source": "FurniMesh",
+    "categories": [
+      "Beds"
+    ],
+    "tags": [
+      "striped",
+      "upholstered",
+      "daybed"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/beds/bed/a-contemporary-upholstered-platform-bed-featuring-a-oovf5w/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/SuOH-WSonk3ufSvrPgZrI.glb",
+    "thumbnail_url": "./assets/furnimesh/striped-upholstered-daybed.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/NdRzZhIgcAFes7m6gbbhi.png",
+    "url": "./assets/furnimesh/striped-upholstered-daybed.glb",
+    "polycount": 79998,
+    "original_polycount": 296779,
+    "displayHeight": 10,
+    "original_bytes": 15200284,
+    "bytes": 5294636,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "f693b298e6874279264705ea539cbad0c976bd709415989a4f2d96242d3ac4bd"
+  },
+  {
+    "id": "furnimesh:cane-oak-bed-frame",
+    "name": "Cane and oak bed frame",
+    "source": "FurniMesh",
+    "categories": [
+      "Beds"
+    ],
+    "tags": [
+      "cane",
+      "and",
+      "oak",
+      "bed",
+      "frame"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/beds/bed/a-modern-platform-bed-frame-crafted-from-hdk3qd/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/UgEGMo08PYOCYtiXtqzFM.glb",
+    "thumbnail_url": "./assets/furnimesh/cane-oak-bed-frame.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/pxSgbikCeNNK-fDMq34n1.png",
+    "url": "./assets/furnimesh/cane-oak-bed-frame.glb",
+    "polycount": 80000,
+    "original_polycount": 289589,
+    "displayHeight": 11,
+    "original_bytes": 15507956,
+    "bytes": 5374500,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "158d6dc2e035fc0d755d8303d36194c638d07445b8282a6ad90e18adf043939c"
+  },
+  {
+    "id": "furnimesh:carved-canopy-bed",
+    "name": "Carved wood canopy bed",
+    "source": "FurniMesh",
+    "categories": [
+      "Beds"
+    ],
+    "tags": [
+      "carved",
+      "wood",
+      "canopy",
+      "bed"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/beds/bed/a-traditional-wooden-canopy-bed-featuring-an-lo5stk/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/YNNxHPWW93k0nY_9SoOas.glb",
+    "thumbnail_url": "./assets/furnimesh/carved-canopy-bed.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/OJrIHu-LQc0ppr_YxMsjW.jpeg",
+    "url": "./assets/furnimesh/carved-canopy-bed.glb",
+    "polycount": 80000,
+    "original_polycount": 280218,
+    "displayHeight": 24,
+    "original_bytes": 13896460,
+    "bytes": 4804452,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "18de51884b7989d02074e07851ecc7bcd2c992a6dad06b8c7b4121fe6b70fe6b"
+  },
+  {
+    "id": "furnimesh:floral-folding-screen",
+    "name": "Floral folding screen",
+    "source": "FurniMesh",
+    "categories": [
+      "Architecture"
+    ],
+    "tags": [
+      "floral",
+      "folding",
+      "screen"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/architecture/screen/a-twopanel-decorative-screen-featuring-an-arched-sw9l7u/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/ay87H4d8qx6QeBjNElcrH.glb",
+    "thumbnail_url": "./assets/furnimesh/floral-folding-screen.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/FiBn9l3DZkxA1QSN8BsLT.png",
+    "url": "./assets/furnimesh/floral-folding-screen.glb",
+    "polycount": 80000,
+    "original_polycount": 287132,
+    "displayHeight": 19,
+    "original_bytes": 17629196,
+    "bytes": 4595964,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "9da51745265678e8e55de30082ea4ac65ad3c5aa0f386866d5954be68d9b3e7e"
+  },
+  {
+    "id": "furnimesh:suspended-black-fireplace",
+    "name": "Suspended black fireplace",
+    "source": "FurniMesh",
+    "categories": [
+      "Architecture"
+    ],
+    "tags": [
+      "suspended",
+      "black",
+      "fireplace"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/architecture/fireplace/a-modern-suspended-freestanding-fireplace-with-a-toga3q/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/A_CyT9nDSPKO76SUhXhf1.glb",
+    "thumbnail_url": "./assets/furnimesh/suspended-black-fireplace.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/JSZME9aAQP8JFy7pkivHZ.png",
+    "url": "./assets/furnimesh/suspended-black-fireplace.glb",
+    "polycount": 101258,
+    "original_polycount": 296971,
+    "displayHeight": 25,
+    "original_bytes": 21099224,
+    "bytes": 8226896,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "653604a891502475137dc66ec453f07aad28ccbdee04c8ae4cc74da3af592d91"
+  },
+  {
+    "id": "furnimesh:geometric-metal-screen",
+    "name": "Geometric metal screen",
+    "source": "FurniMesh",
+    "categories": [
+      "Architecture"
+    ],
+    "tags": [
+      "geometric",
+      "metal",
+      "screen"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/architecture/screen/a-tall-narrow-rectangular-metal-screen-panel-6icwgv/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/CA5gljK2_3_iIk2lJzJED.glb",
+    "thumbnail_url": "./assets/furnimesh/geometric-metal-screen.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/5v_QOdIwIvafJG9MGH1wg.jpeg",
+    "url": "./assets/furnimesh/geometric-metal-screen.glb",
+    "polycount": 79998,
+    "original_polycount": 288556,
+    "displayHeight": 24,
+    "original_bytes": 19387976,
+    "bytes": 6184660,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "85a011ca8601b53bbebd400e95776553772ae5be33db8a59cdbe936b3cdeebb2"
+  },
+  {
+    "id": "furnimesh:timber-garden-pavilion",
+    "name": "Timber garden pavilion",
+    "source": "FurniMesh",
+    "categories": [
+      "Architecture"
+    ],
+    "tags": [
+      "timber",
+      "garden",
+      "pavilion"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/architecture/gazebo/an-outdoor-pavilion-rendered-in-an-isometric-ub1e6p/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/APXcP53rdqF11fwqTh954.glb",
+    "thumbnail_url": "./assets/furnimesh/timber-garden-pavilion.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/2zP0tRKJluo2-CpY0S4f_.jpeg",
+    "url": "./assets/furnimesh/timber-garden-pavilion.glb",
+    "polycount": 161058,
+    "original_polycount": 292388,
+    "displayHeight": 32,
+    "original_bytes": 21072652,
+    "bytes": 9997836,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "a3c9e20adf4ca40c22e3286b0ac68afdbb0d7ae4256e5eb01db18746d6707611"
+  },
+  {
+    "id": "furnimesh:black-marble-mantel",
+    "name": "Black marble mantel",
+    "source": "FurniMesh",
+    "categories": [
+      "Architecture"
+    ],
+    "tags": [
+      "black",
+      "marble",
+      "mantel"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/architecture/fireplace/a-striking-fireplace-mantel-crafted-from-black-rwxpz2/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/vq4nahfGGK8S5S0cjxM4_.glb",
+    "thumbnail_url": "./assets/furnimesh/black-marble-mantel.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/KlvGeqkH-rnoM7OPDnkan.png",
+    "url": "./assets/furnimesh/black-marble-mantel.glb",
+    "polycount": 79998,
+    "original_polycount": 294911,
+    "displayHeight": 13,
+    "original_bytes": 16914148,
+    "bytes": 6065100,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "008ad78d6cd73fe570ce441fd0bed873c6fe5113e4badf34359a46f3a2960887"
+  },
+  {
+    "id": "furnimesh:arched-timber-door",
+    "name": "Arched timber door",
+    "source": "FurniMesh",
+    "categories": [
+      "Architecture"
+    ],
+    "tags": [
+      "arched",
+      "timber",
+      "door"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/architecture/door/an-arched-wooden-door-with-a-black-hl3j7q/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/LLpV5EB0VDR0h0_7SAyUy.glb",
+    "thumbnail_url": "./assets/furnimesh/arched-timber-door.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/3c2srDdEDeb9VN3o9TNXr.jpeg",
+    "url": "./assets/furnimesh/arched-timber-door.glb",
+    "polycount": 80000,
+    "original_polycount": 297919,
+    "displayHeight": 25,
+    "original_bytes": 16823816,
+    "bytes": 5683504,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "fbe80b4e08eb0840045121e25973fd2b737186b4b6e31fb97e9d4446f009d5eb"
+  },
+  {
+    "id": "furnimesh:oak-two-drawer-desk",
+    "name": "Oak two-drawer desk",
+    "source": "FurniMesh",
+    "categories": [
+      "Desks"
+    ],
+    "tags": [
+      "oak",
+      "two",
+      "drawer",
+      "desk"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/tables/desk/a-contemporary-desk-crafted-from-light-oak-ynjo42/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/oqOSUwKDgE_OG6BWR41Y_.glb",
+    "thumbnail_url": "./assets/furnimesh/oak-two-drawer-desk.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/gbd2sglXm2lXDsoE3p9uH.jpeg",
+    "url": "./assets/furnimesh/oak-two-drawer-desk.glb",
+    "polycount": 79998,
+    "original_polycount": 291038,
+    "displayHeight": 8,
+    "original_bytes": 10966976,
+    "bytes": 3337212,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "45f3a051f0ec7083c37f3d6faf9e9174fcb96ac2f8799895db6590b755c641f2"
+  },
+  {
+    "id": "furnimesh:mahogany-writing-desk",
+    "name": "Mahogany writing desk",
+    "source": "FurniMesh",
+    "categories": [
+      "Desks"
+    ],
+    "tags": [
+      "mahogany",
+      "writing",
+      "desk"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/tables/desk/an-elegant-antiquestyle-writing-desk-likely-crafted-76flq6/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/Hb6HO9GSsw0yLhEfjbd-S.glb",
+    "thumbnail_url": "./assets/furnimesh/mahogany-writing-desk.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/dwpADH4NkU3bch-EQqR7k.png",
+    "url": "./assets/furnimesh/mahogany-writing-desk.glb",
+    "polycount": 80000,
+    "original_polycount": 284324,
+    "displayHeight": 10,
+    "original_bytes": 16587340,
+    "bytes": 5674756,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "1ddff8e26a65135019e2a2ee6ef1b1ef262f9a994d66e4fecda48901312067be"
+  },
+  {
+    "id": "furnimesh:dark-wood-writing-desk",
+    "name": "Dark wood writing desk",
+    "source": "FurniMesh",
+    "categories": [
+      "Desks"
+    ],
+    "tags": [
+      "dark",
+      "wood",
+      "writing",
+      "desk"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/tables/desk/a-sleek-contemporary-desk-featuring-a-darkstained-rwgq2q/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/bxdlLcHrckrTlf2wi_-Yt.glb",
+    "thumbnail_url": "./assets/furnimesh/dark-wood-writing-desk.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/saxVjcyOcBL924dMmHV2o.jpeg",
+    "url": "./assets/furnimesh/dark-wood-writing-desk.glb",
+    "polycount": 79998,
+    "original_polycount": 294705,
+    "displayHeight": 8,
+    "original_bytes": 15373800,
+    "bytes": 4662516,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "a4fe5de279e86dd7f614b3048416849cea08d5d19d9d518ee81529e307023cbe"
+  },
+  {
+    "id": "furnimesh:oval-reeded-oak-desk",
+    "name": "Oval reeded oak desk",
+    "source": "FurniMesh",
+    "categories": [
+      "Desks"
+    ],
+    "tags": [
+      "oval",
+      "reeded",
+      "oak",
+      "desk"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/tables/desk/an-ovalshaped-desk-constructed-from-lightcolored-oak-cf8xdm/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/VFT2b6-phUVV_kknQwBxz.glb",
+    "thumbnail_url": "./assets/furnimesh/oval-reeded-oak-desk.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/k-t_NchtDctLhSw9rKRpn.png",
+    "url": "./assets/furnimesh/oval-reeded-oak-desk.glb",
+    "polycount": 79999,
+    "original_polycount": 288537,
+    "displayHeight": 8,
+    "original_bytes": 12774136,
+    "bytes": 5070000,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "9328bb6f45e8bb664d2911ea0b4828ecf25101a533c0f76098c53e5f330c0082"
+  },
+  {
+    "id": "furnimesh:arched-wood-wardrobe",
+    "name": "Arched wood wardrobe",
+    "source": "FurniMesh",
+    "categories": [
+      "Storage"
+    ],
+    "tags": [
+      "arched",
+      "wood",
+      "wardrobe"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/storage/wardrobe/a-tall-rectangular-wardrobe-or-storage-cabinet-cwme8m/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/3o9biKWKBccguhhrsa3qB.glb",
+    "thumbnail_url": "./assets/furnimesh/arched-wood-wardrobe.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/xsOWq-LLO7Hmge8NUtWfb.png",
+    "url": "./assets/furnimesh/arched-wood-wardrobe.glb",
+    "polycount": 79999,
+    "original_polycount": 293113,
+    "displayHeight": 24,
+    "original_bytes": 15468496,
+    "bytes": 4220388,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "732f123da8e0757399d2cdad188633843d9de571bf2400c06e399569e821de0b"
+  },
+  {
+    "id": "furnimesh:sage-display-cabinet",
+    "name": "Sage display cabinet",
+    "source": "FurniMesh",
+    "categories": [
+      "Storage"
+    ],
+    "tags": [
+      "sage",
+      "display",
+      "cabinet"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/storage/cabinet/a-tall-rectangular-display-cabinet-in-a-o5x1g4/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/Q4nnaDUhRdU3uygKQbqmc.glb",
+    "thumbnail_url": "./assets/furnimesh/sage-display-cabinet.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/NshET-RYF10tzgUFbfuUZ.avif",
+    "url": "./assets/furnimesh/sage-display-cabinet.glb",
+    "polycount": 80000,
+    "original_polycount": 284643,
+    "displayHeight": 21,
+    "original_bytes": 10824700,
+    "bytes": 3418932,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "65feebbb4bab19a95c49ed78651b00da9a423012db09ba22b554c24faebbb72a"
+  },
+  {
+    "id": "furnimesh:oxblood-reeded-credenza",
+    "name": "Oxblood reeded credenza",
+    "source": "FurniMesh",
+    "categories": [
+      "Storage"
+    ],
+    "tags": [
+      "oxblood",
+      "reeded",
+      "credenza"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/storage/sideboard/a-contemporary-credenza-featuring-a-deep-red-91qr6c/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/qregL2tcJZ56EszpxTd27.glb",
+    "thumbnail_url": "./assets/furnimesh/oxblood-reeded-credenza.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/_H982xTjZIldyfrMe47X4.png",
+    "url": "./assets/furnimesh/oxblood-reeded-credenza.glb",
+    "polycount": 81100,
+    "original_polycount": 290656,
+    "displayHeight": 9,
+    "original_bytes": 15515224,
+    "bytes": 5817928,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "205c1a45f6db835c32ba8d2b916e1fcba257dda2cb77152d476a8caa93da0510"
+  },
+  {
+    "id": "furnimesh:sculpted-walnut-side-chair",
+    "name": "Sculpted walnut side chair",
+    "source": "FurniMesh",
+    "categories": [
+      "Seating"
+    ],
+    "tags": [
+      "sculpted",
+      "walnut",
+      "side",
+      "chair"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/seating/chair/an-elegant-modern-side-chair-crafted-from-3mo4nd/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/lvgRqxZ2c4AP5b07C0SIP.glb",
+    "thumbnail_url": "./assets/furnimesh/sculpted-walnut-side-chair.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/xjvblvVJ53ewCHzXdANqL.jpeg",
+    "url": "./assets/furnimesh/sculpted-walnut-side-chair.glb",
+    "polycount": 79998,
+    "original_polycount": 294876,
+    "displayHeight": 9,
+    "original_bytes": 13532888,
+    "bytes": 4642648,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "1f909ad40d11ea95157c4a995c45a2cfd7901b9eba8d1218377493f35616501a"
+  },
+  {
+    "id": "furnimesh:curved-back-bar-stool",
+    "name": "Curved-back bar stool",
+    "source": "FurniMesh",
+    "categories": [
+      "Seating"
+    ],
+    "tags": [
+      "curved",
+      "back",
+      "bar",
+      "stool"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/seating/bar-stool/a-modern-bar-stool-featuring-a-circular-nx1woz/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/N60vjsscnHin5T1m4iXro.glb",
+    "thumbnail_url": "./assets/furnimesh/curved-back-bar-stool.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/VvDyFG3d_zCICu6919Tj4.jpeg",
+    "url": "./assets/furnimesh/curved-back-bar-stool.glb",
+    "polycount": 79998,
+    "original_polycount": 287727,
+    "displayHeight": 11,
+    "original_bytes": 15367908,
+    "bytes": 5502784,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "e6938812c5fd169a05bfc3b8b3e0ae776b60c06cc16fa00efd8a6aa6ec9bd72e"
+  },
+  {
+    "id": "furnimesh:oval-marble-dining-table",
+    "name": "Oval marble dining table",
+    "source": "FurniMesh",
+    "categories": [
+      "Tables"
+    ],
+    "tags": [
+      "oval",
+      "marble",
+      "dining",
+      "table"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/tables/dining-table/an-elegant-modern-dining-table-featuring-an-6isojb/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/wKeQ5UTnQDdlTiDSQCGPF.glb",
+    "thumbnail_url": "./assets/furnimesh/oval-marble-dining-table.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/LN7JZU5Th4uvIsnydDMR4.png",
+    "url": "./assets/furnimesh/oval-marble-dining-table.glb",
+    "polycount": 80000,
+    "original_polycount": 277147,
+    "displayHeight": 8,
+    "original_bytes": 14748044,
+    "bytes": 5348824,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "b3dd918962d158abd9fc865880395682750560aa12a1dddf0ed45b216eff8b65"
+  },
+  {
+    "id": "furnimesh:green-marble-bar",
+    "name": "Green marble bar",
+    "source": "FurniMesh",
+    "categories": [
+      "Kitchen"
+    ],
+    "tags": [
+      "green",
+      "marble",
+      "bar"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/kitchen/bar/an-elegant-elongated-bar-counter-featuring-a-xz5dat/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/4pt9JWO9q6mKkHARbX2ij.glb",
+    "thumbnail_url": "./assets/furnimesh/green-marble-bar.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/QNUBUuUUvyxSmzPOAweDB.png",
+    "url": "./assets/furnimesh/green-marble-bar.glb",
+    "polycount": 80000,
+    "original_polycount": 282081,
+    "displayHeight": 12,
+    "original_bytes": 22457712,
+    "bytes": 6674780,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "90481d2bc0fc0eef8ebf7b69253a37a637b80557249ff0caf4008a19af33eaa4"
+  },
+  {
+    "id": "furnimesh:postmodern-marble-bar",
+    "name": "Postmodern marble bar cabinet",
+    "source": "FurniMesh",
+    "categories": [
+      "Kitchen"
+    ],
+    "tags": [
+      "postmodern",
+      "marble",
+      "bar",
+      "cabinet"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/kitchen/bar/a-distinctive-postmodern-bar-cabinet-featuring-a-sw1k7p/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/i_NveWbPSAypnuXC5_x8_.glb",
+    "thumbnail_url": "./assets/furnimesh/postmodern-marble-bar.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/VhVe0ItOZAShddIXMbxBS.jpeg",
+    "url": "./assets/furnimesh/postmodern-marble-bar.glb",
+    "polycount": 80000,
+    "original_polycount": 279595,
+    "displayHeight": 12,
+    "original_bytes": 16994424,
+    "bytes": 5826928,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "9fd306fb3afd5817ea1244924e1619860af7a467ee953d15c6defd6569b850cd"
+  },
+  {
+    "id": "furnimesh:curved-walnut-island",
+    "name": "Curved walnut kitchen island",
+    "source": "FurniMesh",
+    "categories": [
+      "Kitchen"
+    ],
+    "tags": [
+      "curved",
+      "walnut",
+      "kitchen",
+      "island"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/kitchen/kitchen-island/a-modern-curved-kitchen-island-featuring-a-ytxtk0/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/gTNIJvJ_UT3T16LFce8P0.glb",
+    "thumbnail_url": "./assets/furnimesh/curved-walnut-island.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/oNkENmpay6UtUYkOH55VS.jpeg",
+    "url": "./assets/furnimesh/curved-walnut-island.glb",
+    "polycount": 80000,
+    "original_polycount": 295546,
+    "displayHeight": 10,
+    "original_bytes": 17019032,
+    "bytes": 5773264,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "282d417d77bf41a306f012ba324bc3961c48d666ef14236b736897d043523989"
+  },
+  {
+    "id": "furnimesh:oval-freestanding-bath",
+    "name": "Oval freestanding bath",
+    "source": "FurniMesh",
+    "categories": [
+      "Bathroom"
+    ],
+    "tags": [
+      "oval",
+      "freestanding",
+      "bath"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/bathroom/bathtub/a-white-ovalshaped-freestanding-bathtub-with-a-g2kiar/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/XoYpRzXreObfMkH9AwHur.glb",
+    "thumbnail_url": "./assets/furnimesh/oval-freestanding-bath.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/hTgDHyDqJ6T83CqytG4Rx.jpeg",
+    "url": "./assets/furnimesh/oval-freestanding-bath.glb",
+    "polycount": 79998,
+    "original_polycount": 298033,
+    "displayHeight": 6,
+    "original_bytes": 9936116,
+    "bytes": 2898892,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "5049745c594a3245b074c2e7ca997cfb43a8ffdcffe49e74808e17aaea8078e0"
+  },
+  {
+    "id": "furnimesh:root-wood-vanity",
+    "name": "Root wood vanity",
+    "source": "FurniMesh",
+    "categories": [
+      "Bathroom"
+    ],
+    "tags": [
+      "root",
+      "wood",
+      "vanity"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/bathroom/vanity/a-sculptural-vanity-featuring-a-liveedge-wooden-7nybru/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/3-RCrQsfCWHVvDW7Ld1-9.glb",
+    "thumbnail_url": "./assets/furnimesh/root-wood-vanity.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/60p0-BZJpB2qazbUV0QX3.jpeg",
+    "url": "./assets/furnimesh/root-wood-vanity.glb",
+    "polycount": 79970,
+    "original_polycount": 287710,
+    "displayHeight": 20,
+    "original_bytes": 20555880,
+    "bytes": 6759100,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "dfa121b60c613ce4bf42fdc8d366a2db076f50ac7a6ba47af6aff02096d4e8a6"
+  },
+  {
+    "id": "furnimesh:rough-stone-basin",
+    "name": "Sculpted stone vanity",
+    "source": "FurniMesh",
+    "categories": [
+      "Bathroom"
+    ],
+    "tags": [
+      "rough",
+      "stone",
+      "basin"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/bathroom/vanity/a-unique-bathroom-vanity-featuring-a-roughhewn-1ercbh/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/CGNDRVu8FDDNRdnY5BCXh.glb",
+    "thumbnail_url": "./assets/furnimesh/rough-stone-basin.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/p_HARLozz3DR2VQ1qSGP4.png",
+    "url": "./assets/furnimesh/rough-stone-basin.glb",
+    "polycount": 87096,
+    "original_polycount": 287879,
+    "displayHeight": 18,
+    "original_bytes": 22442056,
+    "bytes": 7491128,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "64c537ccfc236bd6ccf4765aab991ba6d4ecc5394e121a5f99263251825d8087"
+  },
+  {
+    "id": "furnimesh:live-edge-timber-bench",
+    "name": "Live-edge timber bench",
+    "source": "FurniMesh",
+    "categories": [
+      "Seating"
+    ],
+    "tags": [
+      "live",
+      "edge",
+      "timber",
+      "bench"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/seating/bench/a-rustic-yet-modern-bench-crafted-from-1f03sf/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/V54PXsvkwqw3CmbPqJX76.glb",
+    "thumbnail_url": "./assets/furnimesh/live-edge-timber-bench.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/alvJMTumFkaLnkwsTrEl9.jpeg",
+    "url": "./assets/furnimesh/live-edge-timber-bench.glb",
+    "polycount": 80000,
+    "original_polycount": 291764,
+    "displayHeight": 5,
+    "original_bytes": 13717024,
+    "bytes": 4232584,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "54e95d74ea03b42e20fc682669d3a51a86ed2ef07a2f12ca5a6f173acef943fe"
+  },
+  {
+    "id": "furnimesh:lotus-buddha-sculpture",
+    "name": "Lotus Buddha sculpture",
+    "source": "FurniMesh",
+    "categories": [
+      "Decor"
+    ],
+    "tags": [
+      "lotus",
+      "buddha",
+      "sculpture"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/decor/sculpture/a-bronzefinished-resin-statue-depicting-a-seated-gbzxzm/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/MSFfz1DsyXDIYJGCI01u5.glb",
+    "thumbnail_url": "./assets/furnimesh/lotus-buddha-sculpture.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/zh3BHBHEP9xEtqf0JNUbD.png",
+    "url": "./assets/furnimesh/lotus-buddha-sculpture.glb",
+    "polycount": 79978,
+    "original_polycount": 295819,
+    "displayHeight": 8,
+    "original_bytes": 19072560,
+    "bytes": 6227232,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "10e5f34ab61077bd8debfcdf69e8689de54f168ec1d31d5b019d1d4dbea380e4"
+  },
+  {
+    "id": "furnimesh:tiered-terracotta-planter",
+    "name": "Tiered terracotta planter",
+    "source": "FurniMesh",
+    "categories": [
+      "Decor"
+    ],
+    "tags": [
+      "tiered",
+      "terracotta",
+      "planter"
+    ],
+    "license": "FurniMesh commercial-use license",
+    "license_url": "https://furnimesh.com/terms/",
+    "source_url": "https://furnimesh.com/library/decor/planter/a-contemporary-multitier-vertical-planter-featuring-four-p4n8s8/",
+    "download_url": "https://storage.googleapis.com/furnimesh-3d/gbl-files/iMVGhRlNo0Apt-kpu3yoZ.glb",
+    "thumbnail_url": "./assets/furnimesh/tiered-terracotta-planter.png",
+    "source_photo_url": "https://storage.googleapis.com/furnimesh-3d/original/3mN8UWXmmu_EpfEc9tNS1.jpeg",
+    "url": "./assets/furnimesh/tiered-terracotta-planter.glb",
+    "polycount": 79992,
+    "original_polycount": 293598,
+    "displayHeight": 15,
+    "original_bytes": 15856792,
+    "bytes": 5696388,
+    "texture_size": 1024,
+    "triangle_budget": 80000,
+    "simplification_error": 0.001,
+    "sha256": "484fd5ebdfe683bec107b22c1709e271d8a00938481438933321a46499cbc724"
+  }
+]

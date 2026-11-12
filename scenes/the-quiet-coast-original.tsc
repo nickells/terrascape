@@ -1,0 +1,732 @@
+{
+  "version": 1,
+  "name": "The Quiet Coast",
+  "seed": 62147,
+  "palette": "poolhall",
+  "layout": "The Quiet Coast",
+  "terrain": {
+    "height": 420,
+    "size": 286,
+    "sharp": 1,
+    "rough": 0.5,
+    "variety": 0,
+    "riverWidth": 0,
+    "wiggle": 0,
+    "sea": 0,
+    "coast": 0,
+    "terrace": 0,
+    "basin": 0,
+    "stage": 0,
+    "stageX": 0,
+    "stageZ": 0,
+    "water": true,
+    "stageFloor": -14,
+    "land": false,
+    "waterY": 0,
+    "landLevel": 0,
+    "floor": "",
+    "floorTile": 0
+  },
+  "sky": {
+    "elev": 12,
+    "az": -50,
+    "cloudSeed": 42,
+    "fog": 0.00075,
+    "waterSeed": 8.3,
+    "night": false,
+    "clouds": false,
+    "ambient": 2.2
+  },
+  "camera": {
+    "pos": [
+      14,
+      22,
+      56
+    ],
+    "target": [
+      -4,
+      19,
+      -160
+    ],
+    "fov": 56
+  },
+  "objects": [
+    {
+      "id": 1,
+      "type": "cube",
+      "name": "Travertine foundation",
+      "pos": [
+        0,
+        5,
+        12
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        13.25,
+        0.75,
+        14.0
+      ],
+      "mat": "granite",
+      "color": "#c6b99d"
+    },
+    {
+      "id": 2,
+      "type": "cube",
+      "name": "Honed limestone floor",
+      "pos": [
+        0,
+        8.5,
+        12
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        13.25,
+        0.125,
+        14.0
+      ],
+      "mat": "glossy",
+      "color": "#d7ccbb"
+    },
+    {
+      "id": 3,
+      "type": "cube",
+      "name": "Deep floating roof",
+      "pos": [
+        0,
+        43,
+        16
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        13.75,
+        0.5,
+        13.75
+      ],
+      "mat": "matte",
+      "color": "#ede4d5"
+    },
+    {
+      "id": 4,
+      "type": "cube",
+      "name": "Left plaster wall",
+      "pos": [
+        -53,
+        25,
+        16
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.375,
+        4.0,
+        13.75
+      ],
+      "mat": "matte",
+      "color": "#e6ddcb"
+    },
+    {
+      "id": 5,
+      "type": "cube",
+      "name": "Right plaster wall",
+      "pos": [
+        53,
+        25,
+        16
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.375,
+        4.0,
+        13.75
+      ],
+      "mat": "matte",
+      "color": "#e6ddcb"
+    },
+    {
+      "id": 6,
+      "type": "cube",
+      "name": "Recessed back wall",
+      "pos": [
+        0,
+        25,
+        70
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        13.25,
+        4.0,
+        0.375
+      ],
+      "mat": "matte",
+      "color": "#e2d6c2"
+    },
+    {
+      "id": 7,
+      "type": "cube",
+      "name": "Left opening reveal",
+      "pos": [
+        -47,
+        25,
+        -39
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1.25,
+        4.0,
+        0.375
+      ],
+      "mat": "matte",
+      "color": "#e9ddc9"
+    },
+    {
+      "id": 8,
+      "type": "cube",
+      "name": "Right opening reveal",
+      "pos": [
+        47,
+        25,
+        -39
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1.25,
+        4.0,
+        0.375
+      ],
+      "mat": "matte",
+      "color": "#e9ddc9"
+    },
+    {
+      "id": 9,
+      "type": "cube",
+      "name": "Terrace lip",
+      "pos": [
+        0,
+        7.5,
+        -50
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        13.25,
+        0.125,
+        1.75
+      ],
+      "mat": "granite",
+      "color": "#d7ccbb"
+    },
+    {
+      "id": 10,
+      "type": "cube",
+      "name": "Sofa shadow plinth",
+      "pos": [
+        -27,
+        10.2,
+        16
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        4.125,
+        0.3,
+        2.0
+      ],
+      "mat": "matte",
+      "color": "#9e8c6d"
+    },
+    {
+      "id": 11,
+      "type": "cube",
+      "name": "Linen sofa base",
+      "pos": [
+        -27,
+        12,
+        16
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        4.25,
+        0.25,
+        2.125
+      ],
+      "mat": "matte",
+      "color": "#ded4bf"
+    },
+    {
+      "id": 12,
+      "type": "cube",
+      "name": "Linen seat cushion",
+      "pos": [
+        -37.5,
+        14,
+        14
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1.275,
+        0.25,
+        1.625
+      ],
+      "mat": "matte",
+      "color": "#f0e6d1"
+    },
+    {
+      "id": 13,
+      "type": "cube",
+      "name": "Linen back cushion",
+      "pos": [
+        -37.5,
+        18,
+        22
+      ],
+      "rot": [
+        -0.12,
+        0,
+        0
+      ],
+      "scale": [
+        1.275,
+        1.0,
+        0.375
+      ],
+      "mat": "matte",
+      "color": "#e7dbc4"
+    },
+    {
+      "id": 14,
+      "type": "cube",
+      "name": "Linen seat cushion",
+      "pos": [
+        -27,
+        14,
+        14
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1.275,
+        0.25,
+        1.625
+      ],
+      "mat": "matte",
+      "color": "#f0e6d1"
+    },
+    {
+      "id": 15,
+      "type": "cube",
+      "name": "Linen back cushion",
+      "pos": [
+        -27,
+        18,
+        22
+      ],
+      "rot": [
+        -0.12,
+        0,
+        0
+      ],
+      "scale": [
+        1.275,
+        1.0,
+        0.375
+      ],
+      "mat": "matte",
+      "color": "#e7dbc4"
+    },
+    {
+      "id": 16,
+      "type": "cube",
+      "name": "Linen seat cushion",
+      "pos": [
+        -16.5,
+        14,
+        14
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1.275,
+        0.25,
+        1.625
+      ],
+      "mat": "matte",
+      "color": "#f0e6d1"
+    },
+    {
+      "id": 17,
+      "type": "cube",
+      "name": "Linen back cushion",
+      "pos": [
+        -16.5,
+        18,
+        22
+      ],
+      "rot": [
+        -0.12,
+        0,
+        0
+      ],
+      "scale": [
+        1.275,
+        1.0,
+        0.375
+      ],
+      "mat": "matte",
+      "color": "#e7dbc4"
+    },
+    {
+      "id": 18,
+      "type": "cube",
+      "name": "Left low arm",
+      "pos": [
+        -44,
+        15.5,
+        16
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.3125,
+        0.875,
+        2.125
+      ],
+      "mat": "matte",
+      "color": "#e6dac3"
+    },
+    {
+      "id": 19,
+      "type": "cube",
+      "name": "Right low arm",
+      "pos": [
+        -10,
+        15.5,
+        16
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.3125,
+        0.875,
+        2.125
+      ],
+      "mat": "matte",
+      "color": "#e6dac3"
+    },
+    {
+      "id": 20,
+      "type": "cylinder",
+      "name": "Low bronze table",
+      "pos": [
+        0,
+        11.8,
+        1
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        2.125,
+        0.12,
+        2.125
+      ],
+      "mat": "glossy",
+      "color": "#9a8666"
+    },
+    {
+      "id": 21,
+      "type": "cylinder",
+      "name": "Table pedestal",
+      "pos": [
+        0,
+        10.2,
+        1
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.625,
+        0.2,
+        0.625
+      ],
+      "mat": "granite",
+      "color": "#a39276"
+    },
+    {
+      "id": 22,
+      "type": "cube",
+      "name": "A single closed book",
+      "pos": [
+        -1,
+        12.6,
+        1
+      ],
+      "rot": [
+        0,
+        0.18,
+        0
+      ],
+      "scale": [
+        0.625,
+        0.0625,
+        0.4375
+      ],
+      "mat": "matte",
+      "color": "#8d6956"
+    },
+    {
+      "id": 23,
+      "type": "cube",
+      "name": "Sculpture plinth",
+      "pos": [
+        31,
+        11,
+        -17
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1.25,
+        0.5,
+        1.25
+      ],
+      "mat": "granite",
+      "color": "#bbae94"
+    },
+    {
+      "id": 24,
+      "type": "torus",
+      "name": "Pale stone circle",
+      "pos": [
+        31,
+        20,
+        -17
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.68,
+        0.68,
+        0.35
+      ],
+      "mat": "granite",
+      "color": "#eadfc9"
+    },
+    {
+      "id": 25,
+      "type": "cube",
+      "name": "First sea step",
+      "pos": [
+        34,
+        5,
+        -61
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        2.0,
+        0.5,
+        1.25
+      ],
+      "mat": "granite",
+      "color": "#c8b99c"
+    },
+    {
+      "id": 26,
+      "type": "cube",
+      "name": "Second sea step",
+      "pos": [
+        34,
+        2,
+        -70
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        2.0,
+        0.25,
+        1.25
+      ],
+      "mat": "granite",
+      "color": "#b9ac91"
+    },
+    {
+      "id": 27,
+      "type": "terrain",
+      "name": "Headland",
+      "pos": [
+        150,
+        -12,
+        -230
+      ],
+      "rot": [
+        0,
+        -0.55,
+        0
+      ],
+      "scale": [
+        1.65,
+        0.9,
+        2.4
+      ],
+      "mat": "land",
+      "color": "#cdbd9c",
+      "terrain": {
+        "shape": "ridge",
+        "height": 48,
+        "rough": 0.55,
+        "sharp": 0.45,
+        "detail": 0.7,
+        "tseed": 6372
+      }
+    },
+    {
+      "id": 28,
+      "type": "terrain",
+      "name": "Distant headland",
+      "pos": [
+        178,
+        -15,
+        -570
+      ],
+      "rot": [
+        0,
+        -0.3,
+        0
+      ],
+      "scale": [
+        2,
+        0.85,
+        2.5
+      ],
+      "mat": "land",
+      "color": "#cdbd9c",
+      "terrain": {
+        "shape": "hill",
+        "height": 65,
+        "rough": 0.6,
+        "sharp": 0.3,
+        "detail": 0.65,
+        "tseed": 2907
+      }
+    },
+    {
+      "id": 29,
+      "type": "cube",
+      "name": "Warm cove light",
+      "pos": [
+        -50.8,
+        39,
+        14
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.0225,
+        0.0375,
+        11.625
+      ],
+      "mat": "glow",
+      "color": "#ffe5b0"
+    },
+    {
+      "id": 30,
+      "type": "lamp",
+      "name": "Concealed warm fill",
+      "pos": [
+        -48,
+        37,
+        35
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.16,
+        0.16,
+        0.16
+      ],
+      "mat": "matte",
+      "color": "#ffe1b4",
+      "brightness": 0.3
+    }
+  ]
+}
