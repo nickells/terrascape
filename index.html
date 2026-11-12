@@ -154,7 +154,7 @@
     </div>
   </div>
   <div class="status"><div id="msg">Loading...</div><div id="lens" title="Camera lens (field of view): left = telephoto, right = wide-angle. Changing it keeps your subject the same size."><span>Lens</span><input type="range" id="lensIn" min="10" max="100" step="1" value="50"><span id="lensVal">50° Normal</span></div><div id="modeLbl">Edit</div><div id="pct"><select id="resSel" title="Output size for Render, Ray Trace and Save Image">
-    <option value="400">Size: 400 x 300</option><option value="640">Size: 640 x 480</option><option value="800">Size: 800 x 600</option><option value="full">Size: Full</option></select></div></div>
+    <option value="400">Size: 400 x 300</option><option value="640">Size: 640 x 480</option><option value="800">Size: 800 x 600</option><option value="full">Size: Full</option><option value="custom">Size: Custom…</option></select></div></div>
 </div>
 <input type="file" id="openFile" accept=".tsc,.json" hidden>
 <script type="importmap">
@@ -2040,18 +2040,62 @@ function frame() {
 // output resolutions: the classic sizes upscale crisply into the 800x600 view; Full matches the screen
 let colorMode = 0, resKey = '400';
 const RES = { 400: [400, 300], 640: [640, 480], 800: [800, 600] };
+// the view is an 800x600 frame; other shapes are letterboxed inside it and the camera takes their aspect
+function fitView() {
+  const a = W / H, bw = 800, bh = 600;
+  let cw = bw, ch = bw / a;
+  if (ch > bh) { ch = bh; cw = bh * a; }
+  canvas.style.width = cw + 'px'; canvas.style.height = ch + 'px';
+  canvas.style.margin = `${(bh - ch) / 2}px ${(bw - cw) / 2}px`;
+  camera.aspect = a; camera.updateProjectionMatrix();
+}
 function setResolution(key) {
   resKey = key;
   const dpr = window.devicePixelRatio || 1;
-  [W, H] = RES[key] || [Math.round(canvas.clientWidth * dpr), Math.round(canvas.clientHeight * dpr)];
+  [W, H] = RES[key] || [Math.round(800 * dpr), Math.round(600 * dpr)];
+  // keep the supersampled buffers under ~16M pixels for very large custom sizes
+  SS = key === 'full' ? 2 : Math.max(1, Math.min(3, Math.floor(Math.sqrt(16e6 / (W * H)))));
+  fitView();
   SS = key === 'full' ? 2 : 3;
   renderer.setSize(W, H, false);
   rt.setSize(W * SS, H * SS); editRT.setSize(W, H);
   water.getRenderTarget().setSize(W * SS, H * SS);
   $('resSel').value = key; updateMoonLod();
+  const co = $('resSel').querySelector('option[value=custom]');
+  co.textContent = key === 'custom' ? `Size: ${W} x ${H}` : 'Size: Custom…';
   if (mode === 'edit') dirty = true; else renderFinal(mode === 'ray');
 }
-$('resSel').addEventListener('change', e => setResolution(e.target.value));
+$('resSel').addEventListener('change', e => {
+  if (e.target.value === 'custom') { e.target.value = resKey; return customSize(); }
+  setResolution(e.target.value);
+});
+// Custom size: any width x height, with a few common shapes as shortcuts
+function customSize() {
+  const [cw, chh] = RES.custom || [W, H];
+  const d = document.createElement('div'); d.className = 'dialog';
+  d.innerHTML = `<div class="title"><span>Custom Size</span><span class="tb"><b data-c="x">×</b></span></div>
+    <div class="body">
+      <div class="row"><span>Width</span><input type="number" id="cuW" min="16" max="4096" value="${cw}"></div>
+      <div class="row"><span>Height</span><input type="number" id="cuH" min="16" max="4096" value="${chh}"></div>
+      <div class="hint" style="margin-top:6px">Shape</div>
+      <div class="grid2" style="grid-template-columns:repeat(4,1fr)">${[['4:3', 4 / 3], ['16:9', 16 / 9], ['1:1', 1], ['3:2', 1.5], ['2:1', 2], ['9:16', 9 / 16], ['21:9', 21 / 9], ['2:3', 2 / 3]].map(([l, r]) => `<button data-r="${r}">${l}</button>`).join('')}</div>
+      <div class="hint" style="margin-top:6px">Shapes keep the width and change the height. Up to 4096 on a side; non-4:3 sizes are letterboxed in the view.</div>
+    </div>
+    <div class="ok"><button data-c="ok"><b>OK</b></button>&nbsp;<button data-c="x">Cancel</button></div>`;
+  $('win').appendChild(d);
+  const wIn = d.querySelector('#cuW'), hIn = d.querySelector('#cuH');
+  d.addEventListener('click', e => {
+    const r = e.target.closest('[data-r]'); if (r) { hIn.value = Math.max(16, Math.round(+wIn.value / +r.dataset.r)); return; }
+    const c = e.target.closest('[data-c]'); if (!c) return;
+    if (c.dataset.c === 'ok') {
+      const w = Math.min(4096, Math.max(16, Math.round(+wIn.value || 0))), h = Math.min(4096, Math.max(16, Math.round(+hIn.value || 0)));
+      RES.custom = [w, h]; setResolution('custom'); msg.textContent = `Output size ${w} x ${h}`;
+    }
+    d.remove();
+  });
+  d.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') d.querySelector('[data-c=ok]').click(); if (e.key === 'Escape') d.remove(); });
+  wIn.focus(); wIn.select();
+}
 function setColors(m) { colorMode = m; post.uniforms.mode.value = m; if (mode === 'edit') dirty = true; else blit(); }
 
 // ---------- New Scene wizard: World -> Look -> Arrangement, previewed live in the view ----------
@@ -2443,6 +2487,7 @@ function menuSpec() {
       ['256 Colors', () => setColors(2), '', false, colorMode === 2], ['Thousands of Colors', () => setColors(1), '', false, colorMode === 1],
       ['Millions of Colors', () => setColors(0), '', false, colorMode === 0], sep, { head: 'Output size' },
       ...[['400', '400 x 300'], ['640', '640 x 480'], ['800', '800 x 600'], ['full', 'Full Resolution']].map(([k, l]) => [l, () => setResolution(k), '', false, resKey === k]),
+      [resKey === 'custom' ? `Custom (${W} x ${H})…` : 'Custom Size…', customSize, '', false, resKey === 'custom'],
     ],
     Help: [['Controls', () => dialog('Controls', HELP)], ['About Terrascape', () => dialog('About Terrascape',
       `<b>Terrascape 2.0</b><br>A 90s-style landscape renderer built on three.js.<br>Raster preview, supersampled render, and a Whitted ray tracer.<br>Models from Poly Haven (CC0).`)]],
