@@ -439,14 +439,17 @@ const waterShader = {
     fogCol: { value: new THREE.Color() }, fogDensity: { value: 0 }, seed: { value: 0 },
     mirror: { value: 0 }, mirrorTint: { value: new THREE.Color(1, 1, 1) },
     pool: { value: 0 }, poolTint: { value: new THREE.Color() }, poolTileCol: { value: new THREE.Color() }, poolTile: { value: 3.5 }, poolDepth: { value: 6 },
+    tUnder: { value: null },
   },
   vertexShader: `
-    uniform mat4 textureMatrix; varying vec4 vUv; varying vec3 vWorld;
+    uniform mat4 textureMatrix; varying vec4 vUv, vScreen; varying vec3 vWorld;
     void main(){ vUv = textureMatrix * vec4(position, 1.); vWorld = (modelMatrix * vec4(position, 1.)).xyz;
+      vScreen = projectionMatrix * modelViewMatrix * vec4(position, 1.);
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }`,
   fragmentShader: `
     uniform sampler2D tDiffuse; uniform vec3 color, waterCol, sunDir, sunCol, fogCol, mirrorTint, poolTint, poolTileCol; uniform float fogDensity, seed, mirror, pool, poolTile, poolDepth;
-    varying vec4 vUv; varying vec3 vWorld;
+    uniform sampler2D tUnder;
+    varying vec4 vUv, vScreen; varying vec3 vWorld;
     float h(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
     float n(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.-2.*f);
       return mix(mix(h(i),h(i+vec2(1,0)),f.x), mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x), f.y); }
@@ -463,14 +466,14 @@ const waterShader = {
       vec3 col = mix(waterCol, refl * color, fres);
       col += sunCol * pow(max(dot(reflect(-V, nrm), sunDir), 0.), 900.) * 14.;
       if (mirror > .5) col = texture2DProj(tDiffuse, vUv).rgb * mirrorTint;   // polished floor: a clean, slightly tinted reflection
-      if (pool > .5) {   // clear pool: look through to a tiled bottom (preview only; the ray tracer also shows what stands in the water)
+      if (pool > .5) {   // actual submerged geometry and bottom, captured with the water hidden
         vec3 I = normalize(vWorld - cameraPosition), pn = normalize(vec3(g.x * .22, 1., g.y * .22));
-        vec3 rr = refract(I, pn, .75);
+        vec3 rr = refract(I, vec3(0., 1., 0.), 1. / 1.33);
         float t = poolDepth / max(-rr.y, 1e-3);
-        vec2 f = fract((vWorld.xz + rr.xz * t) / poolTile), e = min(f, 1. - f);
-        vec3 alb = poolTileCol * (min(e.x, e.y) < .06 ? .55 : 1.);
+        vec2 underUV = vScreen.xy / vScreen.w * .5 + .5;
+        vec3 alb = texture2D(tUnder, clamp(underUV + g * .002, .001, .999)).rgb;
         vec3 T = pow(max(poolTint, vec3(.02)), vec3(t / 9.));
-        vec3 under = alb * T * (sunCol * .45 + .45) + poolTint * (1. - T) * .4;
+        vec3 under = alb * T + poolTint * (1. - T) * .4;
         float F = .02 + .98 * pow(1. - max(dot(-I, pn), 0.), 5.);
         col = mix(under, texture2DProj(tDiffuse, vUv + vec4(g * 2., 0., 0.)).rgb, F);
         col += sunCol * pow(max(dot(reflect(I, pn), sunDir), 0.), 700.) * 3.;
@@ -484,6 +487,8 @@ const waterShader = {
 const water = new Reflector(new THREE.PlaneGeometry(SIZE * 2, SIZE * 2), { textureWidth: W * SS, textureHeight: H * SS, color: 0xd8e4ee, shader: waterShader });
 water.rotation.x = -Math.PI / 2;
 scene.add(water);
+const poolRT = new THREE.WebGLRenderTarget(W, H, { type: THREE.HalfFloatType });
+water.material.uniforms.tUnder.value = poolRT.texture;
 
 // infinite checkerboard floor (replaces the water plane in scenes that ask for it)
 const floorCv = document.createElement('canvas'); floorCv.width = floorCv.height = 2;
@@ -501,6 +506,7 @@ const FLOOR_MODE = { checker: 1, tiles: 2, mirror: 3, pool: 4 };
 const surfaceOf = T => T.floor && FLOOR_MODE[T.floor] ? T.floor : T.water === false ? 'none' : 'water';
 const DEFAULT_TILE = { checker: 20, tiles: 6, pool: 3.5 };
 const POOL_DEPTH = 6;
+const supportY = () => WY() - (surfaceOf(doc.terrain) === 'pool' ? POOL_DEPTH : 0);
 // floor colours come from the palette: chkA / chkB if it has them, otherwise derived from its own colours
 function floorColors(pal, kind = 'checker') {
   const c = k => new THREE.Color(pal[k]), hex = x => '#' + x.getHexString();
@@ -510,8 +516,9 @@ function floorColors(pal, kind = 'checker') {
   return [pal.chkA || '#1c1c22', pal.chkB || '#f2efe6'];
 }
 function updateFloor(pal, kind, tile) {
-  const [a, b] = floorColors(pal, kind);
-  if (kind === 'tiles') {   // one square tile with a thin grout line round it
+  let [a, b] = floorColors(pal, kind);
+  if (kind === 'pool') [a, b] = [b, '#' + new THREE.Color(b).multiplyScalar(.55).getHexString()];
+  if (kind === 'tiles' || kind === 'pool') {   // one square tile with a thin grout line round it
     floorCv.width = floorCv.height = 32;
     const g = floorCv.getContext('2d');
     g.fillStyle = b; g.fillRect(0, 0, 32, 32); g.fillStyle = a; g.fillRect(1, 1, 30, 30);
@@ -533,6 +540,73 @@ const showWaterMesh = () => ['water', 'mirror', 'pool'].includes(surfaceOf(doc.t
 const envRT = new THREE.WebGLCubeRenderTarget(256, { type: THREE.HalfFloatType });
 const envCam = new THREE.CubeCamera(1, 6000, envRT);
 floorMesh.material.envMap = envRT.texture;
+// Project submerged vertices along the bent water-to-camera path. A plain
+// scene capture makes underwater objects look too deep compared with ray tracing.
+const poolMaterials = new WeakMap(), poolGeometries = new WeakMap(), poolSurfaceY = { value: 0 };
+function poolGeometry(geo) {
+  if (!['BoxGeometry', 'PlaneGeometry'].includes(geo.type)) return geo;
+  if (poolGeometries.has(geo)) return poolGeometries.get(geo);
+  const p = geo.parameters;
+  const copy = geo.type === 'BoxGeometry'
+    ? new THREE.BoxGeometry(p.width, p.height, p.depth, Math.max(8, p.widthSegments), Math.max(8, p.heightSegments), Math.max(8, p.depthSegments))
+    : new THREE.PlaneGeometry(p.width, p.height, 128, 128).rotateX(-Math.PI / 2);
+  if (geo.type === 'BoxGeometry') {
+    geo.computeBoundingBox();
+    const centre = geo.boundingBox.getCenter(new THREE.Vector3());
+    copy.translate(centre.x, centre.y, centre.z);
+  }
+  geo.addEventListener('dispose', () => { copy.dispose(); poolGeometries.delete(geo); });
+  poolGeometries.set(geo, copy); return copy;
+}
+function poolMaterial(mat) {
+  if (mat.isShaderMaterial) return mat;
+  if (poolMaterials.has(mat)) return poolMaterials.get(mat);
+  const copy = mat.clone();
+  copy.customProgramCacheKey = () => mat.customProgramCacheKey() + '|pool-refraction';
+  copy.onBeforeCompile = (sh, r) => {
+    mat.onBeforeCompile(sh, r);
+    sh.uniforms.poolSurfaceY = poolSurfaceY;
+    sh.vertexShader = 'uniform float poolSurfaceY;\n' + sh.vertexShader.replace('#include <project_vertex>', `#include <project_vertex>
+      vec3 poolP = (modelMatrix * vec4(transformed, 1.)).xyz;
+      float poolDepth = poolSurfaceY - poolP.y, airHeight = cameraPosition.y - poolSurfaceY;
+      if (poolDepth > 0. && airHeight > .001) {
+        vec2 delta = cameraPosition.xz - poolP.xz;
+        float span = length(delta), lo = 0., hi = span;
+        for (int k = 0; k < 16; k++) {
+          float x = (lo + hi) * .5;
+          float sw = x / length(vec2(x, poolDepth));
+          float sa = (span - x) / length(vec2(span - x, airHeight));
+          if (1.33 * sw > sa) hi = x; else lo = x;
+        }
+        vec2 crossing = poolP.xz + delta * ((lo + hi) * .5 / max(span, 1e-6));
+        vec3 entry = vec3(crossing.x, poolSurfaceY, crossing.y);
+        vec3 apparent = cameraPosition + (entry - cameraPosition) * (1. + poolDepth / (1.33 * airHeight));
+        gl_Position = projectionMatrix * viewMatrix * vec4(apparent, 1.);
+      }`);
+  };
+  mat.addEventListener('dispose', () => { copy.dispose(); poolMaterials.delete(mat); });
+  poolMaterials.set(mat, copy); return copy;
+}
+// Capture the real bottom and submerged geometry before drawing the water.
+function renderPoolUnder(width, height) {
+  if (!water.visible || surfaceOf(doc.terrain) !== 'pool') return;
+  const target = renderer.getRenderTarget();
+  const fv = floorMesh.visible, fy = floorMesh.position.y;
+  water.visible = false; floorMesh.visible = true; floorMesh.position.y = supportY();
+  poolSurfaceY.value = WY();
+  const materials = [];
+  scene.traverse(n => {
+    if (!n.isMesh) return;
+    materials.push([n, n.material, n.geometry]);
+    n.material = Array.isArray(n.material) ? n.material.map(poolMaterial) : poolMaterial(n.material);
+    if (n.geometry.type === 'BoxGeometry' || n === floorMesh) n.geometry = poolGeometry(n.geometry);
+  });
+  poolRT.setSize(width, height);
+  renderer.setRenderTarget(poolRT); renderer.clear(); renderer.render(scene, camera);
+  materials.forEach(([n, mat, geo]) => { n.material = mat; n.geometry = geo; });
+  water.visible = true; floorMesh.visible = fv; floorMesh.position.y = fy;
+  renderer.setRenderTarget(target);
+}
 const WHITE = new THREE.Color(1, 1, 1), BLACK = new THREE.Color(0, 0, 0);
 const V3 = THREE.Vector3;
 
@@ -1324,7 +1398,7 @@ function applyEnvironment() {
   const pal = PALETTES[doc.palette] || PALETTES.desert, surf = surfaceOf(doc.terrain);
   floorMesh.visible = surf === 'checker' || surf === 'tiles';
   floorMesh.position.y = WY();
-  if (floorMesh.visible) updateFloor(pal, surf, doc.terrain.floorTile || DEFAULT_TILE[surf]);
+  if (floorMesh.visible || surf === 'pool') updateFloor(pal, surf, doc.terrain.floorTile || DEFAULT_TILE[surf]);
   water.material.uniforms.mirror.value = surf === 'mirror' ? 1 : 0;
   { const wu = water.material.uniforms, [pc, pt] = floorColors(pal, 'pool');
     wu.pool.value = surf === 'pool' ? 1 : 0; wu.poolTint.value.set(pc); wu.poolTileCol.value.set(pt);
@@ -1511,14 +1585,14 @@ function setGizmo(m) {
   msg.textContent = { translate: 'Move: drag an arrow, or the centre square to slide along the view', rotate: 'Rotate: drag a ring', scale: 'Scale: drag a handle, or the centre cube to scale evenly' }[m];
 }
 
-// new objects land on whatever is directly below the orbit pivot (ground, terrain objects or water)
+// Solid objects rest on the pool bottom, rather than floating at the waterline.
 function dropPoint() {
   const t = orbit.target;
   raycaster.set(new V3(t.x, 3000, t.z), new V3(0, -1, 0)); raycaster.camera = camera;
-  const targets = [terrain, ...objectsGroup.children.filter(r => (doc.objects.find(o => o.id === r.userData.docId) || {}).type === 'terrain')];
+  const targets = [...(terrain.visible ? [terrain] : []), ...objectsGroup.children.filter(r => r.visible && (doc.objects.find(o => o.id === r.userData.docId) || {}).type === 'terrain')];
   targets.forEach(ensureBVH);
   const hit = raycaster.intersectObjects(targets, true)[0];
-  return new V3(t.x, Math.max(hit ? hit.point.y : WY(), WY()), t.z);
+  return new V3(t.x, Math.max(hit ? hit.point.y : supportY(), supportY()), t.z);
 }
 const LIFT = { clouds: 0, terrain: 0, floater: 60, sphere: 5, cube: 4, cylinder: 5, cone: 5, torus: 9.2, pyramid: 5, octahedron: 5, arch: 0, archwall: 0, column: 0, lamp: 12, model: 0 };
 const NEW_COLORS = ['#d23c2a', '#2a6fd2', '#e8c22a', '#2aa86b', '#d0d0d0', '#8a3fd2'];
@@ -1537,7 +1611,7 @@ function create(type, extra = {}) {
   const defaults = type === 'floater' ? { mat: 'land', terrain: { ...FLOAT_DEFAULTS, tseed: (Math.random() * 1e6) | 0 } } : type === 'clouds' ? { mat: 'matte', color: '#ffffff', cloud: { ...CLOUD_DEFAULTS, cseed: Math.random() * 100 } } : type === 'terrain' ? { mat: 'land', terrain: { ...TOBJ_DEFAULTS, height: 22, tseed: (Math.random() * 1e6) | 0 } } : type === 'lamp' ? { color: '#fff1d0', mat: 'matte' } : type === 'column' ? { mat: 'granite', color: '#e8e2d6' } : type === 'model' ? { mat: 'matte' } : { mat: 'glossy', color: NEW_COLORS[colorIx++ % NEW_COLORS.length] };
   const o = mkObj(type, { ...defaults, ...extra });
   o.name = uniqueName(o.name);
-  o.pos = [p.x, Math.max(p.y, WY()) + LIFT[type] * o.scale[1], p.z];
+  o.pos = [p.x, p.y + LIFT[type] * o.scale[1], p.z];
   if (type === 'clouds') o.pos[1] = 220 + 80 * doc.objects.filter(x => x.type === 'clouds').length;   // stack new layers higher
   doc.objects.push(o); addRoot(o);
   updateReflections(); select(o);
@@ -1561,10 +1635,10 @@ function dropToGround() {
   if (!isObj()) return;
   const r = roots.get(sel.id), box = new THREE.Box3().setFromObject(r);
   raycaster.set(new V3(r.position.x, box.max.y + 1, r.position.z), new V3(0, -1, 0)); raycaster.camera = camera;
-  const targets = [terrain, ...objectsGroup.children.filter(c => c !== r)];
+  const targets = [...(terrain.visible ? [terrain] : []), ...objectsGroup.children.filter(c => c !== r && c.visible)];
   targets.forEach(ensureBVH);
   const hit = raycaster.intersectObjects(targets, true)[0];
-  const gy = Math.max(hit ? hit.point.y : WY(), WY());
+  const gy = Math.max(hit ? hit.point.y : supportY(), supportY());
   r.position.y += gy - box.min.y;
   onTransformChange(); updateReflections();
 }
@@ -1989,6 +2063,7 @@ function renderFinal(ray, onDone) {
     sky.position.copy(camera.position);
     if (!ray) {
       post.uniforms.tex.value = rt.texture; post.uniforms.accum.value = false; post.uniforms.ss.value = SS; post.uniforms.res.value.set(W, H);
+      renderPoolUnder(W * SS, H * SS);
       renderer.setRenderTarget(rt); renderer.setClearColor(0, 1); renderer.clear(); renderer.render(scene, camera);
       blit();
       msg.textContent = `Render complete - ${((performance.now() - t0) / 1000).toFixed(1)} sec - ${MOD}E saves it, Esc to edit`;
@@ -2053,6 +2128,7 @@ function frame() {
   dirty = false;
   sky.position.copy(camera.position);
   if (selBox.visible && gizmo.object) selBox.setFromObject(gizmo.object);
+  renderPoolUnder(W, H);
   renderer.setRenderTarget(editRT);
   renderer.setClearColor(viewMode === 'wire' ? 0x1c2228 : 0x000000, 1); renderer.clear();
   renderer.render(scene, camera);

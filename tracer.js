@@ -437,18 +437,47 @@ export function createTracer(noiseGLSL) {
       vec3 directLight(vec3 p, vec3 sp, vec3 n, vec3 V, vec3 albedo, float spec, float shin){
         vec3 diff = albedo / PI;
         vec3 c = diff * mix(hemiGround, hemiSky, .5 * n.y + .5);
-        vec3 o = sp + n * .03;
-        float ndl = dot(n, sunDir);
+        vec3 o = sp + n * (floorMode > 3.5 && sp.y < waterY ? .003 : .03);
+        bool underPool = floorMode > 3.5 && o.y < waterY;
+        vec3 sL = underPool ? -refract(-sunDir, vec3(0., 1., 0.), 1. / 1.33) : sunDir;
+        float ndl = dot(n, sL);
         if (ndl > 0.) {
-          vec3 T = shadowT(o, sunDir, 1e5) * cloudShadow(o, sunDir);
-          c += T * sunLight * (diff * ndl + spec * pow(max(dot(reflect(-sunDir, n), V), 0.), shin));
+          vec3 entry = o;
+          vec3 T = vec3(1.);
+          if (underPool) {
+            float t = (waterY - o.y) / max(sL.y, 1e-4);
+            T = shadowT(o, sL, t);
+            entry = o + sL * t + vec3(0., .003, 0.);
+          }
+          T *= shadowT(entry, sunDir, 1e5) * cloudShadow(entry, sunDir);
+          c += T * sunLight * (diff * ndl + spec * pow(max(dot(reflect(-sL, n), V), 0.), shin));
         }
         for (int i = 0; i < 3; i++) {
           vec3 dl = lampPos[i] - p; float d2 = dot(dl, dl);
           if (d2 > 25600.) continue;
-          float d = sqrt(d2); vec3 L = dl / d; float nl = dot(n, L);
+          float d = sqrt(d2); vec3 L = dl / d;
+          vec3 entry = o; vec3 T = vec3(1.); float airD = d;
+          if (underPool && lampPos[i].y > waterY) {
+            // Find the surface crossing satisfying Snell's law for this finite light.
+            float depth = waterY - o.y, height = lampPos[i].y - waterY;
+            vec2 delta = lampPos[i].xz - o.xz;
+            float span = length(delta), lo = 0., hi = span;
+            for (int k = 0; k < 16; k++) {
+              float x = (lo + hi) * .5;
+              float sw = x / length(vec2(x, depth));
+              float sa = (span - x) / length(vec2(span - x, height));
+              if (1.33 * sw > sa) hi = x; else lo = x;
+            }
+            vec2 crossing = o.xz + delta * ((lo + hi) * .5 / max(span, 1e-6));
+            entry = vec3(crossing.x, waterY, crossing.y);
+            L = normalize(entry - o);
+            T = shadowT(o, L, length(entry - o));
+            entry.y += .003;
+            airD = length(lampPos[i] - entry);
+          }
+          float nl = dot(n, L);
           if (nl <= 0.) continue;
-          vec3 T = shadowT(o, L, d - 3.);
+          T *= shadowT(entry, normalize(lampPos[i] - entry), max(airD - 3., 0.));
           c += T * lampLight[i] / d2 * (diff * nl + spec * pow(max(dot(reflect(-L, n), V), 0.), shin));
         }
         return c;
@@ -491,34 +520,36 @@ export function createTracer(noiseGLSL) {
           col += thr * ff * fogCol; thr *= 1. - ff;
           vec3 V = -rd;
 
-          if (h.obj == 2 && floorMode > 3.5) {   // clear pool: Fresnel picks a reflection or a look through to the tiled bottom
+          if (h.obj == 2 && floorMode > 3.5) {   // clear pool: evaluate transmission and reflection on every sample
             vec2 xz = h.p.xz;
             vec2 g = vec2(fbmW(xz * .35 + waterSeed), fbmW(xz * .35 + waterSeed + 11.)) - .5;
             vec3 n = normalize(vec3(g.x * .22, 1., g.y * .22));
             float F = .02 + .98 * pow(1. - max(dot(V, n), 0.), 5.);
             col += thr * sunLight * pow(max(dot(reflect(-sunDir, n), V), 0.), 700.) * 3.;
-            if (rnd() < F) {
-              ro = vec3(h.p.x, waterY + .02, h.p.z); rd = reflect(rd, n);
-              if (rd.y < .001) rd = normalize(vec3(rd.x, .001, rd.z));
-              continue;
-            }
-            vec3 rr = refract(rd, n, 1. / 1.33);
-            float tF = poolDepth / max(-rr.y, 1e-3);
-            vec3 sp0 = vec3(h.p.x, waterY - .02, h.p.z), fp = sp0 + rr * tF, fn = vec3(0., 1., 0.);
+            // The pool has a level interface; use the same refraction plane as
+            // the preview projection and shadow rays. Ripples perturb reflections.
+            vec3 rr = refract(rd, vec3(0., 1., 0.), 1. / 1.33);
+            vec3 sp0 = h.p + rr * .001;
+            float tF = (sp0.y - (waterY - poolDepth)) / max(-rr.y, 1e-3);
+            vec3 fp = sp0 + rr * tF, fn = vec3(0., 1., 0.), fsp = fp;
             vec3 alb = tileAlb(fp, fn, floorB, floorTile);
             Hit u;   // anything standing in the water (columns, steps) is seen through it
             if (trace(sp0, rr, tF, false, u)) {
-              fp = u.p; fn = u.n; if (dot(fn, rr) > 0.) fn = -fn;
+              fp = u.p; fsp = u.sp; fn = u.n; if (dot(fn, rr) > 0.) fn = -fn;
               int uk = int(mCol[u.mat].w + .5);
               vec3 ua = u.obj == 0 ? u.col : mCol[u.mat].rgb;
+              if (u.obj == 0 && mTx[u.mat].x >= 0.) ua *= pow(textureLod(texArr, vec3(u.uv, mTx[u.mat].x), 0.).rgb, vec3(2.2));
               alb = uk == 6 ? tileAlb(fp, fn, ua, mTx[u.mat].w) : uk == 3 ? vec3(0.) : ua;
-              if (uk == 3) col += thr * mCol[u.mat].rgb * .5;
+              if (uk == 3) col += thr * (1. - F) * mCol[u.mat].rgb * .5;
             }
             float dist = length(fp - sp0);
             vec3 T = pow(max(floorA, vec3(.02)), vec3(dist / 12.));   // the water's own colour deepens with distance
-            vec3 lit = directLight(fp, fp, fn, -rr, alb, .05, 30.);
-            col += thr * (lit * T + floorA * (1. - T) * (hemiSky * .35 + sunLight * .12));
-            break;
+            vec3 lit = directLight(fp, fsp, fn, -rr, alb, .05, 30.);
+            col += thr * (1. - F) * (lit * T + floorA * (1. - T) * (hemiSky * .35 + sunLight * .12));
+            thr *= F;
+            ro = h.p + vec3(0., .001, 0.); rd = reflect(rd, n);
+            if (rd.y < .001) rd = normalize(vec3(rd.x, .001, rd.z));
+            continue;
           }
           if (h.obj == 2 && floorMode > 2.5) {   // mirror floor: a perfect tinted reflection plus the sun's highlight
             col += thr * sunLight * pow(max(dot(reflect(-sunDir, vec3(0., 1., 0.)), V), 0.), 1500.);
