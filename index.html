@@ -33,7 +33,7 @@
   .dropdown button.item{font:inherit;width:100%;border:0;box-shadow:none;background:transparent;text-align:left;}
   .dropdown button.item:hover,.dropdown button.item:focus-visible{background:#000080;color:#fff;outline:none;}
   .main{display:flex;gap:4px;align-items:flex-start;}
-  .side{display:flex;flex-direction:column;gap:4px;width:196px;height:604px;}
+  .side{display:flex;flex-direction:column;gap:4px;flex:0 0 196px;width:196px;min-width:0;height:604px;}
   .rside .ppage{height:100%;}
   #start{flex:1 1 auto;min-height:0;overflow-y:auto;}
   #start select{width:100%;}
@@ -43,7 +43,7 @@
   #start .choice.on{border-color:#000 #fff #fff #000;box-shadow:inset 1px 1px #808080;background:#d8d8d8;font-weight:bold;}
   .win.loading .side{pointer-events:none;opacity:.55;}
   #inspector,#world{flex:1 1 auto;min-height:0;overflow-y:auto;}
-  .ppage{display:flex;flex-direction:column;gap:4px;flex:1 1 auto;min-height:0;}
+  .ppage{display:flex;flex-direction:column;gap:4px;flex:1 1 auto;min-width:0;min-height:0;}
   #world .tabpage{margin-bottom:0;} #world .slider{grid-template-columns:72px 1fr 32px;} #world .sect{color:#404040;margin:6px 0 2px;border-bottom:1px solid #808080;box-shadow:0 1px #fff;padding-bottom:1px;}
   button,select,input{font:inherit;}
   button{background:#c0c0c0;border:2px solid;border-color:#fff #000 #000 #fff;box-shadow:inset -1px -1px #808080;padding:3px 4px;cursor:pointer;}
@@ -51,8 +51,8 @@
   button:disabled:active{border-color:#fff #000 #000 #fff;box-shadow:inset -1px -1px #808080;}
   button.pressed,button:active{border-color:#000 #fff #fff #000;box-shadow:inset 1px 1px #808080;}
   button.big{text-align:left;padding:4px 6px;}
-  fieldset{border:1px solid #808080;box-shadow:1px 1px #fff;padding:4px;margin:0;}
-  legend{padding:0 2px;}
+  fieldset{min-inline-size:0;min-width:0;border:1px solid #808080;box-shadow:1px 1px #fff;padding:4px;margin:0;}
+  legend{padding:0 2px;max-width:100%;box-sizing:border-box;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:3px;}
   .grid2 button{padding:3px 2px;}
   select,input[type=text],input[type=number]{background:#fff;border:2px solid;border-color:#808080 #fff #fff #808080;padding:1px 2px;box-sizing:border-box;min-width:0;}
@@ -78,9 +78,9 @@
   .tabs{display:flex;gap:0;margin:2px 0 -2px;position:relative;z-index:1;}
   .tabs button{flex:1;border-bottom:none;padding:2px 0;box-shadow:none;margin-right:-2px;background:#c0c0c0;}
   .tabs button.on{padding-bottom:4px;margin-top:-2px;}
-  .listbox{height:100%;overflow-y:auto;background:#fff;border:2px solid;border-color:#808080 #fff #fff #808080;box-sizing:border-box;}
-  .li{display:flex;align-items:center;gap:4px;padding:1px 3px;white-space:nowrap;cursor:default;}
-  .li .g{width:12px;text-align:center;flex:none;} .li .nm{overflow:hidden;text-overflow:ellipsis;flex:1;} .li .x{color:#808080;font-size:10px;}
+  .listbox{height:100%;min-width:0;overflow-y:auto;overflow-x:hidden;background:#fff;border:2px solid;border-color:#808080 #fff #fff #808080;box-sizing:border-box;}
+  .li{display:flex;min-width:0;box-sizing:border-box;align-items:center;gap:4px;padding:1px 3px;white-space:nowrap;cursor:default;}
+  .li .g{width:12px;text-align:center;flex:none;} .li .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;flex:1 1 0;} .li .x{color:#808080;font-size:10px;flex:0 1 auto;min-width:0;max-width:40%;overflow:hidden;text-overflow:ellipsis;}
   .li.sel{background:#000080;color:#fff;} .li.sel .x{color:#c0c0ff;} .li.hid .nm,.li.hid .g{color:#a0a0a0;} .li.sel.hid .nm{color:#b0b0d0;}
   .li .eye{flex:none;width:14px;text-align:center;cursor:pointer;} .li .eye:hover{outline:1px dotted currentColor;}
   .li.land{border-bottom:1px dotted #c0c0c0;}
@@ -1972,10 +1972,13 @@ canvas.addEventListener('dblclick', e => {
 const GLYPH = { floater: '⌓', sphere: '●', cube: '■', cylinder: '▮', cone: '▲', torus: '◯', pyramid: '△', octahedron: '◆', arch: '∩', archwall: '⌂', column: '║', lamp: '✺', clouds: '☁', terrain: '⛰', model: '✿' };
 function renderList() {
   const el = $('objList'); if (!el || !doc) return;
+  const escape = value => String(value).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const row = (o) => {
-    const extra = o.type === 'clouds' ? `y ${o.pos[1].toFixed(0)}` : o.type === 'model' ? ((MODELS[o.model] || {}).label || '') : '';
-    return `<div class="li${sel === o ? ' sel' : ''}${o.hidden ? ' hid' : ''}" data-id="${o.id}" id="object-${o.id}" role="option" aria-selected="${sel === o}" title="${TYPES[o.type] || 'Model'}">
-      <span class="g">${GLYPH[o.type] || '?'}</span><span class="nm">${o.name}</span>${extra && extra !== o.name ? `<span class="x">${extra}</span>` : ''}
+    const modelName = o.type === 'model' ? ((MODELS[o.model] || {}).label || '') : '';
+    const extra = o.type === 'clouds' ? `y ${o.pos[1].toFixed(0)}` : '';
+    const detail = [o.name, TYPES[o.type] || 'Model', modelName && modelName !== o.name ? modelName : ''].filter(Boolean).join(' · ');
+    return `<div class="li${sel === o ? ' sel' : ''}${o.hidden ? ' hid' : ''}" data-id="${o.id}" id="object-${o.id}" role="option" aria-selected="${sel === o}" title="${escape(detail)}">
+      <span class="g">${GLYPH[o.type] || '?'}</span><span class="nm">${escape(o.name)}</span>${extra ? `<span class="x">${extra}</span>` : ''}
       <span class="eye" data-eye="${o.id}" title="${o.hidden ? 'Show' : 'Hide'}">${o.hidden ? '–' : '👁'}</span></div>`;
   };
   el.innerHTML = doc.objects.length ? doc.objects.map(row).join('') : '<div class="hint" style="padding:4px">No objects yet. Use Add below to place one.</div>';
