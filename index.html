@@ -130,7 +130,7 @@
         <button id="btnEdit" title="Leave the render and keep editing (Esc)" disabled>◀ Back to Edit</button>
         <button id="btnSaveImg" title="Save the rendered picture as a PNG (Ctrl+E)">💾 Save Image</button>
       </div>
-      <div class="modes ptabs"><button data-ptab="world" class="on" title="Fine-tune land, water, sky and look">World</button></div>
+      <div class="modes ptabs" style="display:none"></div>   <!-- no panel switcher any more: the left side is the World panel (or the New Scene sheet) -->
       <div class="ppage" id="startPage"><fieldset id="start"></fieldset>
         <button class="big" id="startDone" style="width:100%;flex:none"><b>Done - start editing</b></button></div>
       <div class="ppage" id="worldPage" style="display:none"><fieldset id="world"></fieldset></div>
@@ -1768,7 +1768,6 @@ function setPanel(p) {
   panel = p;
   document.querySelectorAll('[data-ptab]').forEach(b => b.classList.toggle('on', b.dataset.ptab === p));
   $('startPage').style.display = p === 'start' ? '' : 'none';
-  document.querySelector('.ptabs').style.display = p === 'start' ? 'none' : '';   // the New Scene sheet replaces the tabs while open
   $('worldPage').style.display = p === 'world' ? '' : 'none';
   if (p === 'world') renderWorld();
   if (p === 'start') renderStart();
