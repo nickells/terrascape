@@ -29,9 +29,10 @@ npm test
 
 ## Coastal house scene
 
-Open [The Quiet Coast](scenes/the-quiet-coast.tsc) through File → Open for a
+Choose **New Scene → The Quiet Coast** (or [open the preset](http://localhost:8765/?scene=quietcoast)) for a
 minimal coastal interior with detailed FurniMesh furniture. The original geometric study is
-also saved in `scenes/the-quiet-coast-original.tsc`.
+also saved in `scenes/the-quiet-coast-original.tsc`. **Restore saved scene** returns
+the furnished preset to its saved composition and camera.
 
 ## Adding detailed furniture
 

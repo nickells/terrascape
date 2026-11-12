@@ -251,11 +251,11 @@
     },
     {
       "id": 20,
-      "type": "cylinder",
-      "name": "Low bronze table",
+      "type": "model",
+      "name": "Walnut and brass coffee table",
       "pos": [
         0,
-        11.8,
+        9,
         1
       ],
       "rot": [
@@ -264,34 +264,13 @@
         0
       ],
       "scale": [
-        2.125,
-        0.12,
-        2.125
+        0.85,
+        0.85,
+        0.85
       ],
-      "mat": "glossy",
-      "color": "#9a8666"
-    },
-    {
-      "id": 21,
-      "type": "cylinder",
-      "name": "Table pedestal",
-      "pos": [
-        0,
-        10.2,
-        1
-      ],
-      "rot": [
-        0,
-        0,
-        0
-      ],
-      "scale": [
-        0.625,
-        0.2,
-        0.625
-      ],
-      "mat": "granite",
-      "color": "#a39276"
+      "mat": "matte",
+      "color": "#ffffff",
+      "model": "furnimesh:walnut-brass-coffee-table"
     },
     {
       "id": 22,
@@ -299,7 +278,7 @@
       "name": "A single closed book",
       "pos": [
         -1,
-        12.6,
+        13.075,
         1
       ],
       "rot": [
@@ -553,6 +532,30 @@
       ],
       "mat": "matte",
       "color": "#ffffff"
+    },
+    {
+      "id": 33,
+      "type": "model",
+      "model": "furnimesh:organic-bronze-floor-lamp",
+      "name": "Organic bronze floor lamp",
+      "pos": [
+        -43,
+        9,
+        -8
+      ],
+      "rot": [
+        0,
+        0.3,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "mat": "matte",
+      "color": "#ffffff"
     }
-  ]
+  ],
+  "scene": "quietcoast"
 }

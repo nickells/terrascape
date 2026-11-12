@@ -180,6 +180,7 @@ import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
 import { createTracer, KIND, MOON_GLSL, MOON_R } from './tracer.js';
 import { startPixelEmoji } from './emoji.js';
+import { SAVED_SCENES, loadSavedScene } from './saved-scenes.js';
 import { getFurniMeshCatalogue, getModelCatalogues, isIndexedModel, getIndexedModel } from './model-catalog.js';
 
 // fast click-picking on the big Poly Haven meshes
@@ -1115,6 +1116,7 @@ function generateDoc(seedV, palName, terrain, opts = {}) {
 // the horizon, near-monochrome skies, things half sunk, tiny things in vast space, giant things up close.
 const PI = Math.PI;
 const SCENES = {
+  ...SAVED_SCENES,
   emptyfloor: { label: 'Empty scene with floor', pal: 'algebra', time: 'day', t: { land: false, water: false, floor: 'tiles', floorTile: 6 },
     build({ d }) {
       d.camera = { pos: [24, 18, 32], target: [0, 4, 0], fov: 50 };
@@ -1489,6 +1491,7 @@ function blit() { renderer.setRenderTarget(null); renderer.clear(); renderer.ren
 // ---------- editor: orbit camera, picking, move/rotate/scale gizmo ----------
 const $ = id => document.getElementById(id);
 const msg = $('msg');
+let sceneBuild = 0;
 let mode = 'edit', viewMode = 'solid', dirty = true, sel = null;
 const overlay = new THREE.Scene();
 const orbit = new OrbitControls(camera, canvas);
@@ -1521,6 +1524,7 @@ function applyCamera() {
   orbit.update();
 }
 function applyDoc() {
+  sceneBuild++; // Opening a document cancels any older preset still loading.
   doc.terrain = terrainSettings(doc.terrain);
   if (doc && doc.terrain && !doc.baseTerrain) doc.baseTerrain = JSON.parse(JSON.stringify(doc.terrain));   // the world's preset, for Reset
   select(null);
@@ -2307,15 +2311,28 @@ const WYd = d => (d.terrain && d.terrain.waterY) || 0;
 // ---------- Start panel: one page, live, undoable (replaces the step-by-step wizard) ----------
 let startLookOpen = false;
 const start = { world: null, pal: 'desert', time: 'day', weather: 'clear', layout: 'random', seed: 1 };
-function startBuild() {   // regenerate the whole scene from the Start choices
-  const W = SCENES[start.world];
-  if (W) { const d = generateScene(start.world, start.seed); if (start.lookTouched) applyLook(d, start); doc = d; }
-  else {
-    const L = LANDSCAPES[start.world];
-    const d = generateDoc(start.seed, start.pal, { ...TERRAIN_DEFAULTS, ...L.t }, { layout: start.layout, base: L.base, layoutSeed: start.layoutSeed });
-    applyLook(d, start); doc = d;
+async function startBuild() {
+  const ticket = ++sceneBuild, choices = { ...start }, W = SCENES[choices.world];
+  try {
+    let d;
+    if (W?.file) {
+      msg.textContent = `Loading ${W.label} and its furniture…`;
+      d = await loadSavedScene(choices.world);
+    } else if (W) d = generateScene(choices.world, choices.seed);
+    else {
+      const L = LANDSCAPES[choices.world];
+      d = generateDoc(choices.seed, choices.pal, { ...TERRAIN_DEFAULTS, ...L.t }, { layout: choices.layout, base: L.base, layoutSeed: choices.layoutSeed });
+    }
+    if (!W || choices.lookTouched) applyLook(d, choices);
+    await loadDocModels(d);
+    if (ticket !== sceneBuild) return false;
+    doc = d; applyDoc(); commit(); renderStart();
+    msg.textContent = `Scene: ${W?.label || LANDSCAPES[choices.world].label}`;
+    return true;
+  } catch (error) {
+    if (ticket === sceneBuild) msg.textContent = `Couldn't load this scene: ${error.message}`;
+    return false;
   }
-  applyDoc(); commit();
 }
 function renderStart() {
   const el = $('start'); if (!el) return;
@@ -2333,8 +2350,9 @@ function renderStart() {
     <div class="row"><label for="startTime">Time</label><select id="startTime" data-s="time">${Object.entries(LOOK_TIMES).map(([k,v]) => `<option value="${k}" ${start.time === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
     <div class="row"><label for="startWeather">Weather</label><select id="startWeather" data-s="weather">${Object.entries(LOOK_WEATHER).map(([k,v]) => `<option value="${k}" ${start.weather === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
     </details><div class="section-label">Arrangement</div>
-    ${start.world === 'emptyfloor' ? '<div class="hint">An infinite tiled floor. Use Add to place your first object.</div>' : isScene ? `<div class="hint">${W.label} has its own composition.</div>` : `<select data-s="layout">${['random', 'Centrepiece', 'Colonnade', 'Rule of thirds', 'Stone circle', 'Still life', 'Empty'].map(k => `<option value="${k}" ${start.layout === k ? 'selected' : ''}>${k === 'random' ? 'Any (random)' : k}</option>`).join('')}</select>`}
-    ${start.world === 'emptyfloor' ? '' : '<button data-s="reroll" style="width:100%;margin-top:4px" title="Keep this scene type and look; try another arrangement">🎲 Another arrangement</button>'}
+    ${start.world === 'emptyfloor' ? '<div class="hint">An infinite tiled floor. Use Add to place your first object.</div>' : isScene ? `<div class="hint">${W.description || `${W.label} has its own composition.`}</div>` : `<select data-s="layout">${['random', 'Centrepiece', 'Colonnade', 'Rule of thirds', 'Stone circle', 'Still life', 'Empty'].map(k => `<option value="${k}" ${start.layout === k ? 'selected' : ''}>${k === 'random' ? 'Any (random)' : k}</option>`).join('')}</select>`}
+    ${W.file ? '<button data-s="restore" style="width:100%;margin-top:4px">Restore saved scene</button>' : ''}
+    ${start.world === 'emptyfloor' || W.file ? '' : '<button data-s="reroll" style="width:100%;margin-top:4px" title="Keep this scene type and look; try another arrangement">🎲 Another arrangement</button>'}
     <button data-s="surprise" style="width:100%;margin-top:12px" title="Choose a random scene and arrangement">🎲 Surprise me</button>`;
 }
 $('start').addEventListener('toggle', e => { if (e.target.id === 'startLook') startLookOpen = e.target.open; }, true);
@@ -2343,7 +2361,8 @@ document.addEventListener('click', e => {
   const b = e.target.closest('#start button[data-s]'); if (!b || !doc) return;
   const g = b.dataset.s, v = b.dataset.v;
   if (mode !== 'edit') setMode('edit');
-  if (g === 'reroll') {   // only the arrangement for landscapes; art-directed scenes are one composition, so they reroll whole
+  if (g === 'restore') { start.lookTouched = false; startBuild(); }
+  else if (g === 'reroll') {   // only the arrangement for landscapes; art-directed scenes are one composition, so they reroll whole
     if (SCENES[start.world]) start.seed = (Math.random() * 1e9) | 0; else start.layoutSeed = (Math.random() * 1e9) | 0;
     startBuild();
   }
@@ -2669,16 +2688,17 @@ modelKeys.forEach(k => modelLoads[k].finally(() => {
 }));
 assetsReady.then(() => {
   loadStep('Building the landscape…', 0.85);
-  setTimeout(() => {   // let the message paint before the heavy terrain build
+  setTimeout(async () => {   // let the message paint before the heavy terrain build
     doc = generateDoc(1234, 'desert');
     applyDoc();
     $('win').classList.remove('loading');
     frame();
     loadStep('Ready', 1);
     setTimeout(() => $('loader').remove(), 250);   // after the first frame is on screen
-    const sk = Object.keys(SCENES); start.world = sk[(Math.random() * sk.length) | 0]; start.seed = (Math.random() * 1e9) | 0;
+    const requestedScene = new URLSearchParams(location.search).get('scene');
+    const sk = Object.keys(SCENES); start.world = Object.hasOwn(SCENES, requestedScene) ? requestedScene : sk[(Math.random() * sk.length) | 0]; start.seed = (Math.random() * 1e9) | 0;
     start.pal = SCENES[start.world].pal; if (SCENES[start.world].time) start.time = SCENES[start.world].time;
-    startBuild(); resetHistory(); setPanel('start');   // land on a finished scene with the Start panel open
+    await startBuild(); resetHistory(); setPanel('start');   // land on a finished scene with the Start panel open
     // build picking structures for the big models in the background so the first click is quick
     setTimeout(() => Object.values(models).forEach(ensureBVH), 500);
   }, 30);
