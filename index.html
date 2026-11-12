@@ -23,6 +23,12 @@
   .dropdown .sep{border-top:1px solid #808080;border-bottom:1px solid #fff;margin:3px 2px;}
   .main{display:flex;gap:4px;align-items:flex-start;}
   .side{display:flex;flex-direction:column;gap:4px;width:196px;height:604px;}
+  .rside .ppage{height:100%;}
+  #start{flex:1 1 auto;min-height:0;overflow-y:auto;}
+  #start select{width:100%;}
+  #start .choices{display:grid;gap:2px;margin:2px 0 4px;} #start .c3{grid-template-columns:1fr 1fr 1fr;}
+  #start .choice{padding:3px 1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #start .choice.on{border-color:#000 #fff #fff #000;box-shadow:inset 1px 1px #808080;background:#d8d8d8;font-weight:bold;}
   .win.loading .side{pointer-events:none;opacity:.55;}
   #inspector,#world{flex:1 1 auto;min-height:0;overflow-y:auto;}
   .ppage{display:flex;flex-direction:column;gap:4px;flex:1 1 auto;min-height:0;}
@@ -123,7 +129,17 @@
         <button id="btnEdit" title="Leave the render and keep editing (Esc)" disabled>◀ Back to Edit</button>
         <button id="btnSaveImg" title="Save the rendered picture as a PNG (Ctrl+E)">💾 Save Image</button>
       </div>
-      <div class="modes ptabs"><button data-ptab="objects" class="on" title="Add, list and edit objects">Objects</button><button data-ptab="world" title="Land, water, sky and palette">World</button></div>
+      <div class="modes ptabs"><button data-ptab="start" class="on" title="Pick a world, a look and an arrangement">Start</button><button data-ptab="world" title="Fine-tune land, water and sky">World</button></div>
+      <div class="ppage" id="startPage"><fieldset id="start"></fieldset></div>
+      <div class="ppage" id="worldPage" style="display:none"><fieldset id="world"></fieldset></div>
+    </div>
+    <div class="well"><canvas id="view" tabindex="0"></canvas>
+      <!-- startup progress: plain HTML so it shows before three.js has even downloaded -->
+      <div id="loader"><div class="lbox">
+        <div class="title"><span>Terrascape 2.0</span></div>
+        <div class="lbody"><div id="lmsg">Loading the 3D engine…</div><div class="lbar"><div id="lfill"></div></div></div>
+      </div></div></div>
+    <div class="side rside">
       <div class="ppage" id="objPage">
       <div class="ctabs">
         <div class="tabs"><button data-ctab="create" class="on">Add</button><button data-ctab="list">List</button></div>
@@ -135,14 +151,7 @@
       </div>
       <fieldset id="inspector"></fieldset>
       </div>
-      <div class="ppage" id="worldPage" style="display:none"><fieldset id="world"></fieldset></div>
     </div>
-    <div class="well"><canvas id="view" tabindex="0"></canvas>
-      <!-- startup progress: plain HTML so it shows before three.js has even downloaded -->
-      <div id="loader"><div class="lbox">
-        <div class="title"><span>Terrascape 2.0</span></div>
-        <div class="lbody"><div id="lmsg">Loading the 3D engine…</div><div class="lbar"><div id="lfill"></div></div></div>
-      </div></div></div>
   </div>
   <div class="status"><div id="msg">Loading...</div><div id="lens" title="Camera lens (field of view): left = telephoto, right = wide-angle. Changing it keeps your subject the same size."><span>Lens</span><input type="range" id="lensIn" min="10" max="100" step="1" value="50"><span id="lensVal">50° Normal</span></div><div id="modeLbl">Edit</div><div id="pct"><select id="resSel" title="Output size for Render, Ray Trace and Save Image">
     <option value="400">Size: 400 x 300</option><option value="640">Size: 640 x 480</option><option value="800">Size: 800 x 600</option><option value="full">Size: Full</option></select></div></div>
@@ -1446,7 +1455,6 @@ function pick(ev) {
   if (!hit) return select(null);
   if (hit.object === terrain) { select(null); msg.textContent = 'Double-click the land, water or sky to edit the World'; return; }
   const r = rootOf(hit.object), o = r ? doc.objects.find(x => x.id === r.userData.docId) : null;
-  if (o && panel === 'world') setPanel('objects');   // picking an object means you want its settings
   select(o);
 }
 let downAt = null;
@@ -1527,7 +1535,6 @@ function create(type, extra = {}) {
   o.pos = [p.x, Math.max(p.y, WY()) + LIFT[type] * o.scale[1], p.z];
   if (type === 'clouds') o.pos[1] = 220 + 80 * doc.objects.filter(x => x.type === 'clouds').length;   // stack new layers higher
   doc.objects.push(o); addRoot(o);
-  if (panel === 'world') setPanel('objects');
   updateReflections(); select(o);
   msg.textContent = `Added ${o.name}`;
 }
@@ -1719,7 +1726,7 @@ const SKY_SLIDERS = [
   ['fog', 'Haze', 0.0002, 0.003, 0.0001, v => (v * 1000).toFixed(1)],
   ['ambient', 'Ambient', 0.2, 3, 0.05, v => (+v).toFixed(2)],
 ];
-let landTab = 'Land', panel = 'objects';
+let landTab = 'Land', panel = 'start';
 const wp = $('world');
 function skyTab() {
   const S = doc.sky;
@@ -1757,9 +1764,10 @@ function renderWorld() {
 function setPanel(p) {
   panel = p;
   document.querySelectorAll('[data-ptab]').forEach(b => b.classList.toggle('on', b.dataset.ptab === p));
-  $('objPage').style.display = p === 'objects' ? '' : 'none';
+  $('startPage').style.display = p === 'start' ? '' : 'none';
   $('worldPage').style.display = p === 'world' ? '' : 'none';
   if (p === 'world') renderWorld();
+  if (p === 'start') renderStart();
 }
 function showWorld(tab) {
   if (mode !== 'edit') setMode('edit');
@@ -2069,7 +2077,7 @@ function wizBuild() {
   const d = generateDoc(w.seed, w.pal, { ...TERRAIN_DEFAULTS, ...L.t }, { layout: w.layout, base: L.base });
   applyLook(d, w); doc = d; applyDoc();
 }
-function openWizard(startStep = 0, mode = 'new', first = false) {
+function openWizardLegacy(startStep = 0, mode = 'new', first = false) {   // old step-by-step wizard, superseded by the Start panel
   if (wiz) return;
   closeMenu(); commit();
   const keep = doc ? JSON.stringify(doc) : null;
@@ -2100,7 +2108,7 @@ function openWizard(startStep = 0, mode = 'new', first = false) {
     if (p === 'Arrangement' && SCENES[wiz.world]) body = `<div class="hint">${SCENES[wiz.world].label} has its own composition.</div><button data-a="reroll" style="margin-top:6px">🎲 Another version</button>`;
     else if (p === 'Arrangement') body = `<div class="hint">How are the objects arranged?</div><div class="choices c2">${['random', 'Centrepiece', 'Colonnade', 'Rule of thirds', 'Stone circle', 'Still life', 'Empty'].map(k => opt('layout', k, k === 'random' ? 'Any (random)' : k, wiz.layout === k)).join('')}</div>
       <button data-a="reroll" style="margin-top:6px">🎲 Another version</button>`;
-    el.innerHTML = `<div class="title"><span>${mode === 'new' ? 'New Scene' : mode === 'world' ? 'Change World' : 'Change Look'}${pages.length > 1 ? ` - Step ${wiz.step + 1} of ${pages.length}: ${p}` : ''}</span><span class="tb"><b data-a="cancel">×</b></span></div>
+    el.innerHTML = `<div class="title"><span>${mode === 'new' ? 'New Scene' : mode === 'world' ? 'Change World' : 'Change Look'}${pages.length > 1 ? ` - Step ${wiz.step + 1} of ${pages.length}: ${p}` : ''}</span><span class="tb"><b data-a="finish" title="Close and keep this scene">×</b></span></div>
       <div class="body">${body}</div>
       <div class="wbtns">${mode === 'new' && wiz.step === 0 ? '<button data-a="surprise">Surprise me</button>' : '<span></span>'}<span>
       ${wiz.step > 0 ? '<button data-a="back">&lt; Back</button>' : ''}${last ? '<button data-a="finish"><b>Finish</b></button>' : '<button data-a="next">Next &gt;</button>'}
@@ -2139,6 +2147,75 @@ function openWizard(startStep = 0, mode = 'new', first = false) {
   if (mode !== 'new') preview();
   draw();
 }
+// ---------- Start panel: one page, live, undoable (replaces the step-by-step wizard) ----------
+const start = { world: null, pal: 'desert', time: 'day', weather: 'clear', layout: 'random', keepObjs: true, seed: 1 };
+function startBuild() {   // regenerate the whole scene from the Start choices
+  const W = SCENES[start.world];
+  if (W) { const d = generateScene(start.world, start.seed); if (start.lookTouched) applyLook(d, start); doc = d; }
+  else {
+    const L = LANDSCAPES[start.world];
+    const d = generateDoc(start.seed, start.pal, { ...TERRAIN_DEFAULTS, ...L.t }, { layout: start.layout, base: L.base });
+    applyLook(d, start); doc = d;
+  }
+  applyDoc(); commit();
+}
+function renderStart() {
+  const el = $('start'); if (!el) return;
+  const W = SCENES[start.world] || LANDSCAPES[start.world] || {};
+  const opt = (g, v, label, on, extra = '') => `<button class="choice${on ? ' on' : ''}" data-s="${g}" data-v="${v}" title="${label}">${label}${extra}</button>`;
+  const isScene = !!SCENES[start.world];
+  el.innerHTML = `<legend>Start here</legend>
+    <div class="hint">World</div>
+    <select data-s="world">
+      <optgroup label="Art-directed scenes">${Object.entries(SCENES).map(([k, S]) => `<option value="${k}" ${start.world === k ? 'selected' : ''}>${S.label}</option>`).join('')}</optgroup>
+      <optgroup label="Landscapes">${Object.entries(LANDSCAPES).map(([k, L]) => `<option value="${k}" ${start.world === k ? 'selected' : ''}>${L.label}</option>`).join('')}</optgroup>
+    </select>
+    ${isScene ? '' : `<label class="hint" style="display:block;margin:3px 0 0"><input type="checkbox" data-s="keep" ${start.keepObjs ? 'checked' : ''}> Keep my objects when switching</label>`}
+    <div class="hint" style="margin-top:6px">Palette</div><div class="choices c3">${Object.keys(PALETTES).map(k => opt('pal', k, k[0].toUpperCase() + k.slice(1), doc && doc.palette === k, swatch(k))).join('')}</div>
+    <div class="hint">Time of day</div><div class="choices c3">${Object.entries(LOOK_TIMES).map(([k, v]) => opt('time', k, v, start.time === k)).join('')}</div>
+    <div class="hint">Weather</div><div class="choices c3">${Object.entries(LOOK_WEATHER).map(([k, v]) => opt('weather', k, v, start.weather === k)).join('')}</div>
+    <div class="hint" style="margin-top:4px">Arrangement</div>
+    ${isScene ? `<div class="hint">${W.label} has its own composition.</div>` : `<select data-s="layout">${['random', 'Centrepiece', 'Colonnade', 'Rule of thirds', 'Stone circle', 'Still life', 'Empty'].map(k => `<option value="${k}" ${start.layout === k ? 'selected' : ''}>${k === 'random' ? 'Any (random)' : k}</option>`).join('')}</select>`}
+    <div class="grid2" style="margin-top:6px"><button data-s="reroll" title="Same choices, a different version">🎲 Another</button><button data-s="surprise" title="Random world, look and arrangement">Surprise me</button></div>
+    <div class="hint" style="margin-top:6px">Every change applies straight away. Ctrl+Z undoes it.</div>`;
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('#start button[data-s]'); if (!b || !doc) return;
+  const g = b.dataset.s, v = b.dataset.v;
+  if (mode !== 'edit') setMode('edit');
+  if (g === 'pal' || g === 'time' || g === 'weather') {   // look: restyle without touching objects
+    start[g] = v; start.lookTouched = true;
+    if (g === 'pal') start.pal = v;
+    applyLook(doc, { pal: start.pal, time: start.time, weather: start.weather }); applyDoc(); commit();
+  } else if (g === 'reroll') { start.seed = (Math.random() * 1e9) | 0; startBuild(); }
+  else if (g === 'surprise') {
+    const pick = o => { const k = Object.keys(o); return k[(Math.random() * k.length) | 0]; };
+    const scene = Math.random() < 0.65;
+    Object.assign(start, { world: pick(scene ? SCENES : LANDSCAPES), time: pick(LOOK_TIMES), weather: pick(LOOK_WEATHER), layout: 'random', seed: (Math.random() * 1e9) | 0, lookTouched: false });
+    const W = SCENES[start.world] || LANDSCAPES[start.world]; start.pal = W.pal; if (W.time) start.time = W.time;
+    startBuild(); msg.textContent = `Surprise: ${W.label}`;
+  }
+  renderStart();
+});
+document.addEventListener('change', e => {
+  const t = e.target; if (!t.closest || !t.closest('#start') || !t.dataset.s || !doc) return;
+  if (mode !== 'edit') setMode('edit');
+  if (t.dataset.s === 'keep') { start.keepObjs = t.checked; return; }
+  if (t.dataset.s === 'layout') { start.layout = t.value; startBuild(); }
+  if (t.dataset.s === 'world') {
+    const prevBase = doc.objects.some(o => o.role === 'base');
+    start.world = t.value;
+    const W = SCENES[t.value] || LANDSCAPES[t.value];
+    if (LANDSCAPES[t.value] && start.keepObjs && prevBase && !doc.scene) {   // carry the arrangement onto the new ground
+      changeWorld(JSON.parse(JSON.stringify(doc)), t.value, true); commit();
+    } else { start.pal = W.pal; if (W.time) start.time = W.time; start.lookTouched = false; startBuild(); }
+    msg.textContent = `World: ${W.label}`;
+  }
+  renderStart();
+});
+// old entry points (File > New, Change World / Look) now just open the Start panel
+function openWizard() { if (mode !== 'edit') setMode('edit'); closeMenu(); setPanel('start'); }
+
 // Change World: swap the landscape and the base the scene stands on; optionally carry objects along
 function changeWorld(base, worldKey, keepObjs) {
   const L = LANDSCAPES[worldKey];
@@ -2444,7 +2521,9 @@ assetsReady.then(() => {
     frame();
     loadStep('Ready', 1);
     setTimeout(() => $('loader').remove(), 250);   // after the first frame is on screen
-    openWizard(0, 'new', true);   // start by choosing a world
+    const sk = Object.keys(SCENES); start.world = sk[(Math.random() * sk.length) | 0]; start.seed = (Math.random() * 1e9) | 0;
+    start.pal = SCENES[start.world].pal; if (SCENES[start.world].time) start.time = SCENES[start.world].time;
+    startBuild(); resetHistory(); setPanel('start');   // land on a finished scene with the Start panel open
     // build picking structures for the big models in the background so the first click is quick
     setTimeout(() => Object.values(models).forEach(ensureBVH), 500);
   }, 30);
