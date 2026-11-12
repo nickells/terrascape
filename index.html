@@ -1,0 +1,2364 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Terrascape 2.0</title>
+<style>
+  html,body{margin:0;height:100%;background:#008080;font:11px Verdana,"MS Sans Serif",Geneva,sans-serif;}
+  *{-webkit-font-smoothing:none;-moz-osx-font-smoothing:auto;font-smooth:never;text-rendering:optimizeSpeed;}
+  body{display:flex;align-items:center;justify-content:center;}
+  .win{background:#c0c0c0;border:2px solid;border-color:#fff #000 #000 #fff;box-shadow:inset -1px -1px #808080,inset 1px 1px #dfdfdf;padding:3px;position:relative;}
+  .title{background:linear-gradient(90deg,#000080,#1084d0);color:#fff;font-weight:bold;padding:3px 4px;display:flex;justify-content:space-between;align-items:center;}
+  .title .tb b{display:inline-block;width:14px;height:12px;background:#c0c0c0;color:#000;border:1px solid;border-color:#fff #000 #000 #fff;text-align:center;line-height:11px;font-size:9px;margin-left:2px;}
+  .menubar{display:flex;padding:2px 0;position:relative;user-select:none;}
+  .menubar>div{padding:2px 7px;cursor:default;}
+  .menubar>div.open{background:#000080;color:#fff;}
+  .dropdown{position:absolute;z-index:40;max-height:540px;overflow-y:auto;background:#c0c0c0;border:2px solid;border-color:#fff #000 #000 #fff;box-shadow:inset -1px -1px #808080,2px 2px 0 rgba(0,0,0,.3);padding:2px;min-width:190px;}
+  .dropdown .item{display:flex;justify-content:space-between;gap:18px;padding:3px 8px 3px 20px;position:relative;white-space:nowrap;cursor:default;}
+  .dropdown .item:hover{background:#000080;color:#fff;}
+  .dropdown .item.checked::before{content:"✓";position:absolute;left:6px;}
+  .dropdown .item .k{opacity:.75;}
+  .dropdown .item.off{color:#808080;} .dropdown .item.off:hover{background:none;color:#808080;}
+  .dropdown .item.head{color:#404040;font-weight:bold;padding-left:8px;} .dropdown .item.head:hover{background:none;color:#404040;}
+  .dropdown .sep{border-top:1px solid #808080;border-bottom:1px solid #fff;margin:3px 2px;}
+  .main{display:flex;gap:4px;align-items:flex-start;}
+  .side{display:flex;flex-direction:column;gap:4px;width:196px;height:604px;}
+  .win.loading .side{pointer-events:none;opacity:.55;}
+  #inspector{flex:1 1 auto;min-height:0;overflow-y:auto;}
+  button,select,input{font:inherit;}
+  button{background:#c0c0c0;border:2px solid;border-color:#fff #000 #000 #fff;box-shadow:inset -1px -1px #808080;padding:3px 4px;cursor:pointer;}
+  button:disabled{color:#808080;text-shadow:1px 1px #fff;cursor:default;}
+  button:disabled:active{border-color:#fff #000 #000 #fff;box-shadow:inset -1px -1px #808080;}
+  button.pressed,button:active{border-color:#000 #fff #fff #000;box-shadow:inset 1px 1px #808080;}
+  button.big{text-align:left;padding:4px 6px;}
+  fieldset{border:1px solid #808080;box-shadow:1px 1px #fff;padding:4px;margin:0;}
+  legend{padding:0 2px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:3px;}
+  .grid2 button{padding:3px 2px;}
+  select,input[type=text],input[type=number]{background:#fff;border:2px solid;border-color:#808080 #fff #fff #808080;padding:1px 2px;box-sizing:border-box;min-width:0;}
+  select{width:100%;}
+  input[type=color]{width:100%;height:20px;padding:0;border:2px solid;border-color:#808080 #fff #fff #808080;background:#c0c0c0;}
+  .row{display:grid;grid-template-columns:54px 1fr;align-items:center;gap:3px;margin:3px 0;}
+  .xyz{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;}
+  .xyz input{width:100%;}
+  .xyz input[type=number]{-moz-appearance:textfield;} .xyz input::-webkit-inner-spin-button,.xyz input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+  .xyz input[data-ax='0']{border-left-color:#c03030;} .xyz input[data-ax='1']{border-left-color:#20a020;} .xyz input[data-ax='2']{border-left-color:#3050d0;}
+  .axes{margin:4px 0 -2px;} .axes span{text-align:center;color:#404040;font-size:10px;}
+  .actions{position:sticky;bottom:-4px;background:#c0c0c0;margin:4px -4px -4px;padding:4px;border-top:1px solid #808080;box-shadow:0 -1px #fff inset;}
+  .sw{display:flex;height:6px;margin-top:2px;border:1px solid #808080;} .sw i{flex:1;}
+  .hint{color:#404040;line-height:1.35;padding:2px;}
+  .modes{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:2px;margin:1px 0 4px;} .modes button{padding:2px 1px;}
+  .modes button.on{border-color:#000 #fff #fff #000;box-shadow:inset 1px 1px #808080;background:#d8d8d8;font-weight:bold;}
+  .slider.off{color:#808080;}
+  .slider{display:grid;grid-template-columns:72px 1fr 40px;align-items:center;gap:2px;margin:1px 0;}
+  .slider>div{display:contents;}
+  .slider>div>span:first-child{grid-column:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .slider>input{grid-column:2;grid-row:1;width:100%;margin:0;height:16px;}
+  .slider>div>span:last-child{grid-column:3;grid-row:1;text-align:right;}
+  .tabs{display:flex;gap:0;margin:2px 0 -2px;position:relative;z-index:1;}
+  .tabs button{flex:1;border-bottom:none;padding:2px 0;box-shadow:none;margin-right:-2px;background:#c0c0c0;}
+  .tabs button.on{padding-bottom:4px;margin-top:-2px;}
+  .ctabs .tabpage{box-sizing:border-box;margin-bottom:0;}   /* Create sizes to its buttons; Objects copies that height */
+  .listbox{height:100%;overflow-y:auto;background:#fff;border:2px solid;border-color:#808080 #fff #fff #808080;box-sizing:border-box;}
+  .li{display:flex;align-items:center;gap:4px;padding:1px 3px;white-space:nowrap;cursor:default;}
+  .li .g{width:12px;text-align:center;flex:none;} .li .nm{overflow:hidden;text-overflow:ellipsis;flex:1;} .li .x{color:#808080;font-size:10px;}
+  .li.sel{background:#000080;color:#fff;} .li.sel .x{color:#c0c0ff;} .li.hid .nm,.li.hid .g{color:#a0a0a0;} .li.sel.hid .nm{color:#b0b0d0;}
+  .li .eye{flex:none;width:14px;text-align:center;cursor:pointer;} .li .eye:hover{outline:1px dotted currentColor;}
+  .li.land{border-bottom:1px dotted #c0c0c0;}
+  .tabpage{border:2px solid;border-color:#fff #000 #000 #fff;box-shadow:inset -1px -1px #808080;padding:4px;margin-bottom:4px;}
+  .dialog.wiz{left:8px;top:58px;transform:none;width:340px;max-width:none;}
+  .wiz .body{height:514px;overflow-y:auto;box-sizing:border-box;}
+  .shade{position:absolute;inset:0;z-index:29;cursor:not-allowed;}
+  .wiz .choices{display:grid;gap:3px;margin:3px 0 6px;} .wiz .c2{grid-template-columns:1fr 1fr;} .wiz .c3{grid-template-columns:1fr 1fr 1fr;}
+  .wiz .choice{padding:4px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .wiz .choice.on{border-color:#000 #fff #fff #000;box-shadow:inset 1px 1px #808080;background:#d8d8d8;font-weight:bold;}
+  .wiz .wbtns{display:flex;justify-content:space-between;padding:0 10px 10px;} .wiz .wbtns button{min-width:64px;margin-left:4px;}
+  .dialog.ph{max-width:none;width:600px;top:48%;}
+  .phbar{display:grid;grid-template-columns:1fr 150px 130px;gap:4px;padding:6px 6px 4px;}
+  .phbar input{width:100%;}
+  .phgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:4px 6px;height:380px;overflow-y:auto;background:#fff;margin:0 6px;border:2px solid;border-color:#808080 #fff #fff #808080;align-content:start;}
+  .tile{display:flex;flex-direction:column;align-items:center;gap:1px;padding:3px;min-width:0;}
+  .tile img{width:84px;height:84px;object-fit:contain;background:#dcdcdc;}
+  .tile .nm{width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;}
+  .tile .pc{color:#555;font-size:10px;} .tile .pc.heavy,.phfoot .heavy{color:#a02020;}
+  .tile.busy{opacity:.5;cursor:wait;}
+  .phfoot{display:flex;justify-content:space-between;padding:4px 8px 6px;color:#404040;}
+  .well{border:2px solid;border-color:#808080 #fff #fff #808080;background:#000;line-height:0;}
+  canvas{width:800px;height:600px;image-rendering:pixelated;display:block;outline:none;}
+  .status{display:flex;gap:3px;margin-top:3px;}
+  .status div{border:1px solid;border-color:#808080 #fff #fff #808080;padding:2px 4px;}
+  .status #msg{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+  .status #modeLbl{flex:0 0 70px;} .status #pct{flex:0 0 130px;padding:0;}
+  #resSel{border:0;background:transparent;width:100%;padding:1px 2px;cursor:pointer;}
+  .dialog{position:absolute;z-index:30;left:50%;top:40%;transform:translate(-50%,-50%);background:#c0c0c0;border:2px solid;border-color:#fff #000 #000 #fff;box-shadow:inset -1px -1px #808080,3px 3px 0 rgba(0,0,0,.35);min-width:320px;max-width:420px;}
+  .dialog .body{padding:10px 12px;line-height:1.5;}
+  .dialog .body table{border-collapse:collapse;} .dialog .body td{padding:1px 10px 1px 0;vertical-align:top;}
+  .dialog .ok{display:flex;justify-content:center;gap:6px;padding:0 0 10px;} .dialog .ok button{min-width:70px;}
+  .dialog .body input[type=text]{width:100%;margin-top:4px;}
+</style>
+</head>
+<body>
+<div class="win loading" id="win">
+  <div class="title"><span>Terrascape 2.0 - [<span id="docname">untitled</span>]</span><span class="tb"><b>_</b><b>□</b><b>×</b></span></div>
+  <div class="menubar" id="menubar"></div>
+  <div class="main">
+    <div class="side">
+      <div class="grid2" id="renderBtns">
+        <button class="big" id="btnRender" title="Quick supersampled render at the output size (Enter)">▶ Render</button>
+        <button class="big" id="btnRay" title="Ray trace at the output size (Shift+Enter)">✦ Ray Trace</button>
+        <button id="btnEdit" title="Leave the render and keep editing (Esc)" disabled>◀ Back to Edit</button>
+        <button id="btnSaveImg" title="Save the rendered picture as a PNG (Ctrl+E)">💾 Save Image</button>
+      </div>
+      <div class="ctabs">
+        <div class="tabs"><button data-ctab="create" class="on">Create</button><button data-ctab="list">Objects</button></div>
+        <div class="tabpage" id="createPage">
+          <div class="grid2" id="createBtns"></div>
+          <button id="btnPH" style="width:100%;margin-top:3px">🌐 Browse Poly Haven…</button>
+        </div>
+        <div class="tabpage" id="listPage" style="display:none"><div class="listbox" id="objList"></div></div>
+      </div>
+      <fieldset id="inspector"></fieldset>
+    </div>
+    <div class="well"><canvas id="view" tabindex="0"></canvas></div>
+  </div>
+  <div class="status"><div id="msg">Loading...</div><div id="modeLbl">Edit</div><div id="pct"><select id="resSel" title="Output size for Render, Ray Trace and Save Image">
+    <option value="400">Size: 400 x 300</option><option value="640">Size: 640 x 480</option><option value="800">Size: 800 x 600</option><option value="full">Size: Full</option></select></div></div>
+</div>
+<input type="file" id="openFile" accept=".tsc,.json" hidden>
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.170.0/examples/jsm/",
+  "three-mesh-bvh": "https://unpkg.com/three-mesh-bvh@0.9.18/src/index.js"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { Reflector } from 'three/addons/objects/Reflector.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { TransformControls } from 'three/addons/controls/TransformControls.js';
+import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
+import { createTracer, KIND, MOON_GLSL, MOON_R } from './tracer.js';
+import { startPixelEmoji } from './emoji.js';
+
+// fast click-picking on the big Poly Haven meshes
+THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
+THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
+THREE.Mesh.prototype.raycast = acceleratedRaycast;
+
+
+let W = 400, H = 300, SS = 3;   // output size and supersampling factor (SS x SS samples per pixel)
+const canvas = document.getElementById('view');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1);
+renderer.setSize(W, H, false);
+renderer.autoClear = false;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const rt = new THREE.WebGLRenderTarget(W * SS, H * SS, {
+  type: THREE.HalfFloatType, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter,
+});
+
+// ---------- ground fog: exp2 distance fog plus a layer that thickens toward y=0 ----------
+THREE.ShaderChunk.fog_pars_vertex += `\n#ifdef USE_FOG\n varying float vFogY;\n#endif\n`;
+THREE.ShaderChunk.fog_vertex += `\n#ifdef USE_FOG\n vFogY = (modelMatrix * vec4(position, 1.0)).y;\n#endif\n`;
+THREE.ShaderChunk.fog_pars_fragment += `\n#ifdef USE_FOG\n varying float vFogY;\n#endif\n`;
+THREE.ShaderChunk.fog_fragment = THREE.ShaderChunk.fog_fragment.replace(
+  'gl_FragColor.rgb = mix(',
+  `#ifdef FOG_EXP2
+     fogFactor = max(fogFactor, 1.0 - exp(-vFogDepth * fogDensity * 1.1 * exp(-max(vFogY, 0.0) / 18.0)));
+   #endif
+   gl_FragColor.rgb = mix(`);
+
+// ---------- Bryce-style procedural materials ----------
+// solid 3D noise evaluated per pixel: colour speckle, fine grain, altitude strata and sub-pixel bump.
+// Supersampling then averages the shimmer into that "smooth but noisy" look.
+const NOISE_FUNCS = `
+  float bh(vec3 p){ p = fract(p * .1031); p += dot(p, p.zyx + 31.32); return fract((p.x + p.y) * p.z); }
+  float bn(vec3 p){ vec3 i = floor(p), f = fract(p); f = f*f*(3.-2.*f);
+    return mix(mix(mix(bh(i), bh(i+vec3(1,0,0)), f.x), mix(bh(i+vec3(0,1,0)), bh(i+vec3(1,1,0)), f.x), f.y),
+               mix(mix(bh(i+vec3(0,0,1)), bh(i+vec3(1,0,1)), f.x), mix(bh(i+vec3(0,1,1)), bh(i+vec3(1,1,1)), f.x), f.y), f.z); }
+  float bfbm(vec3 p){ float s = 0., a = .5; for (int i = 0; i < 5; i++) { s += a * bn(p); p = p * 2.03 + 17.1; a *= .5; } return s; }
+`;
+const NOISE_GLSL = `varying vec3 vWPos;` + NOISE_FUNCS + `
+  vec3 bPerturb(vec3 pos, vec3 n, float h){
+    vec3 sx = dFdx(pos), sy = dFdy(pos), r1 = cross(sy, n), r2 = cross(n, sx);
+    float det = dot(sx, r1); vec2 dh = vec2(dFdx(h), dFdy(h));
+    return normalize(abs(det) * n - sign(det) * (dh.x * r1 + dh.y * r2)); }
+`;
+function bryceify(mat, o) {
+  o = { speckle: 0.15, speckleFreq: 0.05, grain: 0.1, grainFreq: 2, bump: 0, bumpFreq: 1, strata: 0, strataFreq: 0.5, ...o };
+  const f = v => (+v).toFixed(5);
+  mat.customProgramCacheKey = () => JSON.stringify(o);
+  mat.userData.bryce = o;
+  mat.onBeforeCompile = sh => {
+    sh.vertexShader = 'varying vec3 vWPos;\n' + sh.vertexShader.replace('#include <begin_vertex>',
+      '#include <begin_vertex>\n vWPos = (modelMatrix * vec4(transformed, 1.)).xyz;');
+    sh.fragmentShader = NOISE_GLSL + sh.fragmentShader
+      .replace('#include <color_fragment>', `#include <color_fragment>
+        float bS = bfbm(vWPos * ${f(o.speckleFreq)});
+        float bG = bn(vWPos * ${f(o.grainFreq)}) + .5 * bn(vWPos * ${f(o.grainFreq * 3.1)});
+        diffuseColor.rgb *= 1. + ${f(o.speckle)} * (bS - .5) * 2.5 + ${f(o.grain)} * (bG - .75) * 1.6;
+        float band = sin(vWPos.y * ${f(o.strataFreq)} + bS * 9.) * .5 + .5;
+        diffuseColor.rgb *= mix(1., .72 + .56 * band, ${f(o.strata)});`)
+      .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+        float bH = bfbm(vWPos * ${f(o.bumpFreq)}) + .35 * bn(vWPos * ${f(o.bumpFreq * 5.)});
+        normal = bPerturb(-vViewPosition, normal, bH * ${f(o.bump)});`);
+  };
+  return mat;
+}
+
+// world-space tile grid on a standard material; same pattern as the ray tracer's tileAlb()
+function tileify(mat, size) {
+  mat.customProgramCacheKey = () => 'tile' + size;
+  mat.onBeforeCompile = sh => {
+    sh.vertexShader = 'varying vec3 vTPos; varying vec3 vTN;\n' + sh.vertexShader.replace('#include <begin_vertex>',
+      '#include <begin_vertex>\n vTPos = (modelMatrix * vec4(transformed, 1.)).xyz; vTN = normalize(mat3(modelMatrix) * objectNormal);');
+    sh.fragmentShader = 'varying vec3 vTPos; varying vec3 vTN;\n' + sh.fragmentShader.replace('#include <color_fragment>', `#include <color_fragment>
+      { vec3 a = abs(vTN); vec2 uv = a.x > a.y && a.x > a.z ? vTPos.yz : a.y > a.z ? vTPos.xz : vTPos.xy;
+        vec2 f = fract(uv / ${(+size).toFixed(3)}), e = min(f, 1. - f);
+        if (min(e.x, e.y) < .06) diffuseColor.rgb *= .55; }`);
+  };
+  return mat;
+}
+
+// ---------- seeded noise ----------
+let seed = 1;
+const rand = (() => { let s = 1; const f = () => { s |= 0; s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; f.seed = v => s = v; return f; })();
+function hash(x, y, sd = seed) {
+  let h = Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(sd, 1442695041) | 0;
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967295;
+}
+function vnoise(x, y, sd = seed) {
+  const xi = Math.floor(x), yi = Math.floor(y), fx = x - xi, fy = y - yi;
+  const u = fx * fx * (3 - 2 * fx), v = fy * fy * (3 - 2 * fy);
+  const a = hash(xi, yi, sd), b = hash(xi + 1, yi, sd), c = hash(xi, yi + 1, sd), d = hash(xi + 1, yi + 1, sd);
+  return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+}
+const smooth = (a, b, x) => { const t = Math.min(Math.max((x - a) / (b - a), 0), 1); return t * t * (3 - 2 * t); };
+let phase = 0;
+// terrain settings (stored in the scene file as doc.terrain); these defaults reproduce the original look
+const TERRAIN_DEFAULTS = { height: 420, size: 286, sharp: 1, rough: 0.5, variety: 0, riverWidth: 380, wiggle: 90, sea: 0, coast: 0,
+  terrace: 0, basin: 0, stage: 260, stageX: 0, stageZ: 270, water: true, stageFloor: -14, land: true, waterY: 0, floor: '', floorTile: 0 };
+const WY = () => (doc && doc.terrain && doc.terrain.waterY) || 0;   // current water height
+// presets: wet ones keep water and may flood the stage; land ones switch water off and keep the stage dry.
+// Only the river valley and canyon carve a river.
+const DRY = { water: false, riverWidth: 0, stageFloor: 3 };
+// starting points: each sets the landscape sliders and suggests a palette (the seed and stage spot are kept)
+const LANDSCAPES = {
+  valley:      { label: 'River valley', pal: 'desert', t: {} },
+  canyon:      { label: 'Canyon', pal: 'desert', base: { shape: 'mesa', height: 30, s: 1.25 }, t: { height: 520, sharp: 0.8, terrace: 0.85, riverWidth: 170, wiggle: 220, stage: 200 } },
+  coast:       { label: 'Coastline', pal: 'alpine', base: { shape: 'outcrop', height: 24, sharp: 0.8 }, t: { height: 300, sharp: 0.6, coast: 1, riverWidth: 0, stageFloor: 2 } },
+  archipelago: { label: 'Archipelago', pal: 'alpine', t: { height: 380, size: 340, sharp: 0.3, variety: 0.9, riverWidth: 0, waterY: 80 } },
+  lake:        { label: 'Lake basin', pal: 'alien', base: { shape: 'crater', height: 18, s: 1.4 }, t: { height: 520, sharp: 0.9, basin: 1, riverWidth: 0, stage: 0 } },
+  plains:      { label: 'Desert plains', pal: 'desert', base: { shape: 'dunes', height: 12, s: 1.6 }, t: { ...DRY, height: 170, size: 420, sharp: 0.2, rough: 0.45, variety: 0.8 } },
+  alpine:      { label: 'Alpine meadow', pal: 'alpine', base: { shape: 'outcrop', height: 26, sharp: 0.9 }, t: { ...DRY, height: 760, sharp: 1, rough: 0.55, stage: 320, stageFloor: 6 } },
+  hills:       { label: 'Rolling hills', pal: 'alpine', t: { ...DRY, height: 240, size: 380, sharp: 0.05, rough: 0.42, variety: 0.5, stage: 300 } },
+  void:        { label: 'Floating isle (void)', pal: 'void', t: { land: false, water: true, riverWidth: 0, stage: 0 } },
+  badlands:    { label: 'Badlands', pal: 'desert', base: { shape: 'mesa', height: 34, s: 1.15 }, t: { ...DRY, height: 260, size: 220, sharp: 0.55, terrace: 0.7, variety: 0.6, stageFloor: 4 } },
+};
+let terr = { ...TERRAIN_DEFAULTS };
+const meander = z => Math.sin(z * 0.004 + phase) * terr.wiggle;
+function heightAt(x, z) {
+  const T = terr;
+  let a = 1, f = 1 / T.size, s = 0, n = 0;
+  for (let i = 0; i < 8; i++) {
+    const raw = vnoise(x * f, z * f), r = 1 - Math.abs(raw * 2 - 1);
+    const v = raw + (r * r - raw) * T.sharp;               // rolling fbm <-> sharp ridged noise
+    s += v * a * (i > 0 ? 0.5 + s / (n || 1) : 1);         // erosion-ish: detail scales with height
+    n += a; a *= T.rough; f *= 2.03;
+  }
+  s /= n;
+  // variety: a very broad noise that makes some regions flat plains and others big ranges
+  const vary = 1 + T.variety * (vnoise(x * 0.0007 + 71, z * 0.0007 + 19) * 2.4 - 1.1);
+  let h = Math.pow(s, 1.6) * T.height * Math.max(vary, 0.05);
+  if (T.terrace > 0) {                                     // stepped cliffs, like layered sandstone
+    const st = 32, k = h / st, f = k - Math.floor(k);
+    h += ((Math.floor(k) + smooth(0.7, 1, f)) * st - h) * T.terrace;
+  }
+  if (T.riverWidth > 0) {                                  // a winding river valley through the middle
+    const valley = smooth(T.riverWidth * 0.08, T.riverWidth, Math.abs(x - meander(z)));
+    h = h * valley + (T.waterY - 14) * (1 - valley);
+  }
+  const ds = Math.hypot(x - T.stageX, z - T.stageZ);
+  if (T.basin > 0) {                                        // a ring of mountains around a flooded bowl
+    h *= 1 + T.basin * 0.9 * Math.exp(-(((ds - 1050) / 380) ** 2));
+    const bowl = smooth(950, 420, ds) * T.basin;
+    h = h * (1 - bowl) + (T.waterY - 14) * bowl;
+  }
+  if (T.coast > 0) {                                       // ocean: land sinks away on the far side
+    const o = smooth(250, -1400, z) * T.coast;
+    h = h * (1 - o) + (T.waterY - 70) * o;
+  }
+  if (T.stage > 0) {                                        // the stage: an open, low clearing where the scene is built
+    const k = smooth(T.stage * 1.5, T.stage * 0.6, ds);
+    h = h * (1 - k) + Math.min(h, T.waterY + T.stageFloor) * k;
+  }
+  return h - T.sea;   // 'sea' only lowers land in scenes saved before the water level existed
+}
+
+// ---------- scene ----------
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(50, W / H, 1, 6000);
+
+const PALETTES = {
+  desert: { low: '#d8b47a', mid: '#b5532e', rock: '#6e4636', high: '#f0e2c8', zenith: '#1d4fa8', horizon: '#e9c9a0', sun: '#fff1d0', water: '#5f8fa0' },
+  alpine: { low: '#5d7a32', mid: '#6b6656', rock: '#4c4a44', high: '#ffffff', zenith: '#0b2f8a', horizon: '#b9cfe6', sun: '#ffffff', water: '#3f6f8f' },
+  void:   { low: '#5f7d44', mid: '#7d6a4e', rock: '#4a4038', high: '#d8d0c0', zenith: '#04060d', horizon: '#3a4866', sun: '#fff1d6', water: '#13243c' },
+  alien:  { low: '#2d8c78', mid: '#7a3b8f', rock: '#3b2148', high: '#ffd6f0', zenith: '#3a0a4a', horizon: '#ff9a6a', sun: '#ffe08a', water: '#6a3f7a' },
+  // art-directed palettes, from looking at 90s Bryce work: mostly near-monochrome, one accent at most.
+  // chkA / chkB colour the infinite checkerboard floor when a scene has one.
+  lavender:  { low: '#b9a6d9', mid: '#8a6fc0', rock: '#5a4a8a', high: '#f5ecff', zenith: '#33278c', horizon: '#f2b8e2', sun: '#fff2fb', water: '#6a5ab0', chkA: '#241a4e', chkB: '#f1eafb' },
+  silver:    { low: '#9a9fa6', mid: '#7d838b', rock: '#5b6068', high: '#eef0f2', zenith: '#2a2e35', horizon: '#d2d4d8', sun: '#fffaf0', water: '#4f565f' },
+  ember:     { low: '#6b4a5a', mid: '#8a4a3a', rock: '#3a2430', high: '#ffd9b0', zenith: '#1d0c33', horizon: '#ff8a4a', sun: '#ffcf80', water: '#4a2a40' },
+  rust:      { low: '#c8703a', mid: '#9a4424', rock: '#5a2a1a', high: '#f2c9a0', zenith: '#3e2a4a', horizon: '#f0b880', sun: '#fff0d8', water: '#7a5040' },
+  cobalt:    { low: '#3a5a8a', mid: '#2a3f6a', rock: '#1a2a4a', high: '#cfe0ff', zenith: '#040a30', horizon: '#3a78e0', sun: '#e8f4ff', water: '#0a2462' },
+  graphite:  { low: '#e2e5ea', mid: '#9aa0a8', rock: '#3a3d44', high: '#ffffff', zenith: '#14161c', horizon: '#6a6f7a', sun: '#f0f2ff', water: '#2a2e36' },
+  meadow:    { low: '#4a9a2a', mid: '#6aaa3a', rock: '#5a6a4a', high: '#e8f0d0', zenith: '#1a5ad8', horizon: '#bfe0ff', sun: '#fffbe8', water: '#3a7aa8' },
+  blush:     { low: '#e8c8c0', mid: '#c89aa0', rock: '#7a5a6a', high: '#fff4f0', zenith: '#5662c0', horizon: '#ffc4bc', sun: '#fff4e0', water: '#a88498' },
+  sulphur:   { low: '#8aa03a', mid: '#5a6a2a', rock: '#2a3020', high: '#f0f0a0', zenith: '#16240a', horizon: '#d8e070', sun: '#ffffd0', water: '#4a5a2a' },
+  // math-textbook airbrush skies and architectural interiors
+  airbrush:  { low: '#9ab0e0', mid: '#6a70c0', rock: '#3a3a80', high: '#f4f8ff', zenith: '#24126a', horizon: '#92dcff', sun: '#ffffff', water: '#3a6ad0', chkA: '#35287e', chkB: '#e6f2ff' },
+  prism:     { low: '#30408a', mid: '#20307a', rock: '#101a4a', high: '#dde6ff', zenith: '#02031a', horizon: '#1c2a8c', sun: '#ffffff', water: '#0a1450', chkA: '#0a1040', chkB: '#4050b0' },
+  algebra:   { low: '#7a9ad8', mid: '#4a6ac0', rock: '#1a2a5a', high: '#eef4ff', zenith: '#163c9c', horizon: '#cfe6ff', sun: '#fff8f0', water: '#4080c0', chkA: '#0e1628', chkB: '#e8f0ff' },
+  piranesi:  { low: '#a89878', mid: '#8a7a60', rock: '#4a4030', high: '#e8dcc0', zenith: '#56606c', horizon: '#d8c6a0', sun: '#fff0d0', water: '#5a5040', chkA: '#857760', chkB: '#ab9d80' },
+  poolhall:  { low: '#e8e6d8', mid: '#cfcab4', rock: '#8a8670', high: '#f6f3e6', zenith: '#86b0cc', horizon: '#f2ecd2', sun: '#fff2d2', water: '#2aa894', pool: '#86dcc8', tile: '#eef4ec' },
+  poolgreen: { low: '#d8e0d0', mid: '#a0b0a0', rock: '#506050', high: '#e6ece0', zenith: '#1e2a24', horizon: '#6a8070', sun: '#fff0d0', water: '#3a9a78', pool: '#8ccfae', tile: '#d8e6da' },
+  atrium:    { low: '#d8d0e0', mid: '#a090c0', rock: '#504070', high: '#f4f0f4', zenith: '#140a34', horizon: '#9a60d8', sun: '#ffe6f6', water: '#40306a' },
+  sandstone: { low: '#e0a070', mid: '#c0603a', rock: '#8a3a2a', high: '#f8e0c0', zenith: '#0a3aa0', horizon: '#a8d0f0', sun: '#fff8e0', water: '#2a8a96' },
+};
+
+// sky dome with gradient, sun, and a stratus cloud layer
+const skyMat = new THREE.ShaderMaterial({
+  side: THREE.BackSide, depthWrite: false,
+  uniforms: { sunDir: { value: new THREE.Vector3() }, zenith: { value: new THREE.Color() }, horizon: { value: new THREE.Color() }, sunCol: { value: new THREE.Color() }, seed: { value: 0 }, night: { value: 0 }, clouds: { value: 1 }, moonTex: { value: null }, hasMoon: { value: 0 }, moonLod: { value: 0 } },
+  vertexShader: `varying vec3 vDir; void main(){ vDir = position; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
+  fragmentShader: `
+    varying vec3 vDir; uniform vec3 sunDir, zenith, horizon, sunCol; uniform float seed, night, clouds;
+    float sh3(vec3 p){ p = fract(p * .1031); p += dot(p, p.zyx + 31.32); return fract((p.x + p.y) * p.z); }
+    ${MOON_GLSL}
+    float h(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
+    float n(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.-2.*f);
+      return mix(mix(h(i),h(i+vec2(1,0)),f.x), mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x), f.y); }
+    float fbm(vec2 p){ float s=0., a=.5; for(int i=0;i<6;i++){ s+=a*n(p); p*=2.1; a*=.5; } return s; }
+    void main(){
+      vec3 d = normalize(vDir);
+      float y = max(d.y, 0.);
+      vec3 col = mix(horizon, zenith, pow(y, .45));
+      float s = max(dot(d, sunDir), 0.);
+      col += sunCol * (pow(s, 6.)*.35 + pow(s, 60.)*.6) * (1. - .8 * night);
+      if (d.y > 0. && night > 0.) {   // stars: a sparse scatter of cells across the sky
+        vec3 cell = floor(d * 420.);
+        col += step(.9975, sh3(cell)) * (.35 + .65 * sh3(cell + 7.)) * smoothstep(0., .2, d.y) * night;
+      }
+      if (night > 0.) { vec4 mo = moonDisc(d, sunDir); col = mix(col, mo.rgb * sunCol, mo.a); }   // behind the clouds
+      if (d.y > .0) {
+        vec2 p = d.xz / (d.y + .05) * 1.4 + seed;
+        float c = smoothstep(.48, .8, fbm(p)) * clouds;
+        vec3 cc = mix(horizon*1.05, vec3(1.), .5 + .5*s) * mix(1., .12, night);
+        col = mix(col, cc, c * smoothstep(0., .25, d.y) * .9);
+      }
+      if (night < .5) col += sunCol * smoothstep(.9993, .9996, s) * 3.;
+      gl_FragColor = vec4(col, 1.);
+    }`,
+});
+// NASA LRO colour map of the Moon (public domain), via Wikimedia Commons which serves it cross-origin
+new THREE.TextureLoader().load('https://upload.wikimedia.org/wikipedia/commons/7/7f/Lroc_color_poles_1k.jpg', tex => {
+  tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+  skyMat.uniforms.moonTex.value = tex; skyMat.uniforms.hasMoon.value = 1; dirty = true;
+});
+// pick the texture detail level that matches how many pixels the moon covers at the current resolution
+function updateMoonLod() {
+  const px = (2 * MOON_R) / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) / H);
+  skyMat.uniforms.moonLod.value = Math.max(0, Math.log2(512 / px));
+}
+const sky = new THREE.Mesh(new THREE.SphereGeometry(4000, 32, 16), skyMat);
+sky.renderOrder = -1;
+scene.add(sky);
+
+const sun = new THREE.DirectionalLight(0xffffff, 2.6);
+sun.castShadow = true;
+sun.shadow.mapSize.set(4096, 4096);
+Object.assign(sun.shadow.camera, { left: -900, right: 900, top: 900, bottom: -900, near: 1, far: 4000 });
+sun.shadow.bias = -0.0008;
+scene.add(sun, sun.target);
+const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
+scene.add(hemi);
+
+const SIZE = 3600, SEG = 512;
+const terrainGeo = new THREE.PlaneGeometry(SIZE, SIZE, SEG, SEG).rotateX(-Math.PI / 2);
+terrainGeo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(terrainGeo.attributes.position.count * 3), 3));
+const terrain = new THREE.Mesh(terrainGeo, bryceify(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.92 }),
+  { speckle: 0.3, speckleFreq: 0.025, grain: 0.28, grainFreq: 0.6, bump: 3, bumpFreq: 0.08, strata: 0.6, strataFreq: 0.3 }));
+terrain.castShadow = terrain.receiveShadow = true;
+scene.add(terrain);
+
+// rippled mirror water: the reflection lookup is pushed around by stretched noise,
+// which gives the horizontal streaky smear of a 90s raytraced bump-mapped water plane
+const waterShader = {
+  uniforms: {
+    color: { value: new THREE.Color() }, tDiffuse: { value: null }, textureMatrix: { value: null },
+    waterCol: { value: new THREE.Color() }, sunDir: { value: new THREE.Vector3() }, sunCol: { value: new THREE.Color() },
+    fogCol: { value: new THREE.Color() }, fogDensity: { value: 0 }, seed: { value: 0 },
+    mirror: { value: 0 }, mirrorTint: { value: new THREE.Color(1, 1, 1) },
+    pool: { value: 0 }, poolTint: { value: new THREE.Color() }, poolTileCol: { value: new THREE.Color() }, poolTile: { value: 3.5 }, poolDepth: { value: 6 },
+  },
+  vertexShader: `
+    uniform mat4 textureMatrix; varying vec4 vUv; varying vec3 vWorld;
+    void main(){ vUv = textureMatrix * vec4(position, 1.); vWorld = (modelMatrix * vec4(position, 1.)).xyz;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }`,
+  fragmentShader: `
+    uniform sampler2D tDiffuse; uniform vec3 color, waterCol, sunDir, sunCol, fogCol, mirrorTint, poolTint, poolTileCol; uniform float fogDensity, seed, mirror, pool, poolTile, poolDepth;
+    varying vec4 vUv; varying vec3 vWorld;
+    float h(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
+    float n(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.-2.*f);
+      return mix(mix(h(i),h(i+vec2(1,0)),f.x), mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x), f.y); }
+    float fbm(vec2 p){ float s=0., a=.5; for(int i=0;i<5;i++){ s+=a*n(p); p=p*2.03+vec2(1.7,9.2); a*=.5; } return s; }
+    void main(){
+      vec2 p = vWorld.xz * vec2(.012, .16) + seed;        // stretched across x -> horizontal streaks
+      vec2 bump = vec2(fbm(p), fbm(p + 37.)) - .5;
+      vec2 g = vec2(fbm(vWorld.xz * .9 + seed), fbm(vWorld.xz * .9 + seed + 11.)) - .5;   // fine glitter ripples
+      vec3 nrm = normalize(vec3(bump.x * .5 + g.x * .9, 1., bump.y * 1.2 + g.y * .9));
+      vec4 uv = vUv; uv.xy += bump * vec2(3.5, 9.);       // offset in clip units, shrinks with distance
+      vec3 refl = texture2DProj(tDiffuse, uv).rgb;
+      vec3 V = normalize(cameraPosition - vWorld);
+      float fres = .25 + .75 * pow(1. - max(dot(V, nrm), 0.), 4.);
+      vec3 col = mix(waterCol, refl * color, fres);
+      col += sunCol * pow(max(dot(reflect(-V, nrm), sunDir), 0.), 900.) * 14.;
+      if (mirror > .5) col = texture2DProj(tDiffuse, vUv).rgb * mirrorTint;   // polished floor: a clean, slightly tinted reflection
+      if (pool > .5) {   // clear pool: look through to a tiled bottom (preview only; the ray tracer also shows what stands in the water)
+        vec3 I = normalize(vWorld - cameraPosition), pn = normalize(vec3(g.x * .22, 1., g.y * .22));
+        vec3 rr = refract(I, pn, .75);
+        float t = poolDepth / max(-rr.y, 1e-3);
+        vec2 f = fract((vWorld.xz + rr.xz * t) / poolTile), e = min(f, 1. - f);
+        vec3 alb = poolTileCol * (min(e.x, e.y) < .06 ? .55 : 1.);
+        vec3 T = pow(max(poolTint, vec3(.02)), vec3(t / 9.));
+        vec3 under = alb * T * (sunCol * .45 + .45) + poolTint * (1. - T) * .4;
+        float F = .02 + .98 * pow(1. - max(dot(-I, pn), 0.), 5.);
+        col = mix(under, texture2DProj(tDiffuse, vUv + vec4(g * 2., 0., 0.)).rgb, F);
+        col += sunCol * pow(max(dot(reflect(I, pn), sunDir), 0.), 700.) * 3.;
+      }
+      float d = length(cameraPosition - vWorld);
+      float ff = max(1. - exp(-fogDensity * fogDensity * d * d), 1. - exp(-d * fogDensity * 1.1));
+      col = mix(col, fogCol, ff);
+      gl_FragColor = vec4(col, 1.);
+    }`,
+};
+const water = new Reflector(new THREE.PlaneGeometry(SIZE * 2, SIZE * 2), { textureWidth: W * SS, textureHeight: H * SS, color: 0xd8e4ee, shader: waterShader });
+water.rotation.x = -Math.PI / 2;
+scene.add(water);
+
+// infinite checkerboard floor (replaces the water plane in scenes that ask for it)
+const floorCv = document.createElement('canvas'); floorCv.width = floorCv.height = 2;
+const floorTex = new THREE.CanvasTexture(floorCv);
+floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping; floorTex.magFilter = THREE.NearestFilter;
+floorTex.colorSpace = THREE.SRGBColorSpace; floorTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+const floorMesh = new THREE.Mesh(new THREE.PlaneGeometry(SIZE * 2, SIZE * 2).rotateX(-Math.PI / 2),
+  new THREE.MeshStandardMaterial({ map: floorTex, roughness: 0.3, metalness: 0, envMapIntensity: 0.6 }));   // envMap set once the reflection cube exists
+floorMesh.receiveShadow = true; floorMesh.visible = false;
+scene.add(floorMesh);
+// The ground plane at water level can be one of these. 'water' and 'none' are the old water on/off;
+// the floors stretch to the horizon like Bryce's infinite planes. mode is what the ray tracer is told.
+const SURFACES = { water: 'Water', pool: 'Clear pool', mirror: 'Mirror floor', checker: 'Checkerboard', tiles: 'Tiled floor', none: 'None' };
+const FLOOR_MODE = { checker: 1, tiles: 2, mirror: 3, pool: 4 };
+const surfaceOf = T => T.floor && FLOOR_MODE[T.floor] ? T.floor : T.water === false ? 'none' : 'water';
+const DEFAULT_TILE = { checker: 20, tiles: 6, pool: 3.5 };
+const POOL_DEPTH = 6;
+// floor colours come from the palette: chkA / chkB if it has them, otherwise derived from its own colours
+function floorColors(pal, kind = 'checker') {
+  const c = k => new THREE.Color(pal[k]), hex = x => '#' + x.getHexString();
+  if (kind === 'tiles') return [hex(c('water').lerp(WHITE, 0.62)), hex(c('water').lerp(WHITE, 0.25))];   // tile, grout
+  if (kind === 'mirror') return [hex(c('horizon').lerp(WHITE, 0.75)), '#000000'];                         // tint
+  if (kind === 'pool') return [pal.pool || hex(c('water')), pal.tile || hex(c('high').lerp(WHITE, 0.4))];       // water colour, bottom tiles
+  return [pal.chkA || '#1c1c22', pal.chkB || '#f2efe6'];
+}
+function updateFloor(pal, kind, tile) {
+  const [a, b] = floorColors(pal, kind);
+  if (kind === 'tiles') {   // one square tile with a thin grout line round it
+    floorCv.width = floorCv.height = 32;
+    const g = floorCv.getContext('2d');
+    g.fillStyle = b; g.fillRect(0, 0, 32, 32); g.fillStyle = a; g.fillRect(1, 1, 30, 30);
+    floorTex.repeat.setScalar(SIZE * 2 / tile);
+    floorMesh.material.roughness = 0.22;
+  } else {
+    floorCv.width = floorCv.height = 2;
+    const g = floorCv.getContext('2d');
+    g.fillStyle = a; g.fillRect(0, 0, 2, 2); g.fillStyle = b; g.fillRect(0, 0, 1, 1); g.fillRect(1, 1, 1, 1);
+    floorTex.repeat.setScalar(SIZE * 2 / (2 * tile));
+    floorMesh.material.roughness = 0.3;
+  }
+  floorTex.dispose(); floorTex.needsUpdate = true;   // canvas size may have changed
+}
+// the planar-reflection water mesh shows for water, and (unrippled) for the mirror floor
+const showWaterMesh = () => ['water', 'mirror', 'pool'].includes(surfaceOf(doc.terrain));
+
+// ---------- shared reflection snapshot for shiny raster materials ----------
+const envRT = new THREE.WebGLCubeRenderTarget(256, { type: THREE.HalfFloatType });
+const envCam = new THREE.CubeCamera(1, 6000, envRT);
+floorMesh.material.envMap = envRT.texture;
+const WHITE = new THREE.Color(1, 1, 1), BLACK = new THREE.Color(0, 0, 0);
+const V3 = THREE.Vector3;
+
+const ck = document.createElement('canvas'); ck.width = ck.height = 8;
+const cx = ck.getContext('2d');
+for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) { cx.fillStyle = (i + j) % 2 ? '#c81e1e' : '#f4f0e0'; cx.fillRect(i, j, 1, 1); }
+const ckTex = new THREE.CanvasTexture(ck); ckTex.magFilter = THREE.NearestFilter; ckTex.colorSpace = THREE.SRGBColorSpace; ckTex.repeat.set(2, 1); ckTex.wrapS = THREE.RepeatWrapping;
+
+// ---------- terrain objects: height-grid patches you can create, move, rotate and scale ----------
+// Each is a 220 x 220 grid in its own local space; its shape depends only on its settings, never on where it sits.
+const PATCH = 220, PSEG = 128;
+const SHAPES = { hill: 'Rolling hill', mesa: 'Mesa', crater: 'Crater', ridge: 'Ridge', dunes: 'Dunes', outcrop: 'Rocky outcrop' };
+const TOBJ_DEFAULTS = { shape: 'hill', height: 16, rough: 1, sharp: 0, detail: 1, tseed: 1 };
+function patchHeight(t, x, z) {   // local coords, x/z in [-110, 110]
+  const R = PATCH / 2, r = Math.hypot(x, z) / R, sd = t.tseed | 0, H = t.height;
+  const noise = (sharp) => {   // 4-octave fbm, rolling <-> ridged
+    let s = 0, a = 0.5, f = 0.02 * t.detail;
+    for (let i = 0; i < 4; i++) {
+      const raw = vnoise(x * f + 50, z * f + 50, sd), rr = 1 - Math.abs(raw * 2 - 1);
+      s += a * (raw + (rr * rr - raw) * sharp); a *= 0.5; f *= 2.03;
+    }
+    return s;   // about 0.1 .. 0.85
+  };
+  const n = noise(t.sharp), edge = smooth(1, 0.8, r), sink = -3;
+  let h;
+  switch (t.shape) {
+    case 'mesa': {
+      const top = smooth(0.62, 0.5, r), talus = smooth(0.85, 0.55, r);
+      h = H * (top * (1 + (n - 0.45) * 0.35 * t.rough) + talus * 0.18) + (n - 0.45) * t.rough * H * 0.25 * talus;
+      break;
+    }
+    case 'crater': {
+      const ring = Math.exp(-(((r - 0.5) / 0.17) ** 2)), bowl = smooth(0.5, 0, r);
+      h = ring * H - bowl * H * 0.3 + (n - 0.45) * t.rough * H * 0.6 * (ring + 0.3);
+      break;
+    }
+    case 'ridge': {
+      const across = Math.exp(-((z / (R * 0.3)) ** 2)), along = smooth(1, 0.55, Math.abs(x) / R);
+      h = across * along * H * (0.8 + (n - 0.45) * t.rough * 1.4);
+      break;
+    }
+    case 'dunes': {
+      const w = Math.pow(Math.sin(x * 0.09 + z * 0.02 + n * 5) * 0.5 + 0.5, 1.6);
+      h = smooth(1, 0.35, r) * H * (0.3 + 0.7 * w) * (0.85 + (n - 0.45) * t.rough * 0.6);
+      break;
+    }
+    case 'outcrop': {
+      const rock = noise(Math.max(0.75, t.sharp)), dome = Math.exp(-r * r * 3.2);
+      h = dome * H * (0.35 + rock * 1.3 * t.rough);
+      break;
+    }
+    default: {   // rolling hill: the original island
+      const dome = Math.exp(-((Math.hypot(x, z) / 85) ** 2) * 2.5);
+      h = dome * (H * 0.8125 + (n - 0.45) * 2.125 * t.rough * H);
+    }
+  }
+  return h * edge + sink * (1 - edge) + (t.shape === 'hill' ? sink * edge : 0);
+}
+function buildPatchGeometry(o, pal) {
+  const t = { ...TOBJ_DEFAULTS, ...o.terrain };
+  const g = new THREE.PlaneGeometry(PATCH, PATCH, PSEG, PSEG).rotateX(-Math.PI / 2);
+  const P = g.attributes.position;
+  for (let i = 0; i < P.count; i++) P.setY(i, patchHeight(t, P.getX(i), P.getZ(i)));
+  g.computeVertexNormals();
+  const col = new Float32Array(P.count * 3), c = new THREE.Color(), N = g.attributes.normal;
+  const low = new THREE.Color(pal.low), mid = new THREE.Color(pal.mid), rock = new THREE.Color(pal.rock);
+  for (let i = 0; i < P.count; i++) {   // palette shading: wet edge, sandy body, rock on steep faces
+    const y = P.getY(i), j = (hash(i, 3, t.tseed | 0) - 0.5) * 0.08;
+    if (o.mat === 'land') c.copy(low).lerp(mid, smooth(-2, 3, y) * 0.35).lerp(low, smooth(3, 14, y) * 0.5).lerp(rock, smooth(0.45, 0.75, 1 - N.getY(i)) * 0.6).multiplyScalar(1 + j);
+    else c.setRGB(1, 1, 1);
+    col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
+  }
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  g.computeBoundingBox(); g.computeBoundingSphere();
+  return g;
+}
+// ---------- floating isles: a closed mesh (grassy top + hanging rock underside), traced as triangles ----------
+const FLOAT_DEFAULTS = { height: 14, depth: 90, rough: 1, tseed: 1 };
+const FLOAT_R = 80;
+const floatRim = (t, a) => FLOAT_R * (0.8 + 0.4 * vnoise(Math.cos(a) * 1.6 + 9, Math.sin(a) * 1.6 + 9, t.tseed | 0));
+function floatTop(t, x, z, r) {
+  let n = 0, amp = 0.5, f = 0.03;
+  for (let i = 0; i < 3; i++) { n += amp * vnoise(x * f + 31, z * f + 31, t.tseed | 0); amp *= 0.5; f *= 2.1; }
+  return (1 - r ** 3) * (t.height * 0.55 + (n - 0.45) * t.rough * t.height * 1.2);
+}
+function floatBottom(t, x, z, r) {
+  let n = 0, amp = 0.5, f = 0.045;
+  for (let i = 0; i < 4; i++) { const v = 1 - Math.abs(vnoise(x * f + 7, z * f + 7, (t.tseed | 0) + 3) * 2 - 1); n += amp * v * v; amp *= 0.5; f *= 2.05; }
+  return -(t.depth * Math.pow(1 - r, 0.75) * (0.5 + 1.1 * n * t.rough)) - 2 * (1 - r);
+}
+function buildFloaterGeometry(o, pal) {
+  const t = { ...FLOAT_DEFAULTS, ...o.terrain }, RINGS = 40, SEGS = 96;
+  const pos = [], col = [], idx = [], c = new THREE.Color();
+  const low = new THREE.Color(pal.low), mid = new THREE.Color(pal.mid), rock = new THREE.Color(pal.rock);
+  for (const side of [1, -1]) {                       // top surface, then underside
+    const base = pos.length / 3;
+    for (let i = 0; i <= RINGS; i++) for (let j = 0; j < SEGS; j++) {
+      const a = (j / SEGS) * Math.PI * 2, r = i / RINGS, R = floatRim(t, a) * r;
+      const x = Math.cos(a) * R, z = Math.sin(a) * R;
+      const y = side > 0 ? floatTop(t, x, z, r) : floatBottom(t, x, z, r);
+      pos.push(x, y, z);
+      if (o.mat !== 'land') c.setRGB(1, 1, 1);
+      else if (side > 0) c.copy(low).lerp(mid, smooth(0.75, 1, r) * 0.6).multiplyScalar(1 + (hash(i, j, t.tseed | 0) - 0.5) * 0.1);
+      else c.copy(rock).lerp(mid, 0.25 + 0.25 * Math.sin(y * 0.6)).multiplyScalar(0.8 + 0.2 * hash(j, i, 7));   // rock with strata
+      col.push(c.r, c.g, c.b);
+    }
+    for (let i = 0; i < RINGS; i++) for (let j = 0; j < SEGS; j++) {
+      const a = base + i * SEGS + j, b = base + i * SEGS + (j + 1) % SEGS, cc = a + SEGS, d = b + SEGS;
+      if (side > 0) idx.push(a, cc, b, b, cc, d); else idx.push(a, b, cc, b, d, cc);   // top faces up, underside faces down
+    }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+  g.setIndex(idx); g.computeVertexNormals();
+  if (g.attributes.normal.getY(SEGS * 2) < 0) { g.index.array.reverse(); g.index.needsUpdate = true; g.computeVertexNormals(); }   // make sure the top faces up
+  g.computeBoundingBox(); g.computeBoundingSphere();
+  return g;
+}
+
+// height of a terrain object at a world x/z (used to set things down on it)
+function groundHeightOn(o, x, z) {
+  const m = new THREE.Matrix4().compose(new V3().fromArray(o.pos), new THREE.Quaternion().setFromEuler(new THREE.Euler(...o.rot)), new V3().fromArray(o.scale));
+  const p = new V3(x, 0, z).applyMatrix4(m.clone().invert());
+  if (o.type === 'floater') {
+    const t = { ...FLOAT_DEFAULTS, ...o.terrain }, r = Math.min(0.98, Math.hypot(p.x, p.z) / floatRim(t, Math.atan2(p.z, p.x)));
+    return floatTop(t, p.x, p.z, r) * o.scale[1] + o.pos[1];
+  }
+  return patchHeight({ ...TOBJ_DEFAULTS, ...o.terrain }, p.x, p.z) * o.scale[1] + o.pos[1];
+}
+
+// ---------- free CC0 models from Poly Haven (polyhaven.com) ----------
+// the API lists where the .gltf, .bin and each texture really live; remap the glTF's relative URIs to those
+async function loadPolyHaven(id) {
+  const files = await (await fetch(`https://api.polyhaven.com/files/${id}`)).json();
+  const g = files.gltf['1k'].gltf, inc = Object.entries(g.include);
+  const mgr = new THREE.LoadingManager();
+  mgr.setURLModifier(u => (inc.find(([rel]) => u.endsWith(rel)) || [, { url: u }])[1].url);
+  return new GLTFLoader(mgr).loadAsync(g.url);
+}
+// h = the height (in scene units) a model is shown at when its scale is 1
+const MODELS = {
+  tree: { id: 'island_tree_02', h: 40, label: 'Tree' },
+  trunk: { id: 'dead_quiver_trunk', h: 16, label: 'Dead trunk' },
+  bust: { id: 'marble_bust_01', h: 9, label: 'Marble bust' },
+  boulder: { id: 'boulder_01', h: 5, label: 'Boulder' },
+  rock: { id: 'namaqualand_boulder_02', h: 5, label: 'Rock' },
+  statue: { id: 'gothic_statue', h: 22, label: 'Statue' },
+  horse: { id: 'horse_statue_01', h: 16, label: 'Horse statue' },
+  urn: { id: 'antique_ceramic_vase_01', h: 9, label: 'Urn' },
+};
+const models = {}, modelLoads = {};
+// load a model once (by preset key or any Poly Haven id), normalised to 1 unit tall sitting on y=0, centred in x/z
+function loadModel(key) {
+  if (modelLoads[key]) return modelLoads[key];
+  const id = (MODELS[key] && MODELS[key].id) || key;
+  return modelLoads[key] = loadPolyHaven(id).then(g => {
+    const o = g.scene, box = new THREE.Box3().setFromObject(o), size = box.getSize(new V3());
+    const ctr = box.getCenter(new V3());
+    o.position.set(-ctr.x, -box.min.y, -ctr.z);
+    o.traverse(n => { if (n.isMesh) { n.castShadow = n.receiveShadow = true; } });
+    const wrap = new THREE.Group(); wrap.add(o); wrap.userData.h = size.y;
+    // unknown models get a real-world size: glTF is in metres, about 10 scene units to the metre
+    if (!MODELS[key]) MODELS[key] = { id, label: key, h: Math.min(60, Math.max(1.5, size.y * 10)) };
+    else if (!MODELS[key].h) MODELS[key].h = Math.min(60, Math.max(1.5, size.y * 10));
+    models[key] = wrap;
+    return wrap;
+  });
+}
+const assetsReady = Promise.allSettled(Object.keys(MODELS).map(loadModel));
+// the full catalogue, fetched once when the browser first opens (or a scene needs a name)
+let catalogue = null;
+const getCatalogue = () => catalogue || (catalogue = fetch('https://api.polyhaven.com/assets?t=models').then(r => r.json()));
+// make sure every model a scene uses is loaded before building it
+async function loadDocModels(d) {
+  const keys = [...new Set(d.objects.filter(o => o.type === 'model').map(o => o.model))];
+  await Promise.allSettled(keys.map(async k => {
+    if (!MODELS[k]) { const c = await getCatalogue().catch(() => ({})); MODELS[k] = { id: k, label: (c[k] && c[k].name) || k }; }
+    return loadModel(k);
+  }));
+}
+
+const haloTex = (() => {
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const g = c.getContext('2d'), gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.2, 'rgba(255,255,255,.5)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+  return new THREE.CanvasTexture(c);
+})();
+
+// ---------- material presets (each knows how the ray tracer should treat it) ----------
+const MATS = { land: 'Land (palette)', matte: 'Matte', granite: 'Granite', glossy: 'Glossy', metal: 'Metal (mirror)', glass: 'Glass', checker: 'Checker', tile: 'Tiles', glow: 'Glow' };
+const SHINY = new Set(['glossy', 'metal', 'glass']);
+function makeMaterial(o) {
+  const col = new THREE.Color(o.color || '#cccccc');
+  let m;
+  switch (o.mat) {
+    case 'metal':
+      m = new THREE.MeshStandardMaterial({ color: col, metalness: 1, roughness: 0.04, envMap: envRT.texture });
+      m.userData.trace = { kind: KIND.metal, col, p: [0.92, 1, 1500, 0] }; break;
+    case 'glass':
+      m = new THREE.MeshPhysicalMaterial({ color: col, metalness: 0, roughness: 0, transmission: 1, ior: 1.5, thickness: 14, envMap: envRT.texture, specularIntensity: 1 });
+      m.userData.trace = { kind: KIND.glass, col, p: [0, 1, 2000, 1.5] }; break;
+    case 'tile': {   // glazed tiles with grout lines, laid in world units so every surface lines up
+      const size = o.tile || 4;
+      m = tileify(new THREE.MeshStandardMaterial({ color: col, roughness: 0.22, metalness: 0, envMap: envRT.texture, envMapIntensity: 0.5 }), size);
+      m.userData.trace = { kind: KIND.tile, col, p: [0.08, 0.5, 120, 0], tx: [-1, -1, -1, size] }; break;
+    }
+    case 'glow':   // self-lit: light beams, lit panels, neon strips (glows, but doesn't light other things)
+      m = new THREE.MeshBasicMaterial({ color: col.clone().multiplyScalar(2.2) }); break;
+    case 'checker':
+      m = new THREE.MeshPhongMaterial({ map: ckTex, shininess: 80, specular: 0x888888 });
+      m.userData.trace = { kind: KIND.checker, p: [0.06, 0.4, 80, 0] }; break;
+    case 'granite':
+      m = bryceify(new THREE.MeshStandardMaterial({ color: col, roughness: 0.35, metalness: 0.1 }),
+        { speckle: 0.25, speckleFreq: 0.35, grain: 0.35, grainFreq: 9, bump: 0.02, bumpFreq: 4 }); break;
+    case 'glossy':
+      m = bryceify(new THREE.MeshStandardMaterial({ color: col, roughness: 0.08, metalness: 0.55, envMap: envRT.texture }),
+        { speckle: 0.04, speckleFreq: 0.2, grain: 0.06, grainFreq: 12, bump: 0.004, bumpFreq: 6 }); break;
+    case 'land':
+      m = bryceify(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.85 }),
+        { speckle: 0.18, speckleFreq: 0.08, grain: 0.2, grainFreq: 3, bump: 0.12, bumpFreq: 0.6, strata: 0.08, strataFreq: 2 }); break;
+    default:
+      m = bryceify(new THREE.MeshStandardMaterial({ color: col, roughness: 0.9 }),
+        { speckle: 0.15, speckleFreq: 0.3, grain: 0.25, grainFreq: 6, bump: 0.03, bumpFreq: 2 });
+  }
+  if (o.type === 'terrain' || o.type === 'floater') m.vertexColors = true;
+  m.userData.owned = true;
+  return m;
+}
+
+// ---------- scene objects ----------
+const TYPES = { clouds: 'Clouds', terrain: 'Hill', floater: 'Floating isle', sphere: 'Sphere', cube: 'Cube', cylinder: 'Cylinder', cone: 'Cone', torus: 'Torus', pyramid: 'Pyramid', octahedron: 'Octahedron', arch: 'Arch', archwall: 'Arched wall', column: 'Column', lamp: 'Lamp' };
+const GEOS = {
+  sphere: new THREE.SphereGeometry(5, 64, 48), cube: new THREE.BoxGeometry(8, 8, 8), cylinder: new THREE.CylinderGeometry(4, 4, 10, 48),
+  cone: new THREE.ConeGeometry(5, 10, 48), torus: new THREE.TorusGeometry(7, 2.2, 24, 64), pyramid: new THREE.ConeGeometry(8, 10, 4),
+  octahedron: new THREE.OctahedronGeometry(5), arch: new THREE.TorusGeometry(7, 2.2, 16, 48, Math.PI),   // arch: half a ring, feet at y = 0
+};
+// classical column, 25.6 tall, standing on y = 0: square plinth, moulded base, fluted shaft with entasis, Doric capital, abacus
+function flutedShaft(y0, y1, r0, r1, flutes = 20, depth = 0.13) {
+  const A = 160, R = 28, pos = [], idx = [];
+  for (let j = 0; j <= R; j++) {
+    const t = j / R, y = y0 + (y1 - y0) * t, r = r0 + (r1 - r0) * Math.pow(t, 1.4);   // entasis: a gentle swell-then-taper
+    for (let i = 0; i <= A; i++) {
+      const a = (i / A) * Math.PI * 2, f = ((a / (Math.PI * 2)) * flutes) % 1;
+      const rr = r - depth * Math.sin(f * Math.PI);                                   // concave flutes meeting at sharp arrises
+      pos.push(Math.cos(a) * rr, y, Math.sin(a) * rr);
+    }
+  }
+  for (let j = 0; j < R; j++) for (let i = 0; i < A; i++) { const a = j * (A + 1) + i, b = a + A + 1; idx.push(a, b, a + 1, a + 1, b, b + 1); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
+  return g;
+}
+const lathe = pts => new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), 48);
+const COLUMN_GEOS = {
+  plinth: new THREE.BoxGeometry(7, 1.2, 7).translate(0, 0.6, 0),
+  base: lathe([[0, 1.2], [3.25, 1.2], [3.35, 1.5], [3.25, 1.85], [2.95, 2.0], [2.85, 2.15], [3.0, 2.35], [2.75, 2.55], [0, 2.55]]),
+  shaft: flutedShaft(2.55, 22.3, 2.6, 2.15),
+  cap: lathe([[0, 22.3], [2.2, 22.3], [2.4, 22.45], [2.2, 22.6], [2.25, 22.75], [2.9, 23.25], [3.35, 23.85], [3.35, 24.0], [0, 24.0]]),
+  abacus: new THREE.BoxGeometry(7.2, 1.6, 7.2).translate(0, 24.8, 0),
+};
+// a wall pierced by a round-headed arch: 40 wide, 52 tall, 10 deep, opening 22 wide springing at 26
+const ARCH_WALL = (() => {
+  const sh = new THREE.Shape();
+  sh.moveTo(-20, 0); sh.lineTo(-11, 0); sh.lineTo(-11, 26); sh.absarc(0, 26, 11, Math.PI, 0, true);
+  sh.lineTo(11, 0); sh.lineTo(20, 0); sh.lineTo(20, 52); sh.lineTo(-20, 52); sh.lineTo(-20, 0);
+  const g = new THREE.ExtrudeGeometry(sh, { depth: 10, bevelEnabled: false, curveSegments: 32 }).translate(0, 0, -5);
+  const imp = new THREE.BoxGeometry(40.6, 1.4, 11).translate(0, 26.7, 0), cor = new THREE.BoxGeometry(41.5, 2.2, 12).translate(0, 51, 0);   // impost band, cornice
+  return [g, imp, cor];
+})();
+const objectsGroup = new THREE.Group(); scene.add(objectsGroup);
+const roots = new Map();   // doc object id -> its three.js group
+
+// cloud layers: an infinite-looking flat sheet of procedural cloud at the object's height
+const CLOUD_DEFAULTS = { coverage: 0.45, softness: 0.3, opacity: 0.85, size: 1, cseed: 1 };
+const CLOUD_GLSL = `
+  float ch(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
+  float cn(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.-2.*f);
+    return mix(mix(ch(i),ch(i+vec2(1,0)),f.x), mix(ch(i+vec2(0,1)),ch(i+vec2(1,1)),f.x), f.y); }
+  float cfbm(vec2 p){ float s=0., a=.5; for(int i=0;i<6;i++){ s+=a*cn(p); p*=2.1; a*=.5; } return s; }`;
+function makeCloudMaterial(o) {
+  const c = { ...CLOUD_DEFAULTS, ...o.cloud };
+  return new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, side: THREE.DoubleSide,
+    uniforms: { col: { value: new THREE.Color(o.color) }, fogCol: { value: scene.fog.color }, fogDensity: { value: scene.fog.density }, light: { value: doc.sky.night ? 0.12 : 1 },
+      origin: { value: new THREE.Vector2(o.pos[0], o.pos[2]) }, prm: { value: new THREE.Vector4(c.coverage, c.softness, c.opacity, c.size) }, cseed: { value: c.cseed } },
+    vertexShader: `varying vec3 vW; void main(){ vW = (modelMatrix * vec4(position, 1.)).xyz; gl_Position = projectionMatrix * viewMatrix * vec4(vW, 1.); }`,
+    fragmentShader: CLOUD_GLSL + `
+      varying vec3 vW; uniform vec3 col, fogCol; uniform float fogDensity, light, cseed; uniform vec2 origin; uniform vec4 prm;
+      void main(){
+        float n = cfbm((vW.xz - origin) / (prm.w * 400.) + cseed);
+        float a = smoothstep(1. - prm.x - prm.y * .5, 1. - prm.x + prm.y * .5, n) * prm.z;
+        vec3 c = col * light * (.55 + .45 * smoothstep(.3, .9, n));
+        float d = length(cameraPosition - vW), ff = 1. - exp(-fogDensity * fogDensity * d * d * .25);
+        gl_FragColor = vec4(mix(c, fogCol, ff), a * (1. - ff * .6));
+      }`,
+  });
+}
+function buildObject(o) {
+  const root = new THREE.Group();
+  root.userData.docId = o.id;
+  if (o.type === 'clouds') {
+    const mat = makeCloudMaterial(o); mat.userData.owned = true;
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(12000, 12000).rotateX(-Math.PI / 2), mat);
+    mesh.userData.patch = true;   // own geometry, disposed with the object
+    mesh.renderOrder = 1;
+    root.add(mesh); root.userData.clouds = mesh;
+  } else if (o.type === 'floater') {
+    const mesh = new THREE.Mesh(buildFloaterGeometry(o, PALETTES[doc.palette] || PALETTES.desert), makeMaterial(o));
+    mesh.userData.patch = true;   // own geometry, disposed with the object
+    root.add(mesh);
+  } else if (o.type === 'terrain') {
+    const mesh = new THREE.Mesh(buildPatchGeometry(o, PALETTES[doc.palette] || PALETTES.desert), makeMaterial(o));
+    mesh.userData.patch = true;
+    root.add(mesh);
+  } else if (GEOS[o.type]) {
+    const mesh = new THREE.Mesh(GEOS[o.type], makeMaterial(o));
+    if (o.type === 'pyramid' || o.type === 'octahedron') mesh.userData.flat = true;
+    root.add(mesh);
+  } else if (o.type === 'column') {
+    const m = makeMaterial(o);
+    root.add(...Object.values(COLUMN_GEOS).map(g => new THREE.Mesh(g, m)));
+  } else if (o.type === 'archwall') {
+    const m = makeMaterial(o);
+    root.add(...ARCH_WALL.map(g => { const k = new THREE.Mesh(g, m); k.userData.flat = true; return k; }));
+  } else if (o.type === 'lamp') {
+    const c = new THREE.Color(o.color || '#ffffff');
+    const light = new THREE.PointLight(c, 600 * (o.brightness ?? 1), 0, 2);
+    light.castShadow = true; light.shadow.mapSize.set(512, 512); light.shadow.camera.near = 2; light.shadow.bias = -0.002;
+    const bulbMat = new THREE.MeshBasicMaterial({ color: c.clone().multiplyScalar(3) }); bulbMat.userData.owned = true;
+    const bulb = new THREE.Mesh(new THREE.SphereGeometry(2.4, 24, 16), bulbMat);
+    const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: haloTex, color: c, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, transparent: true }));
+    halo.scale.setScalar(20);
+    root.add(light, bulb, halo);
+    root.userData.lamp = { light, bulb, halo };
+  } else if (o.type === 'model' && models[o.model]) {
+    const m = models[o.model].clone();
+    m.scale.setScalar((MODELS[o.model].h || 10) / models[o.model].userData.h);
+    root.add(m);
+  }
+  root.traverse(n => { if (n.isMesh) { n.castShadow = !(o.mat === 'glass' || o.mat === 'glow') && o.type !== 'lamp'; n.receiveShadow = true; } });
+  root.position.fromArray(o.pos); root.rotation.set(o.rot[0], o.rot[1], o.rot[2]); root.scale.fromArray(o.scale);
+  root.visible = !o.hidden;   // hidden objects stay in the scene file but drop out of the view and both renderers
+  return root;
+}
+function addRoot(o) { const r = buildObject(o); objectsGroup.add(r); roots.set(o.id, r); return r; }
+function removeRoot(id) {
+  const r = roots.get(id); if (!r) return;
+  r.traverse(n => {
+    if (n.material && n.material.userData && n.material.userData.owned) n.material.dispose();
+    if (n.userData.patch) n.geometry.dispose();
+  });
+  objectsGroup.remove(r); roots.delete(id);
+}
+function rebuildKeepSel(o) {   // rebuild an object's mesh (material/shape change) without losing the selection
+  removeRoot(o.id); const r = addRoot(o);
+  if (sel === o) { gizmo.attach(r); selBox.setFromObject(r); }
+  applyView();
+}
+function syncTransform(o) { const r = roots.get(o.id); r.position.fromArray(o.pos); r.rotation.set(o.rot[0], o.rot[1], o.rot[2]); r.scale.fromArray(o.scale); }
+
+// ---------- the scene document: everything the editor saves and the renderers read ----------
+let doc = null, nextId = 1;
+function mkObj(type, props = {}) {
+  return { id: nextId++, type, name: props.name || TYPES[type] || (MODELS[props.model] || {}).label || type,
+    pos: [0, 0, 0], rot: [0, 0, 0], scale: [1, 1, 1], mat: 'glossy', color: '#cccccc', ...props };
+}
+
+const baseTerrain = b => { if (!b) return {}; const { s, ...t } = b; return t; };
+// the procedural composition from before, written out as a document you can edit
+function generateDoc(seedV, palName, terrain, opts = {}) {
+  const pal = PALETTES[palName];
+  terr = { ...TERRAIN_DEFAULTS, ...(terrain || {}) };
+  seed = seedV; rand.seed(seedV); phase = rand() * 10;
+  const C = k => new THREE.Color(pal[k]), hex = c => '#' + c.getHexString();
+  const skyS = { elev: 8 + rand() * 30, az: (rand() - 0.5) * 92, cloudSeed: rand() * 100, fog: 0.0007 + rand() * 0.0006, waterSeed: rand() * 100 };
+  const cz = 420;
+  const cpos = new V3(meander(cz) + (rand() - 0.5) * 30, 10 + rand() * 25, cz);
+  const look = new V3(meander(-300), 25 + rand() * 30, -300);
+  const dir = look.clone().sub(cpos).normalize();
+  const fwd = dir.clone().setY(0).normalize(), right = new V3(-fwd.z, 0, fwd.x);
+  const at = (d, s) => cpos.clone().addScaledVector(fwd, d).addScaledVector(right, s);
+  const isl = at(150, 0);
+  terr.stageX = isl.x; terr.stageZ = isl.z;   // the stage clearing is centred on the island spot
+  cpos.y = Math.max(cpos.y, heightAt(cpos.x, cpos.z) + 8, terr.waterY + 10);
+  const wet = terr.water && terr.stageFloor < 0 && terr.stage > 0, floating = terr.land === false;
+  const islandObj = floating
+    ? mkObj('floater', { name: 'Floating isle', mat: 'land', color: '#cccccc', pos: [isl.x, terr.waterY + 70 + rand() * 20, isl.z], terrain: { ...FLOAT_DEFAULTS, tseed: (rand() * 1e6) | 0 } })
+    : mkObj('terrain', { name: wet ? 'Island' : (SHAPES[(opts.base || {}).shape] || 'Knoll'), mat: 'land', color: '#cccccc', pos: [isl.x, terr.waterY, isl.z],
+        scale: Array(3).fill((opts.base && opts.base.s) || 1), terrain: { ...TOBJ_DEFAULTS, ...baseTerrain(opts.base), tseed: (rand() * 1e6) | 0 } });
+  if (floating) cpos.y = islandObj.pos[1] + 8 + rand() * 14;   // eye level with the isle: its top, its edge and its reflection
+  const baseTop = !floating && opts.base ? groundHeightOn(islandObj, isl.x, isl.z) : null;
+  if (baseTop !== null) {   // look onto a tall base (mesa, crater rim, outcrop), not into its side: clear its highest point toward the camera
+    const R = (PATCH / 2) * ((opts.base.s) || 1), toCam = cpos.clone().sub(isl).setY(0).normalize();
+    let rim = baseTop;
+    for (let i = 0; i <= 24; i++) { const p = isl.clone().addScaledVector(toCam, R * i / 24); rim = Math.max(rim, groundHeightOn(islandObj, p.x, p.z)); }
+    cpos.y = Math.max(cpos.y, rim + 14 + rand() * 16);
+  }
+  const ground = (d, s, lift) => { const p = at(d, s); return [p.x, groundHeightOn(islandObj, p.x, p.z) + lift, p.z]; };
+  const yaw = Math.atan2(fwd.x, fwd.z);
+  const objects = [islandObj];
+
+  // ---- composition: a few objects in a deliberate arrangement rather than a scatter ----
+  // Rules: one hero object on or near the view axis; supporting pieces smaller and fewer; symmetry or a
+  // clear diagonal; a small coordinated palette; nature only at the edges/behind; nothing blocks the hero.
+  // Coordinates: d = distance beyond the island centre (negative = nearer the camera), s = sideways.
+  const taken = [];
+  const add = (type, props, d, s, r) => { const o = mkObj(type, props); objects.push(o); if (r) taken.push({ d, s, r }); return o; };
+  const on = (d, s, lift) => ground(150 + d, s, lift);
+  const free = (d, s, r) => taken.every(t => Math.hypot(t.d - d, t.s - s) > t.r + r + 4) && Math.hypot(d, s) < 80;
+  const pick = arr => arr[(rand() * arr.length) | 0];
+  const heroCol = hex(pick([C('zenith').lerp(BLACK, 0.25), C('mid'), C('rock').lerp(C('low'), 0.5)]));
+  const supCol = hex(C('mid').lerp(WHITE, 0.15)), stone = hex(C('high').lerp(WHITE, 0.4)), lampCol = hex(C('sun').lerp(WHITE, 0.25));
+  const heroBall = () => pick([['Chrome ball', 'metal', '#f2f2f2'], ['Glass ball', 'glass', hex(C('horizon').lerp(WHITE, 0.7))], ['Glossy ball', 'glossy', heroCol]]);
+  const sphere = (name, mat, color, r, d, s, lift = r) => add('sphere', { name, mat, color, scale: [r / 5, r / 5, r / 5], pos: on(d, s, lift) }, d, s, r);
+  const column = (name, d, s) => add('column', { name, mat: 'granite', color: stone, pos: on(d, s, -1), rot: [0, yaw, 0] }, d, s, 4.5);
+  const onTop = (c, dy) => [c.pos[0], c.pos[1] + dy, c.pos[2]];
+  const lampOn = (name, c) => add('lamp', { name, color: lampCol, pos: onTop(c, 28.4) });
+  const orbOn = (c, mat, color) => add('sphere', { name: 'Orb', mat, color, scale: [0.72, 0.72, 0.72], pos: onTop(c, 29.2) });
+
+  const LAYOUTS = {
+    'Centrepiece'() {   // one hero on the axis, framed by a symmetric pair, a floating accent above
+      const [n, m, c] = heroBall(), r = 8 + rand() * 3, w = 30 + rand() * 8;
+      sphere(n, m, c, r, 5, 0);
+      const pair = [column('Column L', 0, -w), column('Column R', 0, w)];
+      if (rand() < 0.6) { lampOn('Lamp L', pair[0]); lampOn('Lamp R', pair[1]); } else pair.forEach(p => orbOn(p, 'glossy', supCol));
+      add('pyramid', { name: 'Pyramid', mat: 'glossy', color: heroCol, scale: [1.6, 1.8, 1.6], pos: on(5, 0, r * 2 + 30), rot: [Math.PI, rand() * Math.PI, 0] });
+    },
+    'Colonnade'() {     // a receding diagonal row of columns, a light at the far end, the hero opposite
+      const n = 3 + ((rand() * 3) | 0), side = rand() < 0.5 ? -1 : 1, cols = [];
+      for (let i = 0; i < n; i++) { const t = i / (n - 1); cols.push(column('Column ' + (i + 1), -25 + t * 70, side * (40 - t * 55))); }
+      lampOn('Lamp', cols[n - 1]);
+      cols.slice(0, -1).forEach(c => orbOn(c, 'metal', '#f2f2f2'));
+      const [n2, m2, c2] = heroBall(); sphere(n2, m2, c2, 7, 10, -side * 28);
+      add('torus', { name: 'Ring', mat: 'glossy', color: heroCol, pos: on(20, -side * 5, 40), rot: [Math.PI / 2 + (rand() - 0.5) * 0.3, 0, 0] });
+    },
+    'Rule of thirds'() { // a tall stack on one third, a small counterweight group on the other, open middle
+      const side = rand() < 0.5 ? -1 : 1;
+      add('cube', { name: 'Plinth', mat: 'granite', color: stone, scale: [1.4, 1.2, 1.4], pos: on(10, side * 28, 4.8), rot: [0, yaw + 0.3, 0] }, 10, side * 28, 9);
+      const [n, m, c] = heroBall(); add('sphere', { name: n, mat: m, color: c, scale: [1.5, 1.5, 1.5], pos: on(10, side * 28, 16.6) });
+      sphere('Small ball', 'glossy', heroCol, 3.5, 30, -side * 32);
+      sphere('Checker ball', 'checker', '#ffffff', 2.5, 22, -side * 22);
+      add('lamp', { name: 'Floating lamp', color: lampCol, pos: on(35, -side * 28, 22) });
+    },
+    'Stone circle'() {  // standing stones on an arc behind a centre object, open toward the camera
+      const k = 5 + ((rand() * 3) | 0), R = 42;
+      for (let i = 0; i < k; i++) {
+        const a = Math.PI * (0.1 + 0.8 * i / (k - 1)), d = 15 + Math.sin(a) * R * 0.8, s2 = -Math.cos(a) * R;
+        add('cube', { name: 'Stone ' + (i + 1), mat: 'granite', color: stone, scale: [0.55, 2 + rand() * 0.8, 0.35], pos: on(d, s2, 7), rot: [0, yaw + Math.atan2(s2, d - 15), (rand() - 0.5) * 0.08] }, d, s2, 4);
+      }
+      if (rand() < 0.5) add('lamp', { name: 'Centre light', color: lampCol, pos: on(15, 0, 16) });
+      else { const [n, m, c] = heroBall(); sphere(n, m, c, 6, 15, 0, 12); }
+    },
+    'Still life'() {    // a small touching group of primitives, like a render test
+      add('cube', { name: 'Cube', mat: 'glossy', color: heroCol, scale: [1.2, 1.2, 1.2], pos: on(5, -6, 4.8), rot: [0, yaw + 0.5, 0] }, 5, -6, 7);
+      const [n, m, c] = heroBall(); add('sphere', { name: n, mat: m, color: c, scale: [1, 1, 1], pos: on(5, -6, 14.3) });
+      add('cone', { name: 'Cone', mat: 'metal', color: hex(C('sun')), scale: [1, 1.4, 1], pos: on(10, 9, 7) }, 10, 9, 5);
+      sphere('Checker ball', 'checker', '#ffffff', 4, -6, 6);
+      add('lamp', { name: 'Floating lamp', color: lampCol, pos: on(30, 18, 26) });
+    },
+  };
+  const layout = opts.layout && (LAYOUTS[opts.layout] || opts.layout === 'Empty') ? opts.layout : pick(Object.keys(LAYOUTS));
+  islandObj.role = 'base';
+  if (layout !== 'Empty') LAYOUTS[layout]();
+
+  // a little nature at the sides and behind, never in front of the arrangement, never overlapping it
+  const scatter = (model, r, scl, n, dMin) => {
+    for (let i = 0, tries = 0; i < n && tries < 40; tries++) {
+      const a = Math.PI * (rand() * 1.2 - 0.1), rr = 50 + rand() * 30, d = Math.max(dMin, Math.sin(a) * rr), s2 = -Math.cos(a) * rr;
+      if (!free(d, s2, r)) continue;
+      add('model', { model, scale: [scl, scl, scl], pos: on(d, s2, -0.8), rot: [0, rand() * 6, 0] }, d, s2, r); i++;
+    }
+  };
+  if (rand() < 0.7) scatter('tree', 14, (32 + rand() * 12) / 40, 1, 10);
+  scatter(rand() < 0.5 ? 'boulder' : 'rock', 4, (3 + rand() * 4) / 5, 1 + ((rand() * 2) | 0), -20);
+  // number repeated names (Orb, Orb 2, Orb 3...) so the object list can tell them apart
+  const seen = {};
+  for (const o of objects) { const n = (seen[o.name] = (seen[o.name] || 0) + 1); if (n > 1) o.name = `${o.name} ${n}`; }
+  return {
+    version: 1, name: 'untitled', seed: seedV, palette: palName, layout, terrain: { ...terr }, sky: skyS,
+    camera: { pos: cpos.toArray(), target: (floating ? new V3(isl.x, islandObj.pos[1] - 5, isl.z) : baseTop !== null ? new V3(isl.x, baseTop + 10, isl.z) : cpos.clone().addScaledVector(dir, 150)).toArray(), fov: 50 }, objects,
+  };
+}
+
+// ---------- art-directed scenes ----------
+// Each one is a single picture idea: its own ground, palette, lens, camera height, sun placement and
+// composition. None of them is "an island in the middle". Drawn from 90s Bryce work: infinite planes to
+// the horizon, near-monochrome skies, things half sunk, tiny things in vast space, giant things up close.
+const PI = Math.PI;
+const SCENES = {
+  chessboard: { label: 'Infinite chessboard', pal: 'lavender', time: 'day', t: { land: false, water: false, floor: 'checker', floorTile: 20 },
+    build({ d, r, side, ball, add, C, hex, azTo }) {   // high camera looking down the board; chrome hero on a third
+      d.camera = { pos: [-side * 10, 26, 130], target: [side * 6, 2, 0], fov: 50 };
+      d.sky = { ...d.sky, elev: r(24, 40), az: azTo(d.camera.pos, d.camera.target) + 180 + r(-40, 40), fog: 0.0005 };
+      ball('Chrome ball', 'metal', '#f2f2f2', 12, side * 20, 12, -5);
+      ball('Glass ball', 'glass', hex(C('horizon').lerp(WHITE, 0.6)), 5, -side * 6, 5, 42);
+      ball('Glossy ball', 'glossy', hex(C('mid')), 4, side * 46, 4, 34);
+      for (let i = 0; i < 4; i++) add('column', { name: 'Column', mat: 'granite', color: hex(C('high')), scale: [1.5, 1.5, 1.5], pos: [-side * (40 + i * 16), 0, -40 - i * 110] });
+      add('torus', { name: 'Ring', mat: 'glossy', color: hex(C('zenith').lerp(WHITE, 0.25)), scale: [1.7, 1.7, 1.7], pos: [-side * 12, 52, -90], rot: [r(0.3, 0.9), r(0, 3), 0] });
+    } },
+  silver: { label: 'Silver sea', pal: 'silver', time: 'dusk', t: { land: false, water: true },
+    build({ d, r, side, ball, add, azTo }) {   // eye on the water, tele lens, sun low dead ahead: glitter path and silhouettes
+      d.camera = { pos: [0, 4, 160], target: [side * 8, 8, 0], fov: 35 };
+      d.sky = { ...d.sky, elev: r(3, 6), az: azTo(d.camera.pos, d.camera.target) + r(-6, 6), fog: 0.0011 };
+      ball('Chrome ball', 'metal', '#ececec', 16, side * 22, r(2, 7), -30);
+      add('torus', { name: 'Arch', mat: 'metal', color: '#e6e6e6', scale: [4.5, 4.5, 4.5], pos: [-side * 62, -2, -280], rot: [0, r(-0.5, 0.5), 0] });
+      ball('Glass ball', 'glass', '#f4f6f8', 3, -side * 4, 3, 72);
+      ball('Far ball', 'metal', '#ececec', 6, -side * 90, 5, -420);
+    } },
+  cloudsea: { label: 'Above the clouds', pal: 'ember', time: 'dusk',
+    t: { ...DRY, height: 900, size: 380, sharp: 0.7, rough: 0.5, variety: 0.4, stage: 0 },
+    build({ d, r, side, ball, add, C, hex, azTo, gy }) {   // camera above a sunset cloud deck; only the peaks get through
+      const hs = [];
+      for (let x = -1500; x <= 1500; x += 150) for (let z = -1500; z <= 1500; z += 150) hs.push(gy(x, z));
+      hs.sort((a, b) => a - b);
+      const deck = hs[(hs.length * 0.86) | 0], tx = side * 120;
+      let camY = deck + 70;
+      for (let i = 0; i <= 40; i++) { const t = i / 40; camY = Math.max(camY, gy(tx * t, 420 - 720 * t) + 25); }
+      camY = Math.min(camY, deck + 160);   // stay low over the deck; a peak may cut into frame, which is fine
+      d.camera = { pos: [0, camY, 420], target: [tx, camY - 14, -300], fov: 50 };
+      d.sky = { ...d.sky, elev: r(3, 6), az: azTo(d.camera.pos, d.camera.target) + side * r(12, 28), fog: 0.0005 };
+      add('clouds', { name: 'Cloud sea', mat: 'matte', color: hex(C('high')), pos: [0, deck, 0], cloud: { ...CLOUD_DEFAULTS, coverage: 0.84, softness: 0.35, opacity: 0.97, size: 1.4, cseed: r(0, 100) } });
+      add('floater', { name: 'Floating isle', mat: 'land', color: '#cccccc', pos: [-side * 170, camY + 40, -260], scale: [0.6, 0.6, 0.6], terrain: { ...FLOAT_DEFAULTS, tseed: (r(0, 1e6)) | 0 } });
+      ball('Glossy ball', 'glossy', hex(C('zenith').lerp(C('horizon'), 0.4)), 6, side * 34, camY - 4, 250);
+    } },
+  monolith: { label: 'Monolith', pal: 'rust', time: 'day',
+    t: { ...DRY, height: 320, size: 420, sharp: 0.6, rough: 0.5, basin: 1, stage: 0, stageFloor: 0 },
+    build({ d, r, side, ball, add, azTo, gy }) {   // a flat dry bowl ringed by mountains; one slab, raking light, long lens
+      const sx = 0, sz = 270, mx = sx + side * 26, g = gy(mx, sz);
+      d.camera = { pos: [sx - side * 20, gy(sx - side * 20, sz + 230) + 4, sz + 230], target: [sx, g + 18, sz], fov: 26 };
+      d.sky = { ...d.sky, elev: r(5, 9), az: azTo(d.camera.pos, d.camera.target) + side * r(60, 80), fog: 0.00045 };
+      add('cube', { name: 'Monolith', mat: 'glossy', color: '#141414', scale: [1.1, 6, 0.3], pos: [mx, g + 23.5, sz], rot: [0, r(-0.4, 0.4), 0] });
+      ball('Small chrome ball', 'metal', '#f0f0f0', 1.6, mx - side * 8, g + 1.6, sz + 12);
+    } },
+  colonnade: { label: 'Drowned colonnade', pal: 'cobalt', time: 'dusk', t: { land: false, water: true },
+    build({ d, r, add, C, hex, azTo }) {   // one-point perspective down two rows of sinking columns to a half-drowned pyramid
+      d.camera = { pos: [0, 6, 130], target: [0, 12, -400], fov: 45 };
+      d.sky = { ...d.sky, elev: r(8, 14), az: azTo(d.camera.pos, d.camera.target) + r(-12, 12), fog: 0.0009 };
+      for (let i = 0; i < 9; i++) for (const s of [-1, 1]) {
+        const tilt = i > 3 && r(0, 1) < 0.4 ? r(-0.18, 0.18) : 0;
+        add('column', { name: 'Column', mat: 'granite', color: hex(C('high').lerp(WHITE, 0.3)), scale: [1.5, 1.5, 1.5], pos: [s * 32, -(i * 1.4 + r(0, 3)), 60 - i * 55], rot: [0, 0, tilt] });
+      }
+      add('pyramid', { name: 'Pyramid', mat: 'metal', color: hex(C('sun').lerp(new THREE.Color('#e0b050'), 0.6)), scale: [13, 13, 13], pos: [0, -8, -520], rot: [0, PI / 4, 0] });
+    } },
+  snowpyr: { label: 'Pyramids in snow', pal: 'graphite', time: 'night',
+    t: { ...DRY, height: 300, size: 360, sharp: 0.75, rough: 0.55, stage: 260, stageFloor: 4 },
+    build({ d, r, side, add, azTo, gy }) {   // dark stone half-buried and tilted, moon in frame
+      const sx = 0, sz = 270;
+      const pyr = (name, x, z, s, sink) => add('pyramid', { name, mat: 'granite', color: '#4a4e58', scale: [s, s, s], pos: [x, gy(x, z) + 5 * s - sink * 10 * s, z], rot: [r(-0.12, 0.12), r(0, 1.5), r(-0.12, 0.12)] });
+      pyr('Great pyramid', sx + side * 25, sz - 40, 9, 0.42);
+      pyr('Pyramid', sx - side * 34, sz - 110, 6, 0.35);
+      pyr('Small pyramid', sx - side * 4, sz + 55, 2.5, 0.3);
+      const cx = sx - side * 40, cz = sz + 175;
+      d.camera = { pos: [cx, gy(cx, cz) + 8, cz], target: [sx, gy(sx, sz) + 26, sz - 40], fov: 42 };
+      d.sky = { ...d.sky, night: true, elev: r(14, 20), az: azTo(d.camera.pos, d.camera.target) + side * r(8, 16), fog: 0.0009 };
+    } },
+  canyonfloor: { label: 'Canyon floor', pal: 'sandstone', time: 'day',
+    t: { height: 560, sharp: 0.8, terrace: 0.85, riverWidth: 150, wiggle: 200, stage: 0 },
+    build({ d, r, side, ball, azTo }) {   // standing in the river looking up at terraced walls; high noon light
+      d.camera = { pos: [meander(350), 4, 350], target: [meander(-150), 140, -150], fov: 60 };
+      d.sky = { ...d.sky, elev: r(45, 65), az: r(-180, 180), fog: 0.0008 };
+      ball('Chrome ball', 'metal', '#f0f0f0', 7, meander(200), 13, 200);
+      ball('Glass ball', 'glass', '#e8f8ff', 4, meander(265) + side * 9, 5, 265);
+    } },
+  orbital: { label: 'Orbital', pal: 'void', time: 'day', t: { land: false, water: false },
+    build({ d, r, side, ball, add, C, hex, azTo }) {   // no ground at all: a gyroscope of rings round a light, spheres adrift
+      const c = [0, 25, 0];
+      d.camera = { pos: [-side * 70, 5, 270], target: c, fov: 40 };
+      d.sky = { ...d.sky, elev: r(20, 40), az: azTo(d.camera.pos, c) + side * r(60, 100), fog: 0.0003 };
+      add('torus', { name: 'Outer ring', mat: 'metal', color: '#e8e8e8', scale: [4.2, 4.2, 4.2], pos: c, rot: [PI / 2, 0, 0] });
+      add('torus', { name: 'Middle ring', mat: 'glossy', color: hex(C('horizon').lerp(WHITE, 0.3)), scale: [3.3, 3.3, 3.3], pos: c, rot: [r(0.3, 1.2), r(0, 3), 0] });
+      add('torus', { name: 'Inner ring', mat: 'metal', color: '#e8c070', scale: [2.4, 2.4, 2.4], pos: c, rot: [r(0, 3), 0, r(0.3, 1)] });
+      add('lamp', { name: 'Core', color: hex(C('sun')), pos: c, brightness: 2 });
+      const mats = [['metal', '#f0f0f0'], ['glossy', hex(C('horizon'))], ['glass', '#e8f0ff'], ['glossy', hex(C('high'))]];
+      for (let i = 0; i < 7; i++) {
+        const a = r(0, PI * 2), e = r(-0.6, 0.8), dist = r(70, 320), [m, col] = mats[i % mats.length];
+        ball('Drifter', m, col, r(2, 9), Math.cos(a) * Math.cos(e) * dist, c[1] + Math.sin(e) * dist, Math.sin(a) * Math.cos(e) * dist - 60);
+      }
+    } },
+  marbles: { label: "Giant's marbles", pal: 'meadow', time: 'day',
+    t: { ...DRY, height: 220, size: 380, sharp: 0.05, rough: 0.42, variety: 0.5, stage: 300, stageFloor: 3 },
+    build({ d, r, side, ball, add, azTo, gy }) {   // ant's-eye view in the grass; one huge glossy ball cropped by the frame
+      const cz = 300;
+      d.camera = { pos: [0, gy(0, cz) + 5, cz], target: [side * 20, gy(side * 20, 100) + 12, 100], fov: 50 };
+      d.sky = { ...d.sky, elev: r(30, 50), az: azTo(d.camera.pos, d.camera.target) + 180 + r(-40, 40), fog: 0.0006 };
+      const cols = ['#d8202a', '#1e4fd8', '#f2c21e', '#151515', '#f4f0e0', '#1e9a4a'];
+      const spots = [[side * 30, cz - 55, 22], [-side * 45, cz - 150, 11], [side * 70, cz - 240, 8], [-side * 10, cz - 330, 6], [side * 120, cz - 420, 4.5], [-side * 90, cz - 520, 3.5]];
+      spots.forEach(([x, z, rad], i) => ball(i ? 'Marble' : 'Giant marble', i === 3 ? 'checker' : i === 5 ? 'metal' : 'glossy', i === 5 ? '#f0f0f0' : cols[i], rad, x, gy(x, z) + rad * 0.85, z));
+      add('clouds', { name: 'Clouds', mat: 'matte', color: '#ffffff', pos: [0, gy(0, 0) + 260, 0], cloud: { ...CLOUD_DEFAULTS, coverage: 0.5, cseed: r(0, 100) } });
+    } },
+  ring: { label: 'Mirror lake ring', pal: 'blush', time: 'dusk',
+    t: { height: 520, sharp: 0.9, basin: 1, riverWidth: 0, stage: 0 },
+    build({ d, r, side, ball, add, C, hex, azTo }) {   // an upright ring half in the water: the reflection closes the circle
+      const rx = side * 30, rz = 170;
+      d.camera = { pos: [-side * 10, 3, 540], target: [rx, 20, rz], fov: 38 };
+      d.sky = { ...d.sky, elev: r(3, 6), az: azTo(d.camera.pos, [rx, 0, rz]) + r(-4, 4), fog: 0.001 };
+      add('torus', { name: 'Ring', mat: 'metal', color: hex(C('high')), scale: [7, 7, 7], pos: [rx, 0, rz], rot: [0, r(-0.3, 0.3), 0] });
+      ball('Glass ball', 'glass', '#fff4f0', 9, rx, 24, rz);
+      for (let i = 1; i <= 4; i++) {
+        const t = i / 5, x = -side * 10 + (rx + side * 10) * t, z = 540 + (rz - 540) * t;
+        add('cube', { name: 'Stepping stone', mat: 'granite', color: hex(C('high')), scale: [0.9, 0.12, 0.9], pos: [x + r(-6, 6), 0.1, z], rot: [0, r(0, 1.5), 0] });
+      }
+    } },
+  archipelago: { label: 'Sky archipelago', pal: 'sulphur', time: 'day', t: { land: false, water: true },
+    build({ d, r, side, ball, add, C, hex, azTo }) {   // a chain of floating isles at every depth; a little temple on one
+      d.camera = { pos: [0, 175, 300], target: [side * 40, 140, 0], fov: 55 };
+      d.sky = { ...d.sky, elev: r(25, 40), az: azTo(d.camera.pos, d.camera.target) + side * r(70, 110), fog: 0.0005 };
+      const isles = [[-side * 75, 118, 165, 1.3], [side * 60, 150, -40, 0.8], [-side * 130, 205, -320, 1.1], [side * 210, 130, -620, 0.9], [0, 265, -950, 1.6]]
+        .map(([x, y, z, s], i) => add('floater', { name: 'Floating isle', mat: 'land', color: '#cccccc', pos: [x, y, z], scale: [s, s, s], terrain: { ...FLOAT_DEFAULTS, tseed: (r(0, 1e6)) | 0 } }));
+      const t = isles[1], [tx, , tz] = t.pos;
+      for (let i = 0; i < 4; i++) {
+        const a = i * PI / 2 + PI / 4, x = tx + Math.cos(a) * 16, z = tz + Math.sin(a) * 16;
+        add('column', { name: 'Column', mat: 'granite', color: hex(C('high').lerp(WHITE, 0.4)), scale: [0.8, 0.8, 0.8], pos: [x, groundHeightOn(t, x, z) - 0.8, z] });
+      }
+      ball('Chrome ball', 'metal', '#f0f0f0', 4, tx, groundHeightOn(t, tx, tz) + 4, tz);
+      add('clouds', { name: 'Clouds below', mat: 'matte', color: '#ffffff', pos: [0, 60, 0], cloud: { ...CLOUD_DEFAULTS, coverage: 0.6, cseed: r(0, 100) } });
+    } },
+
+  // ---- math textbook covers: airbrushed gradient sky, no clouds, primitives floating over an infinite board ----
+  tbPlane: { label: 'Textbook: spheres', pal: 'airbrush', time: 'day', t: { land: false, water: false, floor: 'checker', floorTile: 16 },
+    build({ d, r, side, ball, box, azTo }) {   // chrome spheres stepping down through a tilted sheet of glass
+      d.camera = { pos: [-side * 40, 34, 165], target: [side * 4, 48, 0], fov: 48 };
+      d.sky = { ...d.sky, clouds: false, elev: r(35, 50), az: azTo(d.camera.pos, d.camera.target) + 180 + side * r(20, 40), fog: 0.0003 };
+      box('Glass plane', 'glass', '#a8ecff', [95, 0.6, 95], [side * 4, 60, -15], [side * r(0.45, 0.6), r(0.3, 0.6), side * r(0.25, 0.4)]);
+      [[side * 22, 110, -45, 6], [side * 6, 82, -18, 7], [-side * 10, 50, 8, 8.5], [-side * 20, 9, 38, 9]].forEach(([x, y, z, rad]) => ball('Chrome ball', 'metal', '#f0f2ff', rad, x, y, z));
+      ball('Small chrome ball', 'metal', '#f0f2ff', 4, -side * 55, 4, 70);
+    } },
+  tbPrism: { label: 'Textbook: prism', pal: 'prism', time: 'day', t: { land: false, water: false, floor: 'mirror' },
+    build({ d, r, side, add, beam, azTo }) {   // a white beam enters a glass pyramid and leaves as a rainbow fan; laser lines cross the dark
+      const P = [0, 0, 0];
+      add('pyramid', { name: 'Prism', mat: 'glossy', color: '#a8c0ff', scale: [4.4, 4.4, 4.4], pos: [0, 22, 0], rot: [0, PI / 4, 0] });
+      d.camera = { pos: [side * 30, 22, 185], target: [0, 26, 0], fov: 42 };
+      d.sky = { ...d.sky, clouds: false, elev: r(35, 55), az: azTo(d.camera.pos, P) + 180 + side * 30, fog: 0.0002 };
+      beam('White beam', '#ffffff', [-side * 420, 120, 40], [-side * 5, 24, 0], 0.8);
+      ['#ff2a2a', '#ff8a10', '#ffe028', '#30e050', '#2a80ff', '#8a3aff'].forEach((c, i) => beam('Spectrum', c, [side * 6, 23 - i * 0.6, 0], [side * 420, 70 - i * 22, -40 + i * 4], 0.9));
+      beam('Laser', '#30ff60', [-side * 160, 260, -260], [side * 60, -2, 30], 0.35);
+      beam('Laser', '#ff3030', [side * 220, 200, -320], [-side * 260, 30, -120], 0.35);
+    } },
+  tbSolids: { label: 'Textbook: solids', pal: 'algebra', time: 'day', t: { land: false, water: false, floor: 'checker', floorTile: 12 },
+    build({ d, r, side, add, ball, box, azTo }) {   // a little city of glossy blocks, a red sphere and solids hanging in the air
+      d.camera = { pos: [side * 30, 22, 120], target: [-side * 4, 30, -20], fov: 50 };
+      d.sky = { ...d.sky, elev: r(30, 45), az: azTo(d.camera.pos, d.camera.target) + 180 + side * r(30, 60), fog: 0.0004 };
+      const blue = '#4a6ad0';
+      box('Tower', 'glossy', blue, [14, 62, 14], [-side * 8, 31, -45], [0, 0.3, 0]);
+      box('Tower', 'glossy', blue, [12, 44, 12], [side * 12, 22, -70], [0, -0.2, 0]);
+      box('Block', 'glossy', blue, [16, 26, 16], [-side * 30, 13, -15], [0, 0.6, 0]);
+      ball('Red sphere', 'glossy', '#c81e1e', 14, -side * 48, 62, -40);
+      add('cone', { name: 'Cone', mat: 'glossy', color: '#203a8a', scale: [2.4, 2.4, 2.4], pos: [side * 34, 52, -25], rot: [0.3, 0, side * 1.25] });
+      add('octahedron', { name: 'Octahedron', mat: 'glossy', color: '#8ad050', scale: [1.7, 1.7, 1.7], pos: [side * 2, 16, 22], rot: [r(0, 1), r(0, 1), r(0, 1)] });
+    } },
+
+  // ---- architecture ----
+  piranesi: { label: 'Piranesi arcade', pal: 'piranesi', time: 'day', t: { land: false, water: false, floor: 'checker', floorTile: 30 },
+    build({ d, r, side, add, box, azTo }) {   // two storeys of arcades, giant fluted columns, a stair climbing across, statues on plinths, haze
+      const stone = '#cfc2a4', dark = '#8e8064', G = { mat: 'granite' };
+      const wall = (name, x, y, z, s, ry, color = stone) => add('archwall', { name, ...G, color, scale: [s, s, s * 1.1], pos: [x, y, z], rot: [0, ry, 0] });
+      for (let i = 0; i < 5; i++) for (const sd of [-1, 1]) wall('Arcade', sd * 78, 0, 40 - i * 80, 2, PI / 2, i % 2 ? dark : stone);   // ground storey: 80-wide bays
+      for (let i = 0; i < 3; i++) for (const sd of [-1, 1]) wall('Upper arcade', sd * 78, 104, 0 - i * 80, 2, PI / 2, dark);        // second storey on top
+      wall('Great arch', 0, 0, -380, 3.6, 0);
+      for (let i = 0; i < 5; i++) for (const sd of [-1, 1]) add('column', { name: 'Column', ...G, color: stone, scale: [3.6, 3.6, 3.6], pos: [sd * 56, 0, 40 - i * 80] });
+      for (const sd of [-1, 1]) box('Entablature', 'granite', dark, [14, 10, 360], [sd * 56, 97, -120]);
+      for (let i = 0; i < 12; i++) box('Step', 'granite', stone, [34, 4, 9], [side * (6 + i * 4.5), 2 + i * 4, 90 - i * 9]);
+      box('Landing', 'granite', stone, [34, 4, 36], [side * 60, 46, -33]);
+      const onPlinth = (model, name, x, z, ph, sc, ry) => {
+        box('Plinth', 'granite', dark, [14, ph, 14], [x, ph / 2, z]);
+        add('model', { name, model, scale: [sc, sc, sc], pos: [x, ph, z], rot: [0, ry, 0] });
+      };
+      onPlinth('statue', 'Statue', -side * 32, 30, 14, 1.3, side * 0.5);
+      onPlinth('horse', 'Horse', side * 28, -150, 22, 2.2, -side * 0.9);
+      onPlinth('urn', 'Urn', -side * 30, -110, 10, 1.4, 0);
+      d.camera = { pos: [-side * 14, 8, 185], target: [side * 4, 78, -90], fov: 58 };
+      d.sky = { ...d.sky, elev: r(30, 42), az: azTo(d.camera.pos, d.camera.target) + side * r(70, 95), fog: 0.0011 };
+    } },
+  poolhall: { label: 'Pool hall', pal: 'poolhall', time: 'day', t: { land: false, water: true, floor: 'pool', floorTile: 3.5 },
+    build({ d, r, side, box, cyl, azTo }) {   // backrooms-style tiled hall: columns in still green water, low sun from the open side
+      const T = '#eeeadc', tile = { tile: 3.5 };
+      box('Ceiling', 'tile', T, [340, 4, 340], [0, 62, -10], [0, 0, 0], tile);
+      box('Back wall', 'tile', T, [340, 70, 4], [0, 29, -180], [0, 0, 0], tile);
+      box('Wall', 'tile', T, [4, 70, 340], [-side * 170, 29, -10], [0, 0, 0], tile);
+      for (let i = 0; i < 3; i++) box('Pier', 'tile', T, [6, 70, 30], [side * 170, 29, -140 + i * 110], [0, 0, 0], tile);   // open side: sun gets in between these
+      const spots = [[-55, -100], [45, -60], [-25, 10], [70, 45], [-80, 70], [10, -140]];
+      spots.forEach(([x, z]) => cyl('Column', 'tile', T, 7, 70, [side * x, -6, z], tile));
+      box('Walkway', 'tile', T, [26, 1.2, 150], [-side * 105, 0.4, 20], [0, 0, 0], tile);
+      d.camera = { pos: [side * 25, 11, 150], target: [-side * 5, 17, 0], fov: 56 };
+      d.sky = { ...d.sky, clouds: false, ambient: 2.4, elev: r(9, 15), az: azTo([0, 0, 0], [side * 170, 0, r(-60, 20)]), fog: 0.0004 };
+    } },
+  tunnel: { label: 'Tiled tunnel', pal: 'poolgreen', time: 'day', t: { land: false, water: true, floor: 'pool', floorTile: 3 },
+    build({ d, r, side, add, box, azTo }) {   // rings of tile receding over green water into the dark; sun cuts in from one side
+      const T = '#e2e8da', tile = { tile: 3 };
+      for (let i = 0; i < 8; i++) add('torus', { name: 'Ring', mat: 'tile', color: T, scale: [7.2, 7.2, 3], pos: [0, 0, -i * 70], rot: [0, 0, 0], ...tile });
+      box('Ceiling', 'tile', T, [130, 4, 600], [0, 66, -250], [0, 0, 0], tile);
+      box('Wall', 'tile', T, [4, 80, 600], [side * 64, 30, -250], [0, 0, 0], tile);
+      for (let i = 0; i < 4; i++) box('Wall', 'tile', T, [4, 80, 90], [-side * 64, 30, 20 - i * 150], [0, 0, 0], tile);   // gaps let the sun in
+      box('Far wall', 'matte', '#060807', [130, 80, 4], [0, 30, -560]);
+      d.camera = { pos: [side * 6, 12, 75], target: [0, 14, -400], fov: 52 };
+      d.sky = { ...d.sky, clouds: false, ambient: 1.8, elev: r(22, 32), az: azTo([0, 0, 0], [-side * 100, 0, -r(40, 120)]), fog: 0.0005 };
+    } },
+  atrium: { label: 'Marble atrium', pal: 'atrium', time: 'dusk', t: { land: false, water: false, floor: 'mirror' },
+    build({ d, r, side, box, azTo }) {   // polished floor, tall white piers in perspective, a glowing violet wall at the end
+      for (let i = 0; i < 8; i++) for (const s of [-1, 1]) box('Pier', 'matte', '#f6f2ee', [12, 130, 12], [s * 62, 65, 20 - i * 60]);
+      box('Light wall', 'glow', '#8a4ae0', [150, 130, 2], [0, 65, -450]);
+      box('Light strip', 'glow', '#40e0ff', [150, 2, 2], [0, 1, -446]);
+      box('Bench', 'matte', '#f4f0ee', [10, 4, 30], [side * 22, 2, -60]);
+      box('Bench', 'matte', '#f4f0ee', [10, 4, 30], [side * 22, 2, -200]);
+      d.camera = { pos: [-side * 10, 7, 110], target: [side * 2, 34, -300], fov: 55 };
+      d.sky = { ...d.sky, clouds: false, ambient: 2.2, elev: r(14, 22), az: azTo(d.camera.pos, d.camera.target) + side * r(40, 70), fog: 0.0007 };
+    } },
+};
+function generateScene(key, seedV) {
+  const S = SCENES[key], pal = PALETTES[S.pal];
+  seed = seedV; rand.seed(seedV); phase = rand() * 10;   // same order as buildTerrain, so heightAt matches the built land
+  terr = { ...TERRAIN_DEFAULTS, ...(S.t || {}) };
+  const C = k => new THREE.Color(pal[k]), hex = c => '#' + c.getHexString();
+  const r = (a, b) => a + rand() * (b - a), side = rand() < 0.5 ? -1 : 1;
+  const objects = [];
+  const add = (type, props) => { const o = mkObj(type, props); objects.push(o); return o; };
+  const ball = (name, mat, color, rad, x, y, z) => add('sphere', { name, mat, color, scale: [rad / 5, rad / 5, rad / 5], pos: [x, y, z] });
+  const gy = (x, z) => terr.land === false ? terr.waterY : heightAt(x, z);
+  const azTo = (f, t) => THREE.MathUtils.radToDeg(Math.atan2(t[0] - f[0], -(t[2] - f[2])));
+  // box: size in world units, centred at pos. cyl: radius and height, standing on y0. beam: a thin glowing rod from a to b.
+  const box = (name, mat, color, [w, h, dd], pos, rot = [0, 0, 0], extra = {}) => add('cube', { name, mat, color, scale: [w / 8, h / 8, dd / 8], pos, rot, ...extra });
+  const cyl = (name, mat, color, rad, h, [x, y0, z], extra = {}) => add('cylinder', { name, mat, color, scale: [rad / 4, h / 10, rad / 4], pos: [x, y0 + h / 2, z], ...extra });
+  const beam = (name, color, a, b, rad = 0.5) => {
+    const A = new V3(...a), B = new V3(...b), dir = B.clone().sub(A), len = dir.length();
+    const e = new THREE.Euler().setFromQuaternion(new THREE.Quaternion().setFromUnitVectors(new V3(0, 1, 0), dir.normalize()));
+    return add('cylinder', { name, mat: 'glow', color, scale: [rad / 4, len / 10, rad / 4], pos: A.clone().add(B).multiplyScalar(0.5).toArray(), rot: [e.x, e.y, e.z] });
+  };
+  const d = { version: 1, name: 'untitled', seed: seedV, palette: S.pal, layout: S.label, scene: key,
+    sky: { elev: 20, az: 0, cloudSeed: r(0, 100), fog: 0.0008, waterSeed: r(0, 100), night: false }, camera: { pos: [0, 10, 150], target: [0, 10, 0], fov: 50 }, objects };
+  S.build({ d, r, side, add, ball, gy, C, hex, azTo, box, cyl, beam });
+  d.terrain = { ...terr };
+  const seen = {};
+  for (const o of objects) { const n = (seen[o.name] = (seen[o.name] || 0) + 1); if (n > 1) o.name = `${o.name} ${n}`; }
+  return d;
+}
+
+// ---------- environment: terrain, island, sky, fog, water ----------
+let terrainKey = '', paletteKey = '';
+function buildTerrain(pal) {
+  if (doc.terrain && !('stage' in doc.terrain)) doc.terrain.stage = 0;   // scenes saved before stages existed
+  terr = doc.terrain = { ...TERRAIN_DEFAULTS, ...(doc.terrain || {}) };
+  seed = doc.seed; rand.seed(seed); phase = rand() * 10;
+  const C = k => new THREE.Color(pal[k]);
+  const low = C('low'), mid = C('mid'), rock = C('rock'), high = C('high');
+  const pos = terrainGeo.attributes.position, col = terrainGeo.attributes.color;
+  for (let i = 0; i < pos.count; i++) pos.setY(i, heightAt(pos.getX(i), pos.getZ(i)));
+  terrainGeo.computeVertexNormals();
+  const nrm = terrainGeo.attributes.normal, c = new THREE.Color();
+  for (let i = 0; i < pos.count; i++) {
+    const y = pos.getY(i), slope = 1 - nrm.getY(i), j = (hash(i, 7) - 0.5) * 0.12;
+    c.copy(low).lerp(mid, smooth(4, 60, y - terr.waterY + j * 80));
+    c.lerp(rock, smooth(0.25, 0.5, slope + j));
+    c.lerp(high, smooth(150, 230, y + j * 120) * (1 - smooth(0.45, 0.7, slope)));
+    c.multiplyScalar(1 + j);
+    col.setXYZ(i, c.r, c.g, c.b);
+  }
+  pos.needsUpdate = col.needsUpdate = true;
+  terrainGeo.computeBoundingSphere(); terrainGeo.computeBoundingBox();
+  if (terrainGeo.boundsTree) terrainGeo.disposeBoundsTree();
+}
+scene.fog = new THREE.FogExp2(0xffffff, 0.001);
+const MOON = new THREE.Color(0.75, 0.82, 1);
+function applySky(pal) {
+  const s = doc.sky, night = !!s.night;
+  // at night the palette's sky colours sink toward deep blue and the sun becomes a pale moon
+  const NIGHT = { zenith: [0x02040c, 0.1], horizon: [0x0b1428, 0.12], sun: [MOON.getHex(), 0] };
+  const C = k => night && NIGHT[k] ? new THREE.Color(NIGHT[k][0]).lerp(new THREE.Color(pal[k]), NIGHT[k][1]) : new THREE.Color(pal[k]);
+  const e = THREE.MathUtils.degToRad(s.elev), a = THREE.MathUtils.degToRad(s.az);
+  const sunDir = new V3(Math.sin(a) * Math.cos(e), Math.sin(e), -Math.cos(a) * Math.cos(e));
+  const su = skyMat.uniforms;
+  su.sunDir.value.copy(sunDir); su.zenith.value.copy(C('zenith')); su.horizon.value.copy(C('horizon')); su.sunCol.value.copy(C('sun')); su.seed.value = s.cloudSeed; su.night.value = night ? 1 : 0; su.clouds.value = s.clouds === false ? 0 : 1;
+  scene.fog.color.copy(C('horizon')); scene.fog.density = s.fog;
+  sun.color.copy(C('sun')); sun.intensity = night ? 0.45 : 2.6;
+  hemi.color.copy(C('zenith')).lerp(night ? MOON : WHITE, 0.5); hemi.intensity = (night ? 0.12 : 0.6) * (s.ambient ?? 1);   // ambient: fill light for interiors the sun barely reaches
+  hemi.groundColor.copy(new THREE.Color(pal.mid)).multiplyScalar(0.5);
+  for (const r of roots.values()) if (r.userData.clouds) r.userData.clouds.material.uniforms.light.value = night ? 0.12 : 1;
+  const wu = water.material.uniforms;
+  wu.waterCol.value.copy(C('water')).multiplyScalar(0.5);
+  wu.sunDir.value.copy(sunDir); wu.sunCol.value.copy(C('sun'));
+  wu.fogCol.value.copy(scene.fog.color); wu.fogDensity.value = scene.fog.density; wu.seed.value = s.waterSeed;
+  const tgt = new V3().fromArray(doc.camera.target).setY(0);
+  sun.target.position.copy(tgt); sun.position.copy(tgt).addScaledVector(sunDir, 1500);
+}
+function applyEnvironment() {
+  if (doc && doc.terrain) terrain.visible = doc.terrain.land !== false;
+  if (doc && doc.terrain) water.position.y = WY();
+  if (doc && doc.terrain) water.visible = showWaterMesh() && !(viewMode === 'wire' && mode === 'edit');
+  const pal = PALETTES[doc.palette] || PALETTES.desert, surf = surfaceOf(doc.terrain);
+  floorMesh.visible = surf === 'checker' || surf === 'tiles';
+  floorMesh.position.y = WY();
+  if (floorMesh.visible) updateFloor(pal, surf, doc.terrain.floorTile || DEFAULT_TILE[surf]);
+  water.material.uniforms.mirror.value = surf === 'mirror' ? 1 : 0;
+  { const wu = water.material.uniforms, [pc, pt] = floorColors(pal, 'pool');
+    wu.pool.value = surf === 'pool' ? 1 : 0; wu.poolTint.value.set(pc); wu.poolTileCol.value.set(pt);
+    wu.poolTile.value = doc.terrain.floorTile || DEFAULT_TILE.pool; wu.poolDepth.value = POOL_DEPTH; }
+  water.material.uniforms.mirrorTint.value.set(floorColors(pal, 'mirror')[0]);
+  const tk = doc.seed + '|' + doc.palette + '|' + JSON.stringify(doc.terrain || {});
+  if (tk !== terrainKey) { buildTerrain(pal); terrainKey = tk; }
+  if (paletteKey !== doc.palette) {   // terrain objects take their land colours from the palette
+    paletteKey = doc.palette;
+    for (const o of doc.objects) if ((o.type === 'terrain' || o.type === 'floater') && roots.has(o.id)) rebuildKeepSel(o);
+  }
+  applySky(pal);
+  dirty = true;
+}
+
+// one reflection snapshot from above the island, shared by the shiny raster materials
+function updateReflections() {
+  const hidden = [];
+  for (const o of doc.objects) if (SHINY.has(o.mat)) { const r = roots.get(o.id); if (r && r.visible) { r.visible = false; hidden.push(r); } }
+  const wire = scene.overrideMaterial; scene.overrideMaterial = null;
+  const sv = sky.visible, wv = water.visible; sky.visible = true; water.visible = showWaterMesh();
+  envCam.position.set(doc.camera.target[0], WY() + 20, doc.camera.target[2]);
+  envRT.clear(renderer, true, true, true);   // the renderer never auto-clears, so wipe the old snapshot (its depth would hide the sky)
+  envCam.update(renderer, scene);
+  sky.visible = sv; water.visible = wv; scene.overrideMaterial = wire;
+  hidden.forEach(r => r.visible = true);
+  dirty = true;
+}
+
+// ---------- output: average the supersamples, optional 90s colour-depth crunch ----------
+const post = new THREE.ShaderMaterial({
+  uniforms: { tex: { value: rt.texture }, res: { value: new THREE.Vector2(W, H) }, ss: { value: SS }, mode: { value: 0 }, accum: { value: false } },
+  vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }`,
+  fragmentShader: `
+    varying vec2 vUv; uniform sampler2D tex; uniform vec2 res; uniform int ss; uniform int mode; uniform bool accum;
+    const float bayer[16] = float[16](0.,8.,2.,10., 12.,4.,14.,6., 3.,11.,1.,9., 15.,7.,13.,5.);
+    void main(){
+      vec2 px = floor(vUv * res);
+      vec3 c = vec3(0.);
+      if (accum) {   // ray tracer: rgb is a running sum, alpha counts the samples taken so far
+        vec4 a = texture2D(tex, (px + .5) / res);
+        c = a.a > 0. ? a.rgb / a.a : vec3(.5);   // untraced pixels show grey, like an unfinished render
+      } else {
+        vec2 hi = res * float(ss);
+        for (int y = 0; y < 4; y++) for (int x = 0; x < 4; x++) if (x < ss && y < ss)
+          c += clamp(texture2D(tex, (px * float(ss) + vec2(x, y) + .5) / hi).rgb, 0., 1.);
+        c /= float(ss * ss);
+      }
+      c = pow(c, vec3(1. / 2.2));
+      if (mode > 0) {
+        float lv = mode == 1 ? 31. : 5.;          // 15-bit "thousands" vs 6x6x6 web-safe
+        float t = bayer[int(mod(px.y, 4.)) * 4 + int(mod(px.x, 4.))] / 16. - .47;
+        c = floor(c * lv + .5 + t) / lv;
+      }
+      gl_FragColor = vec4(c, 1.);
+    }`,
+});
+const postScene = new THREE.Scene(); postScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), post));
+const postCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+const editRT = new THREE.WebGLRenderTarget(W, H, { type: THREE.HalfFloatType });
+function blit() { renderer.setRenderTarget(null); renderer.clear(); renderer.render(postScene, postCam); }
+
+// ---------- editor: orbit camera, picking, move/rotate/scale gizmo ----------
+const $ = id => document.getElementById(id);
+const msg = $('msg');
+let mode = 'edit', viewMode = 'solid', dirty = true, sel = null;
+const overlay = new THREE.Scene();
+const orbit = new OrbitControls(camera, canvas);
+orbit.maxDistance = 3000; orbit.minDistance = 3;
+orbit.addEventListener('change', () => {
+  if (mode !== 'edit' || !doc) return;
+  doc.camera.pos = camera.position.toArray(); doc.camera.target = orbit.target.toArray(); dirty = true;
+});
+const gizmo = new TransformControls(camera, canvas);
+gizmo.setSize(0.8);
+overlay.add(gizmo.getHelper());
+const selBox = new THREE.BoxHelper(new THREE.Object3D(), 0xffff40);
+selBox.visible = false; overlay.add(selBox);
+gizmo.addEventListener('dragging-changed', e => { orbit.enabled = !e.value && mode === 'edit'; if (!e.value) onTransformEnd(); });
+gizmo.addEventListener('objectChange', onTransformChange);
+gizmo.addEventListener('change', () => dirty = true);
+
+const wireMat = new THREE.MeshBasicMaterial({ color: 0x9fe0c8, wireframe: true, fog: false });
+function applyView() {
+  const wire = viewMode === 'wire' && mode === 'edit';
+  scene.overrideMaterial = wire ? wireMat : null;
+  sky.visible = !wire; water.visible = !wire && showWaterMesh();
+  for (const r of roots.values()) if (r.userData.lamp) r.userData.lamp.halo.visible = !wire;
+  dirty = true;
+}
+
+function applyCamera() {
+  camera.fov = doc.camera.fov || 50; camera.updateProjectionMatrix();
+  camera.position.fromArray(doc.camera.pos); orbit.target.fromArray(doc.camera.target);
+  orbit.update();
+}
+function applyDoc() {
+  select(null);
+  if (doc.island) {   // scenes saved before terrain objects: their island becomes one
+    if (!doc.objects.some(o => o.type === 'terrain'))
+      doc.objects.unshift({ id: 0, type: 'terrain', name: 'Island', mat: 'land', color: '#cccccc', pos: [doc.island.x, 0, doc.island.z], rot: [0, 0, 0], scale: [1, 1, 1], terrain: { ...TOBJ_DEFAULTS, tseed: doc.seed | 0 } });
+    delete doc.island;
+    doc.objects.forEach((o, i) => { if (o.id === 0) o.id = Math.max(...doc.objects.map(x => x.id)) + 1; });
+  }
+  paletteKey = doc.palette;
+  for (const id of [...roots.keys()]) removeRoot(id);
+  nextId = Math.max(0, ...doc.objects.map(o => o.id)) + 1;
+  applyEnvironment();
+  doc.objects.forEach(addRoot);
+  applyCamera();
+  applyView();
+  updateReflections();
+  updateTitle();
+  setMode('edit');
+}
+
+const raycaster = new THREE.Raycaster();
+raycaster.firstHitOnly = true;
+function ensureBVH(obj) { obj.traverse(n => { if (n.isMesh && !n.geometry.boundsTree && n.geometry.attributes.position) n.geometry.computeBoundsTree(); }); }
+function rayFromEvent(ev) {
+  const r = canvas.getBoundingClientRect();
+  raycaster.setFromCamera(new THREE.Vector2(((ev.clientX - r.left) / r.width) * 2 - 1, -((ev.clientY - r.top) / r.height) * 2 + 1), camera);
+}
+function rootOf(o) { while (o && o.parent !== objectsGroup) o = o.parent; return o; }
+function pick(ev) {
+  rayFromEvent(ev);
+  const targets = [...objectsGroup.children.filter(r => r.visible), ...(terrain.visible ? [terrain] : [])];
+  targets.forEach(ensureBVH);
+  const hit = raycaster.intersectObjects(targets, true)[0];
+  if (!hit) return select(null);
+  if (hit.object === terrain) return select('terrain');
+  const r = rootOf(hit.object);
+  select(r ? doc.objects.find(o => o.id === r.userData.docId) : null);
+}
+let downAt = null;
+canvas.addEventListener('pointerdown', e => { downAt = [e.clientX, e.clientY]; });
+canvas.addEventListener('pointerup', e => {
+  if (!downAt) return;
+  const moved = Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]); downAt = null;
+  if (moved > 4 || e.button !== 0) return;
+  if (mode !== 'edit') { if (renderDone) msg.textContent = `Esc or ◀ Back to Edit to keep editing · ${MOD}E saves the image`; return; }
+  if (gizmo.dragging || gizmo.axis) return;
+  pick(e);
+});
+
+const isObj = () => !!sel && typeof sel === 'object';
+function select(o) {
+  sel = o || null;
+  gizmo.getHelper().visible = !!sel && sel !== 'terrain' && mode === 'edit';
+  if (!sel || sel === 'terrain') { gizmo.detach(); selBox.visible = false; }
+  else {
+    const target = roots.get(sel.id);
+    gizmo.attach(target);
+    if (sel.type === 'lamp' && gizmo.mode === 'rotate') gizmo.setMode('translate');
+    selBox.setFromObject(target); selBox.visible = true;
+  }
+  renderInspector(); renderList();
+  dirty = true;
+}
+function onTransformChange() {
+  if (isObj()) {
+    const r = roots.get(sel.id);
+    if (sel.type === 'lamp') {   // keep the bulb round: copy the axis whose handle is being dragged to all three
+      const ax = gizmo.axis, i = ax && ax.length === 1 ? 'XYZ'.indexOf(ax) : 0;
+      r.scale.setScalar(Math.min(5, Math.max(0.2, Math.abs(r.scale.getComponent(i)))));   // 0.2-5: a handle facing the camera is very sensitive
+    }
+    if (sel.type === 'clouds') { r.rotation.set(0, 0, 0); r.scale.set(1, 1, 1); }
+    sel.pos = r.position.toArray(); sel.rot = [r.rotation.x, r.rotation.y, r.rotation.z]; sel.scale = r.scale.toArray();
+  }
+  if (gizmo.object) selBox.setFromObject(gizmo.object);
+  if (isObj() && sel.type === 'clouds') updateCloudUniforms(sel);
+  updateInspectorFields();
+}
+function onTransformEnd() {
+  renderList();
+  updateReflections();
+}
+function setGizmo(m) {
+  if (sel === 'terrain' || (!isObj() && m !== 'translate')) return;
+  if (isObj() && sel.type === 'lamp' && m === 'rotate') return;   // a point light has no direction
+  gizmo.setMode(m); refreshModeButtons(); dirty = true;
+  msg.textContent = { translate: 'Move: drag an arrow, or the centre square to slide along the view', rotate: 'Rotate: drag a ring', scale: 'Scale: drag a handle, or the centre cube to scale evenly' }[m];
+}
+
+// new objects land on whatever is directly below the orbit pivot (ground, terrain objects or water)
+function dropPoint() {
+  const t = orbit.target;
+  raycaster.set(new V3(t.x, 3000, t.z), new V3(0, -1, 0)); raycaster.camera = camera;
+  const targets = [terrain, ...objectsGroup.children.filter(r => (doc.objects.find(o => o.id === r.userData.docId) || {}).type === 'terrain')];
+  targets.forEach(ensureBVH);
+  const hit = raycaster.intersectObjects(targets, true)[0];
+  return new V3(t.x, Math.max(hit ? hit.point.y : WY(), WY()), t.z);
+}
+const LIFT = { clouds: 0, terrain: 0, floater: 60, sphere: 5, cube: 4, cylinder: 5, cone: 5, torus: 9.2, pyramid: 5, octahedron: 5, arch: 0, archwall: 0, column: 0, lamp: 12, model: 0 };
+const NEW_COLORS = ['#d23c2a', '#2a6fd2', '#e8c22a', '#2aa86b', '#d0d0d0', '#8a3fd2'];
+let colorIx = 0;
+// "Clouds", "Clouds 2", "Clouds 3"... so every object can be told apart in the list
+function uniqueName(base) {
+  const names = new Set(doc.objects.map(o => o.name)), root = base.replace(/ \d+$/, '');
+  if (!names.has(base)) return base;
+  for (let n = 2; ; n++) if (!names.has(`${root} ${n}`)) return `${root} ${n}`;
+}
+function create(type, extra = {}) {
+  if (!doc) return;
+  if (mode !== 'edit') setMode('edit');
+  const p = dropPoint();
+  const defaults = type === 'floater' ? { mat: 'land', terrain: { ...FLOAT_DEFAULTS, tseed: (Math.random() * 1e6) | 0 } } : type === 'clouds' ? { mat: 'matte', color: '#ffffff', cloud: { ...CLOUD_DEFAULTS, cseed: Math.random() * 100 } } : type === 'terrain' ? { mat: 'land', terrain: { ...TOBJ_DEFAULTS, height: 22, tseed: (Math.random() * 1e6) | 0 } } : type === 'lamp' ? { color: '#fff1d0', mat: 'matte' } : type === 'column' ? { mat: 'granite', color: '#e8e2d6' } : type === 'model' ? { mat: 'matte' } : { mat: 'glossy', color: NEW_COLORS[colorIx++ % NEW_COLORS.length] };
+  const o = mkObj(type, { ...defaults, ...extra });
+  o.name = uniqueName(o.name);
+  o.pos = [p.x, Math.max(p.y, WY()) + LIFT[type] * o.scale[1], p.z];
+  if (type === 'clouds') o.pos[1] = 220 + 80 * doc.objects.filter(x => x.type === 'clouds').length;   // stack new layers higher
+  doc.objects.push(o); addRoot(o);
+  updateReflections(); select(o);
+  msg.textContent = `Added ${o.name}`;
+}
+function duplicate() {
+  if (!isObj()) return;
+  const o = JSON.parse(JSON.stringify(sel)); o.id = nextId++; o.name = uniqueName(sel.name);
+  const r = new V3().setFromMatrixColumn(camera.matrixWorld, 0).setY(0).normalize().multiplyScalar(12 * Math.max(...o.scale));
+  o.pos = [o.pos[0] + r.x, o.pos[1], o.pos[2] + r.z];
+  doc.objects.push(o); addRoot(o); updateReflections(); select(o);
+}
+function deleteSel() {
+  if (!isObj()) return;
+  const name = sel.name;
+  doc.objects = doc.objects.filter(o => o !== sel); removeRoot(sel.id);
+  select(null); updateReflections(); renderList();
+  msg.textContent = `Deleted ${name}${undoHint()}`; commitSoon();
+}
+function dropToGround() {
+  if (!isObj()) return;
+  const r = roots.get(sel.id), box = new THREE.Box3().setFromObject(r);
+  raycaster.set(new V3(r.position.x, box.max.y + 1, r.position.z), new V3(0, -1, 0)); raycaster.camera = camera;
+  const targets = [terrain, ...objectsGroup.children.filter(c => c !== r)];
+  targets.forEach(ensureBVH);
+  const hit = raycaster.intersectObjects(targets, true)[0];
+  const gy = Math.max(hit ? hit.point.y : WY(), WY());
+  r.position.y += gy - box.min.y;
+  onTransformChange(); updateReflections();
+}
+function frameSel() {
+  const t = isObj() ? roots.get(sel.id) : null;
+  if (!t) return;
+  const box = new THREE.Box3().setFromObject(t), c = box.getCenter(new V3()), rad = box.getSize(new V3()).length() / 2 || 5;
+  const off = camera.position.clone().sub(orbit.target).normalize().multiplyScalar(Math.max(rad * 3, 15));
+  orbit.target.copy(c); camera.position.copy(c).add(off); orbit.update();
+}
+
+// ---------- object inspector ----------
+const insp = $('inspector');
+const R2D = 180 / Math.PI;
+const num = (f, v, step) => { const ax = f.split('.')[1]; return `<input type="number" data-f="${f}" step="${step}" value="${v}"${ax ? ` data-ax="${ax}" title="${'XYZ'[ax]}"` : ''}>`; };
+function renderInspector() {
+  if (!sel) {
+    insp.innerHTML = `<legend>Object</legend><div class="hint">Click something in the view to select it, or add one above. For land, water and sky, click the distant landscape or <b>Landscape &amp; Sky</b> in the Objects tab.<br><br>
+      Drag: orbit · Right-drag: pan · Wheel: zoom<br>W / E / R: move / rotate / scale<br>F: frame · Del: delete · Esc: deselect<br>${MOD}Z: undo · ${MOD}⇧Z: redo</div>`;
+    return;
+  }
+  if (sel === 'terrain') { renderTerrainPanel(); return; }
+  const o = sel;
+  const isModel = o.type === 'model', isLamp = o.type === 'lamp';
+  const isFloat = o.type === 'floater', isTerr = o.type === 'terrain' || isFloat, isCloud = o.type === 'clouds';
+  const CL = { ...CLOUD_DEFAULTS, ...o.cloud };
+  const cloudRows = !isCloud ? '' : `<div class="hint">A cloud layer at this height. Stack several at different heights.</div>
+    ${CLOUD_SLIDERS.map(([k, label, lo, hi, st]) => `<div class="slider"><div><span>${label}</span><span data-v="${k}">${(+CL[k]).toFixed(2)}</span></div>
+      <input type="range" data-cf="${k}" min="${lo}" max="${hi}" step="${st}" value="${CL[k]}"></div>`).join('')}
+    <div class="row"><span>Pattern</span><button data-a="creseed">🎲 New pattern</button></div>`;
+  const matOpts = Object.entries(MATS).filter(([k]) => isTerr || k !== 'land').map(([k, v]) => `<option value="${k}" ${o.mat === k ? 'selected' : ''}>${v}</option>`).join('');
+  const T = { ...(isFloat ? FLOAT_DEFAULTS : TOBJ_DEFAULTS), ...o.terrain };
+  const terrRows = !isTerr ? '' : `
+    ${isFloat ? '' : `<div class="row"><span>Shape</span><select data-tf="shape">${Object.entries(SHAPES).map(([k, v]) => `<option value="${k}" ${T.shape === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>`}
+    ${(isFloat ? FLOAT_SLIDERS : TOBJ_SLIDERS).map(([k, label, lo, hi, st]) => `<div class="slider"><div><span>${label}</span><span data-v="${k}">${(+T[k]).toFixed(st < 1 ? 2 : 0)}</span></div>
+      <input type="range" data-tf="${k}" min="${lo}" max="${hi}" step="${st}" value="${T[k]}"></div>`).join('')}
+    <div class="row"><span>Seed</span><div style="display:grid;grid-template-columns:1fr auto;gap:3px"><input type="number" data-tf="tseed" value="${T.tseed}"><button data-a="treseed" title="New random seed">🎲</button></div></div>`;
+  insp.innerHTML = `<legend>${isModel ? ((MODELS[o.model] || {}).label || o.name) : TYPES[o.type]}</legend>${modeButtons(isCloud ? ['translate'] : isLamp ? ['translate', 'scale'] : ['translate', 'rotate', 'scale'])}
+    <div class="row"><span>Name</span><input type="text" data-f="name" value="${o.name.replace(/"/g, '&quot;')}"></div>
+    ${isModel ? '<div class="hint">Poly Haven model with its own textures.</div>' : isLamp || isCloud ? '' : `<div class="row"><span>Material</span><select data-f="mat">${matOpts}</select></div>`}
+    ${isModel || o.mat === 'checker' || o.mat === 'land' ? '' : `<div class="row"><span>${isLamp ? 'Light' : 'Colour'}</span><input type="color" data-f="color" value="${o.color}"></div>`}
+    ${terrRows}${cloudRows}
+    ${isLamp ? `<div class="slider"><div><span>Brightness</span><span data-v="brightness">${(o.brightness ?? 1).toFixed(2)}x</span></div>
+      <input type="range" data-f="brightness" min="0" max="4" step="0.05" value="${o.brightness ?? 1}"></div>` : ''}
+    <div class="row axes"><span></span><div class="xyz"><span>X</span><span>Y</span><span>Z</span></div></div>
+    <div class="row"><span>Position</span><div class="xyz">${[0, 1, 2].map(i => num('pos.' + i, o.pos[i].toFixed(1), 0.5)).join('')}</div></div>
+    ${isCloud ? '' : isLamp ? `<div class="row"><span>Bulb size</span>${num('size', o.scale[0].toFixed(2), 0.1)}</div>` : `
+    <div class="row"><span>Rotate°</span><div class="xyz">${[0, 1, 2].map(i => num('rot.' + i, (o.rot[i] * R2D).toFixed(0), 5)).join('')}</div></div>
+    <div class="row"><span>Scale</span><div class="xyz">${[0, 1, 2].map(i => num('scale.' + i, o.scale[i].toFixed(2), 0.1)).join('')}</div></div>`}
+    <div class="grid2 actions">${isCloud ? '' : '<button data-a="ground">Drop to ground</button>'}<button data-a="frame">Frame (F)</button>
+    <button data-a="dup" title="${MOD}D">Duplicate</button><button data-a="del" title="Delete key">Delete</button></div>`;
+}
+const CLOUD_SLIDERS = [['coverage', 'Coverage', 0, 1, 0.01], ['softness', 'Softness', 0.02, 0.8, 0.01], ['opacity', 'Opacity', 0, 1, 0.01], ['size', 'Puff size', 0.2, 4, 0.05]];
+function updateCloudUniforms(o) {
+  const r = roots.get(o.id); if (!r || !r.userData.clouds) return;
+  const c = { ...CLOUD_DEFAULTS, ...o.cloud }, u = r.userData.clouds.material.uniforms;
+  u.prm.value.set(c.coverage, c.softness, c.opacity, c.size); u.cseed.value = c.cseed; u.origin.value.set(o.pos[0], o.pos[2]);
+  dirty = true;
+}
+const FLOAT_SLIDERS = [['height', 'Hill', 2, 60, 1], ['depth', 'Depth', 10, 250, 1], ['rough', 'Roughness', 0, 2.5, 0.05]];
+const TOBJ_SLIDERS = [['height', 'Height', 2, 120, 1], ['rough', 'Roughness', 0, 2.5, 0.05], ['sharp', 'Craggy', 0, 1, 0.01], ['detail', 'Detail', 0.3, 4, 0.05]];
+const MODE_LABELS = { translate: 'Move (W)', rotate: 'Rotate (E)', scale: 'Scale (R)' };
+function modeButtons(modes) {
+  return `<div class="modes">${modes.map(m => `<button data-mode="${m}" class="${gizmo.mode === m ? 'on' : ''}">${MODE_LABELS[m]}</button>`).join('')}</div>`;
+}
+function refreshModeButtons() { insp.querySelectorAll('[data-mode]').forEach(b => b.classList.toggle('on', b.dataset.mode === gizmo.mode)); }
+function updateInspectorFields() {
+  if (!sel || sel === 'terrain') return;
+  const set = (f, v) => { const el = insp.querySelector(`[data-f="${f}"]`); if (el && el !== document.activeElement) el.value = v; };
+  set('size', sel.scale[0].toFixed(2));
+  for (let i = 0; i < 3; i++) { set('pos.' + i, sel.pos[i].toFixed(1)); set('rot.' + i, (sel.rot[i] * R2D).toFixed(0)); set('scale.' + i, sel.scale[i].toFixed(2)); }
+}
+let tobjTimer = 0;
+insp.addEventListener('input', e => {
+  if (sel === 'terrain') return terrainInput(e);
+  const cf = e.target.dataset.cf;
+  if (cf && isObj()) {
+    sel.cloud = { ...CLOUD_DEFAULTS, ...sel.cloud, [cf]: +e.target.value };
+    insp.querySelector(`[data-v="${cf}"]`).textContent = (+e.target.value).toFixed(2);
+    updateCloudUniforms(sel); return;
+  }
+  const tf = e.target.dataset.tf;
+  if (tf && isObj()) {   // terrain object shape settings: regenerate its grid
+    const o = sel; o.terrain = { ...(o.type === 'floater' ? FLOAT_DEFAULTS : TOBJ_DEFAULTS), ...o.terrain };
+    o.terrain[tf] = tf === 'shape' ? e.target.value : +e.target.value;
+    const lab = insp.querySelector(`[data-v="${tf}"]`); if (lab) lab.textContent = (+e.target.value).toFixed(+e.target.step < 1 ? 2 : 0);
+    clearTimeout(tobjTimer); tobjTimer = setTimeout(() => rebuildKeepSel(o), 30);
+    return;
+  }
+  const f = e.target.dataset.f; if (!f || !sel) return;
+  const v = e.target.value;
+  if (f === 'name') { sel.name = v; renderList(); return; }
+  if (f === 'brightness') {
+    sel.brightness = +v; roots.get(sel.id).userData.lamp.light.intensity = 600 * sel.brightness;
+    insp.querySelector('[data-v="brightness"]').textContent = sel.brightness.toFixed(2) + 'x'; dirty = true; return;
+  }
+  if (f === 'size') { const n = parseFloat(v); if (!(n > 0)) return; sel.scale = [n, n, n]; syncTransform(sel); selBox.setFromObject(roots.get(sel.id)); dirty = true; return; }
+  if (f === 'mat' || f === 'color') {
+    sel[f] = v; rebuildKeepSel(sel);
+    if (f === 'mat') renderInspector();
+    clearTimeout(insp._t); insp._t = setTimeout(updateReflections, 150);
+    return;
+  }
+  const [k, i] = f.split('.'), n = parseFloat(v);
+  if (!isFinite(n)) return;
+  sel[k][+i] = k === 'rot' ? n / R2D : k === 'scale' ? Math.max(0.01, n) : n;
+  syncTransform(sel); selBox.setFromObject(roots.get(sel.id)); dirty = true;
+});
+insp.addEventListener('change', e => {
+  if (e.target.dataset.tf) { clearTimeout(tobjTimer); rebuildKeepSel(sel); updateReflections(); return; }
+  if (sel === 'terrain') { if (e.target.type === 'range' || e.target.dataset.t === 'seed') updateReflections(); return; } if (e.target.type === 'number') updateReflections(); });
+insp.addEventListener('click', e => {
+  if (e.target.dataset.mode) { setGizmo(e.target.dataset.mode); return; }
+  const a = e.target.dataset.a; if (!a) return;
+  if (a === 'creseed') { sel.cloud = { ...CLOUD_DEFAULTS, ...sel.cloud, cseed: Math.random() * 100 }; updateCloudUniforms(sel); return; }
+  if (a === 'treseed') { sel.terrain = { ...TOBJ_DEFAULTS, ...sel.terrain, tseed: (Math.random() * 1e6) | 0 }; rebuildKeepSel(sel); renderInspector(); updateReflections(); return; }
+  ({ ground: dropToGround, frame: frameSel, dup: duplicate, del: deleteSel })[a]();
+});
+
+// ---------- terrain panel ----------
+const TERRAIN_SLIDERS = [
+  ['height', 'Height', 40, 900, 10, v => v.toFixed(0)],
+  ['size', 'Size', 80, 900, 5, v => v.toFixed(0)],
+  ['sharp', 'Craggy', 0, 1, 0.01, v => (v * 100).toFixed(0) + '%'],
+  ['rough', 'Roughness', 0.3, 0.72, 0.01, v => v.toFixed(2)],
+  ['variety', 'Variety', 0, 1, 0.01, v => (v * 100).toFixed(0) + '%'],
+  ['riverWidth', 'River', 0, 700, 5, v => v ? v.toFixed(0) : 'off'],
+  ['wiggle', 'Wiggle', 0, 300, 5, v => v.toFixed(0)],
+  ['waterY', 'Water lvl', -60, 200, 1, v => v.toFixed(0)],
+  ['floorTile', 'Tile size', 0, 80, 0.5, v => v ? v.toFixed(1) : 'auto'],
+  ['coast', 'Ocean', 0, 1, 0.01, v => (v * 100).toFixed(0) + '%'],
+  ['terrace', 'Terraces', 0, 1, 0.01, v => (v * 100).toFixed(0) + '%'],
+  ['basin', 'Basin', 0, 1, 0.01, v => (v * 100).toFixed(0) + '%'],
+  ['stage', 'Clearing', 0, 500, 5, v => v ? v.toFixed(0) : 'off'],
+  ['stageFloor', 'Clear lvl', -20, 40, 1, v => v < 0 ? `${v.toFixed(0)} wet` : `+${v.toFixed(0)} dry`],
+];
+const LAND_TABS = { Shape: ['height', 'size', 'sharp', 'rough', 'variety', 'terrace'], Water: ['waterY', 'floorTile', 'riverWidth', 'wiggle', 'coast', 'basin'], Sky: [], Scene: ['stage', 'stageFloor'] };
+const SKY_SLIDERS = [
+  ['elev', 'Sun height', 1, 85, 1, v => v.toFixed(0) + '°'],
+  ['az', 'Sun dir', -180, 180, 1, v => v.toFixed(0) + '°'],
+  ['fog', 'Haze', 0.0002, 0.003, 0.0001, v => (v * 1000).toFixed(1)],
+  ['ambient', 'Ambient', 0.2, 3, 0.05, v => (+v).toFixed(2)],
+];
+let landTab = 'Shape';
+function skyTab() {
+  const S = doc.sky;
+  return SKY_SLIDERS.map(([k, label, lo, hi, st, fmt]) =>
+    `<div class="slider" title="${label}"><div><span>${label}</span><span data-v="s-${k}">${fmt(S[k] ?? 1)}</span></div><input type="range" data-s="${k}" min="${lo}" max="${hi}" step="${st}" value="${S[k] ?? 1}"></div>`).join('')
+    + `<div class="row"><label style="grid-column:1/-1"><input type="checkbox" data-s="night" ${S.night ? 'checked' : ''}> Night (moon &amp; stars)</label></div>
+    <div class="row"><label style="grid-column:1/-1"><input type="checkbox" data-s="clouds" ${S.clouds !== false ? 'checked' : ''}> Sky clouds (off = airbrushed gradient)</label></div>
+    <div class="row"><span>Clouds</span><button data-t="clouds">🎲 New pattern</button></div>`;
+}
+function renderTerrainPanel() {
+  const T = doc.terrain;
+  const palOpts = Object.keys(PALETTES).map(p => `<option value="${p}" ${doc.palette === p ? 'selected' : ''}>${p[0].toUpperCase() + p.slice(1)}</option>`).join('');
+  const landOff = T.land === false, NEEDS_LAND = new Set(['height', 'size', 'sharp', 'rough', 'variety', 'terrace', 'riverWidth', 'wiggle', 'coast', 'basin', 'stage', 'stageFloor']);
+  const sliders = keys => TERRAIN_SLIDERS.filter(r => keys.includes(r[0])).map(([k, label, lo, hi, st, fmt]) =>
+    `<div class="slider${landOff && NEEDS_LAND.has(k) ? ' off' : ''}" title="${landOff && NEEDS_LAND.has(k) ? 'Turn the landscape on to use this' : label}"><div><span>${label}</span><span data-v="${k}">${fmt(T[k])}</span></div><input type="range" data-t="${k}" min="${lo}" max="${hi}" step="${st}" value="${T[k]}" ${landOff && NEEDS_LAND.has(k) ? 'disabled' : ''}></div>`).join('');
+  const scene = `<div class="grid2" style="margin-bottom:4px"><button data-t="cworld">Change World…</button><button data-t="clook">Change Look…</button></div>
+    <div class="row"><span>Palette</span><div><select data-t="palette">${palOpts}</select>${swatch(doc.palette)}</div></div>
+    <div class="row"><span>Seed</span><div style="display:grid;grid-template-columns:1fr auto;gap:3px"><input type="number" data-t="seed" value="${doc.seed}"><button data-t="reseed" title="New random seed">🎲</button></div></div>`;
+  insp.innerHTML = `<legend>Landscape</legend>
+    <div class="tabs">${Object.keys(LAND_TABS).map(t => `<button data-tab="${t}" class="${t === landTab ? 'on' : ''}">${t}</button>`).join('')}</div>
+    <div class="tabpage">${landOff && landTab !== 'Sky' ? '<div class="hint" style="padding:0 0 3px">Landscape is off - only water and sky apply.</div>' : ''}${landTab === 'Shape' ? `<div class="row"><label style="grid-column:1/-1"><input type="checkbox" data-t="land" ${T.land !== false ? 'checked' : ''}> Landscape (mountains)</label></div>` : ''}${landTab === 'Water' ? `<div class="row"><span>Surface</span><select data-t="surface">${Object.entries(SURFACES).map(([k, v]) => `<option value="${k}" ${surfaceOf(T) === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>` : ''}${landTab === 'Scene' ? scene : ''}${landTab === 'Sky' ? skyTab() : ''}${sliders(LAND_TABS[landTab])}</div>
+    <div class="grid2 actions"><button data-t="reset" title="Reset every landscape setting">Defaults</button><button data-t="done" title="Deselect (Esc)">Close</button></div>`;
+}
+let terrTimer = 0;
+function regenTerrain() {
+  clearTimeout(terrTimer);
+  terrTimer = setTimeout(() => { applyEnvironment(); msg.textContent = 'Terrain updated'; }, 40);
+}
+let skyTimer = 0;
+function terrainInput(e) {
+  const sk = e.target.dataset.s;
+  if (sk) {
+    if (sk === 'night') { doc.sky.night = e.target.checked; applyEnvironment(); updateReflections(); return; }
+    if (sk === 'clouds') { doc.sky.clouds = e.target.checked; applyEnvironment(); updateReflections(); return; }
+    const row = SKY_SLIDERS.find(r => r[0] === sk);
+    doc.sky[sk] = +e.target.value;
+    insp.querySelector(`[data-v="s-${sk}"]`).textContent = row[5](doc.sky[sk]);
+    clearTimeout(skyTimer); skyTimer = setTimeout(applyEnvironment, 20);
+    return;
+  }
+  const k = e.target.dataset.t; if (!k) return;
+  if (k === 'palette') { doc.palette = e.target.value; applyEnvironment(); updateReflections(); renderTerrainPanel(); return; }
+  if (k === 'land') { doc.terrain.land = e.target.checked; applyEnvironment(); updateReflections(); renderTerrainPanel(); msg.textContent = e.target.checked ? 'Landscape on' : 'Landscape off - open water'; return; }
+  if (k === 'surface') {
+    const v = e.target.value;
+    doc.terrain.water = v !== 'none';   // the plane exists for every surface but None
+    doc.terrain.floor = FLOOR_MODE[v] ? v : '';
+    doc.terrain.floorTile = 0;          // each floor starts at its own natural tile size
+    applyEnvironment(); updateReflections(); renderTerrainPanel(); msg.textContent = `Surface: ${SURFACES[v]}`; return;
+  }
+  if (k === 'water') { doc.terrain.water = e.target.checked; applyEnvironment(); updateReflections(); msg.textContent = e.target.checked ? 'Water on' : 'Water off - dry land'; return; }
+  if (k === 'preset') {
+    const L = LANDSCAPES[e.target.value]; if (!L) return;
+    doc.terrain = { ...TERRAIN_DEFAULTS, ...L.t, stageX: doc.terrain.stageX, stageZ: doc.terrain.stageZ };
+    doc.palette = L.pal; applyEnvironment(); updateReflections(); renderTerrainPanel();
+    msg.textContent = `Landscape: ${L.label}`; return;
+  }
+  if (k === 'seed') { const v = parseInt(e.target.value); if (isFinite(v)) { doc.seed = v; regenTerrain(); } return; }
+  const row = TERRAIN_SLIDERS.find(r => r[0] === k); if (!row) return;
+  doc.terrain[k] = +e.target.value;
+  insp.querySelector(`[data-v="${k}"]`).textContent = row[5](doc.terrain[k]);
+  regenTerrain();
+}
+insp.addEventListener('click', e => {
+  if (sel !== 'terrain') return;
+  if (e.target.dataset.tab) { landTab = e.target.dataset.tab; renderTerrainPanel(); return; }
+  if (e.target.dataset.t === 'cworld') return openWizard(0, 'world');
+  if (e.target.dataset.t === 'clook') return openWizard(0, 'look');
+  if (e.target.dataset.t === 'clouds') { doc.sky.cloudSeed = Math.random() * 100; applyEnvironment(); updateReflections(); return; }
+  const k = e.target.dataset.t;
+  if (k === 'reseed') { doc.seed = (Math.random() * 1e9) | 0; applyEnvironment(); updateReflections(); renderTerrainPanel(); }
+  else if (k === 'reset') { doc.terrain = { ...TERRAIN_DEFAULTS, stageX: doc.terrain.stageX, stageZ: doc.terrain.stageZ }; applyEnvironment(); updateReflections(); renderTerrainPanel(); msg.textContent = `Landscape reset to defaults${undoHint()}`; }
+  else if (k === 'done') select(null);
+});
+
+// ---------- object list ----------
+const GLYPH = { floater: '⌓', sphere: '●', cube: '■', cylinder: '▮', cone: '▲', torus: '◯', pyramid: '△', octahedron: '◆', arch: '∩', archwall: '⌂', column: '║', lamp: '✺', clouds: '☁', terrain: '⛰', model: '✿' };
+function renderList() {
+  const el = $('objList'); if (!el || !doc) return;
+  const row = (o) => {
+    const extra = o.type === 'clouds' ? `y ${o.pos[1].toFixed(0)}` : o.type === 'model' ? ((MODELS[o.model] || {}).label || '') : '';
+    return `<div class="li${sel === o ? ' sel' : ''}${o.hidden ? ' hid' : ''}" data-id="${o.id}" title="${TYPES[o.type] || 'Model'}">
+      <span class="g">${GLYPH[o.type] || '?'}</span><span class="nm">${o.name}</span>${extra && extra !== o.name ? `<span class="x">${extra}</span>` : ''}
+      <span class="eye" data-eye="${o.id}" title="${o.hidden ? 'Show' : 'Hide'}">${o.hidden ? '–' : '👁'}</span></div>`;
+  };
+  el.innerHTML = `<div class="li land${sel === 'terrain' ? ' sel' : ''}" data-id="land"><span class="g">≈</span><span class="nm">Landscape &amp; Sky</span></div>`
+    + doc.objects.map(row).join('');
+  const s2 = el.querySelector('.li.sel'); if (s2) s2.scrollIntoView({ block: 'nearest' });
+}
+$('objList').addEventListener('click', e => {
+  const eye = e.target.dataset.eye;
+  if (eye) {
+    const o = doc.objects.find(x => x.id === +eye); if (!o) return;
+    o.hidden = !o.hidden; roots.get(o.id).visible = !o.hidden;
+    if (o.hidden && sel === o) select(null);
+    updateReflections(); renderList(); msg.textContent = `${o.hidden ? 'Hid' : 'Showing'} ${o.name}`;
+    return;
+  }
+  const li = e.target.closest('.li'); if (!li) return;
+  if (mode !== 'edit') setMode('edit');
+  if (li.dataset.id === 'land') return select('terrain');
+  select(doc.objects.find(x => x.id === +li.dataset.id));
+});
+$('objList').addEventListener('dblclick', e => { if (e.target.closest('.li') && isObj() && !sel.hidden) frameSel(); });
+document.querySelector('.ctabs .tabs').addEventListener('click', e => {
+  const t = e.target.dataset.ctab; if (!t) return;
+  document.querySelectorAll('.ctabs [data-ctab]').forEach(b => b.classList.toggle('on', b.dataset.ctab === t));
+  if (t === 'list') $('listPage').style.height = $('createPage').offsetHeight + 'px';   // same footprint as Create
+  $('createPage').style.display = t === 'create' ? '' : 'none';
+  $('listPage').style.display = t === 'list' ? '' : 'none';
+  renderList();
+});
+
+// ---------- create panel ----------
+$('createBtns').innerHTML = Object.entries(TYPES).map(([k, v]) => `<button data-t="${k}">${v}</button>`).join('');
+$('createBtns').addEventListener('click', e => { if (e.target.dataset.t) create(e.target.dataset.t); });
+$('btnPH').onclick = () => openBrowser();
+
+// ---------- Poly Haven model browser ----------
+let phDlg = null;
+let recentModels = ['tree', 'trunk', 'bust', 'statue', 'horse', 'urn', 'boulder', 'rock'];   // Objects menu shortcuts; Poly Haven picks go to the top
+async function openBrowser() {
+  if (phDlg) { phDlg.querySelector('input').focus(); return; }
+  phDlg = document.createElement('div'); phDlg.className = 'dialog ph';
+  phDlg.innerHTML = `<div class="title"><span>Poly Haven - free CC0 models</span><span class="tb"><b>×</b></span></div>
+    <div class="phbar"><input type="text" placeholder="Search: rock, tree, statue, lamp…"><select class="cat"></select><select class="sort" title="Order">
+      <option value="pop">Most popular</option><option value="light">Lightest first</option><option value="name">By name</option></select></div>
+    <div class="phgrid"><div class="hint" style="padding:10px">Loading catalogue…</div></div>
+    <div class="phfoot"><span class="n"></span><span><span class="heavy">Red</span> = over 500k triangles, slow to ray trace · Click a model to add it</span></div>`;
+  $('win').appendChild(phDlg);
+  const close = () => { phDlg.remove(); phDlg = null; };
+  phDlg._close = close;
+  phDlg.querySelector('.tb b').onclick = close;
+  const q = phDlg.querySelector('input'), catSel = phDlg.querySelector('.cat'), sortSel = phDlg.querySelector('.sort'), grid = phDlg.querySelector('.phgrid');
+  q.addEventListener('keydown', e => { if (e.key === 'Escape') close(); e.stopPropagation(); });
+  q.focus();
+  let cat;
+  try { cat = await getCatalogue(); } catch (e) { grid.innerHTML = `<div class="hint" style="padding:10px">Couldn't reach api.polyhaven.com: ${e.message}</div>`; return; }
+  if (!phDlg) return;
+  const all = Object.entries(cat).map(([id, a]) => ({ id, ...a, hay: [a.name, ...(a.tags || []), ...(a.categories || [])].join(' ').toLowerCase() }))
+    .sort((a, b) => (b.download_count || 0) - (a.download_count || 0));
+  const counts = {};
+  all.forEach(a => (a.categories || []).forEach(c => { if (!c.startsWith('collection')) counts[c] = (counts[c] || 0) + 1; }));
+  catSel.innerHTML = `<option value="">All categories</option>` + Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([c, n]) => `<option value="${c}">${c} (${n})</option>`).join('');
+  const fmtTris = n => n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? Math.round(n / 1e3) + 'k' : n;
+  const draw = () => {
+    const words = q.value.toLowerCase().split(/\s+/).filter(Boolean), c = catSel.value;
+    const hits = all.filter(a => (!c || (a.categories || []).includes(c)) && words.every(w => a.hay.includes(w)));
+    if (sortSel.value === 'light') hits.sort((a, b) => (a.polycount || 0) - (b.polycount || 0));
+    else if (sortSel.value === 'name') hits.sort((a, b) => a.name.localeCompare(b.name));
+    phDlg.querySelector('.n').textContent = `${hits.length} model${hits.length === 1 ? '' : 's'}`;
+    grid.innerHTML = hits.slice(0, 150).map(a => `<button class="tile" data-id="${a.id}" title="${a.name} - ${(a.polycount || 0).toLocaleString()} triangles">
+      <img loading="lazy" src="https://cdn.polyhaven.com/asset_img/thumbs/${a.id}.png?width=96&height=96" alt="">
+      <span class="nm">${a.name}</span><span class="pc${a.polycount > 500000 ? ' heavy' : ''}">${fmtTris(a.polycount || 0)} tris</span></button>`).join('')
+      + (hits.length > 150 ? `<div class="hint" style="grid-column:1/-1;padding:6px">…and ${hits.length - 150} more - narrow the search</div>` : '');
+  };
+  q.addEventListener('input', draw); catSel.addEventListener('change', draw); sortSel.addEventListener('change', draw);
+  grid.addEventListener('click', async e => {
+    const t = e.target.closest('.tile'); if (!t) return;
+    const id = t.dataset.id, a = cat[id];
+    if (!MODELS[id]) MODELS[id] = { id, label: a.name };
+    t.classList.add('busy');
+    msg.textContent = `Downloading ${a.name} from Poly Haven…`;
+    try { await loadModel(id); create('model', { model: id, name: a.name }); recentModels = [id, ...recentModels.filter(k => k !== id)].slice(0, 8); commitSoon(); }
+    catch (err) { delete modelLoads[id]; msg.textContent = `Couldn't load ${a.name}: ${err.message}`; }
+    t.classList.remove('busy');
+  });
+  draw();
+}
+
+// ---------- final renders: supersampled raster, or the progressive ray tracer ----------
+const tracer = createTracer(NOISE_FUNCS);
+const traceScene = new THREE.Scene(); traceScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), tracer.material));
+const accRT = new THREE.WebGLRenderTarget(W, H, { type: THREE.FloatType, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter });
+const MAX_PASSES = 16, BANDS = 6;   // Whitted tracing has no lighting noise, so passes only antialias; 16 is plenty
+let job = 0;
+
+function traceContext() {
+  const spheres = [], lamps = [];
+  for (const o of doc.objects) {
+    const r = roots.get(o.id); if (!r || !r.visible) continue;
+    if (o.type === 'sphere' && Math.abs(o.scale[0] - o.scale[1]) < 1e-3 && Math.abs(o.scale[0] - o.scale[2]) < 1e-3) spheres.push({ mesh: r.children[0] });
+    if (o.type === 'lamp') { spheres.push({ mesh: r.userData.lamp.bulb, entry: { kind: KIND.emissive } }); lamps.push(r.userData.lamp); }
+  }
+  const clouds = doc.objects.filter(o => o.type === 'clouds' && roots.get(o.id)?.visible).slice(0, 4)
+    .map(o => ({ ...CLOUD_DEFAULTS, ...o.cloud, pos: o.pos, color: new THREE.Color(o.color) }));
+  const cloudMeshes = doc.objects.filter(o => o.type === 'clouds' && roots.has(o.id)).map(o => roots.get(o.id).children[0]);
+  const surf = surfaceOf(doc.terrain), fc = floorColors(PALETTES[doc.palette] || PALETTES.desert, surf);
+  return { scene, camera, spheres, skip: new Set([sky, water, floorMesh, ...cloudMeshes]), water: surf !== 'none', waterY: WY(),
+    floor: FLOOR_MODE[surf] ? { mode: FLOOR_MODE[surf], a: new THREE.Color(fc[0]), b: new THREE.Color(fc[1]), tile: doc.terrain.floorTile || DEFAULT_TILE[surf] || 20, depth: POOL_DEPTH } : null, clouds, night: !!doc.sky.night, heightFields: doc.terrain.land === false ? [] : [terrain], patches: doc.objects.filter(o => o.type === 'terrain' && roots.get(o.id)?.visible).map(o => roots.get(o.id).children[0]), sun, hemi, lamps: lamps.slice(0, 3),
+    skyU: skyMat.uniforms, waterU: water.material.uniforms, fog: scene.fog };
+}
+
+function setMode(m) {
+  mode = m; job++;
+  const edit = m === 'edit';
+  orbit.enabled = edit; gizmo.enabled = edit;
+  gizmo.getHelper().visible = edit && !!sel && sel !== 'terrain'; selBox.visible = edit && !!sel && sel !== 'terrain';
+  if (edit) renderDone = false;
+  $('btnEdit').disabled = edit;
+  $('btnRender').classList.toggle('pressed', m === 'render'); $('btnRay').classList.toggle('pressed', m === 'ray');
+  $('modeLbl').textContent = edit ? (viewMode === 'wire' ? 'Wireframe' : 'Edit') : m === 'ray' ? 'Ray trace' : 'Render';
+  applyView();
+  if (edit) msg.textContent = 'Edit - drag to orbit, click to select';
+}
+let renderDone = false;
+function renderFinal(ray, onDone) {
+  if (!doc) return;
+  setMode(ray ? 'ray' : 'render');
+  const my = job;
+  msg.textContent = ray ? 'Building ray tracing structures...' : 'Rendering...';
+  setTimeout(() => requestAnimationFrame(() => {
+    if (my !== job) return;
+    const t0 = performance.now();
+    sky.position.copy(camera.position);
+    if (!ray) {
+      post.uniforms.tex.value = rt.texture; post.uniforms.accum.value = false; post.uniforms.ss.value = SS; post.uniforms.res.value.set(W, H);
+      renderer.setRenderTarget(rt); renderer.setClearColor(0, 1); renderer.clear(); renderer.render(scene, camera);
+      blit();
+      msg.textContent = `Render complete - ${((performance.now() - t0) / 1000).toFixed(1)} sec - ${MOD}E saves it, Esc to edit`;
+      renderDone = true; if (onDone) onDone();
+      return;
+    }
+    const info = tracer.build(traceContext());
+    const tBuild = (performance.now() - t0) / 1000;
+    accRT.setSize(W, H);
+    renderer.setRenderTarget(accRT); renderer.setClearColor(0, 0); renderer.clear(); renderer.setClearColor(0, 1);
+    tracer.material.uniforms.res.value.set(W, H);
+    post.uniforms.tex.value = accRT.texture; post.uniforms.accum.value = true; post.uniforms.res.value.set(W, H);
+    blit();
+    let pass = 0, band = 0;
+    const t1 = performance.now();
+    const step = () => {
+      if (my !== job) return;
+      // one band per frame keeps each GPU submission short
+      const bh = Math.ceil(H / BANDS), y0 = H - (band + 1) * bh;
+      tracer.material.uniforms.frame.value = pass * BANDS + band;
+      renderer.setRenderTarget(accRT);
+      renderer.setScissorTest(true); renderer.setScissor(0, Math.max(0, y0), W, Math.min(bh, H - Math.max(0, y0)));
+      renderer.render(traceScene, postCam);
+      renderer.setScissorTest(false);
+      blit();
+      if (++band === BANDS) { band = 0; pass++; }
+      msg.textContent = `Ray tracing - pass ${pass + (band ? 1 : 0)}/${MAX_PASSES} - ${(info.triangles / 1e6).toFixed(2)}M tris, setup ${tBuild.toFixed(1)}s`;
+      if (pass < MAX_PASSES) requestAnimationFrame(step);
+      else { msg.textContent = `Ray trace complete - ${MAX_PASSES} passes in ${((performance.now() - t1) / 1000).toFixed(1)} sec - ${MOD}E saves it, Esc to edit`; renderDone = true; }
+    };
+    requestAnimationFrame(step);
+  }), 30);
+}
+
+// Save Image: the canvas holds the finished picture at the output size (preserveDrawingBuffer keeps it readable)
+function saveImage() {
+  if (!doc) return;
+  if (mode === 'edit') { renderFinal(false, saveImage); return; }   // never save the gizmo: render first
+  const partial = mode === 'ray' && !renderDone ? ' - ray trace still in progress, saved as it is now' : '';
+  canvas.toBlob(b => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(b); a.download = `${doc.name || 'untitled'}.png`; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    msg.textContent = `Saved ${a.download} (${W} x ${H})${partial}`;
+  }, 'image/png');
+}
+
+// live edit view: plain raster at output resolution, only redrawn when something changed
+function frame() {
+  requestAnimationFrame(frame);
+  if (mode !== 'edit' || !dirty || !doc) return;
+  dirty = false;
+  sky.position.copy(camera.position);
+  if (selBox.visible && gizmo.object) selBox.setFromObject(gizmo.object);
+  renderer.setRenderTarget(editRT);
+  renderer.setClearColor(viewMode === 'wire' ? 0x1c2228 : 0x000000, 1); renderer.clear();
+  renderer.render(scene, camera);
+  renderer.render(overlay, camera);
+  renderer.setClearColor(0, 1);
+  post.uniforms.tex.value = editRT.texture; post.uniforms.accum.value = false; post.uniforms.ss.value = 1; post.uniforms.res.value.set(W, H);
+  blit();
+}
+
+// ---------- display settings ----------
+// output resolutions: the classic sizes upscale crisply into the 800x600 view; Full matches the screen
+let colorMode = 0, resKey = '400';
+const RES = { 400: [400, 300], 640: [640, 480], 800: [800, 600] };
+function setResolution(key) {
+  resKey = key;
+  const dpr = window.devicePixelRatio || 1;
+  [W, H] = RES[key] || [Math.round(canvas.clientWidth * dpr), Math.round(canvas.clientHeight * dpr)];
+  SS = key === 'full' ? 2 : 3;
+  renderer.setSize(W, H, false);
+  rt.setSize(W * SS, H * SS); editRT.setSize(W, H);
+  water.getRenderTarget().setSize(W * SS, H * SS);
+  $('resSel').value = key; updateMoonLod();
+  if (mode === 'edit') dirty = true; else renderFinal(mode === 'ray');
+}
+$('resSel').addEventListener('change', e => setResolution(e.target.value));
+function setColors(m) { colorMode = m; post.uniforms.mode.value = m; if (mode === 'edit') dirty = true; else blit(); }
+
+// ---------- New Scene wizard: World -> Look -> Arrangement, previewed live in the view ----------
+const LOOK_TIMES = { day: 'Day', dusk: 'Dusk', night: 'Night' }, LOOK_WEATHER = { clear: 'Clear', cloudy: 'Cloudy', hazy: 'Hazy' };
+// Look = palette, time of day and weather, applied on top of any scene
+function applyLook(d, L) {
+  d.palette = L.pal;
+  d.sky.night = L.time === 'night';
+  if (L.time === 'dusk') d.sky.elev = 3 + (d.sky.cloudSeed % 3);
+  else if (L.time === 'day' && d.sky.elev < 12) d.sky.elev = 18 + (d.sky.cloudSeed % 15);
+  d.sky.fog = L.weather === 'hazy' ? 0.0022 : Math.min(d.sky.fog, 0.0012);
+  d.objects = d.objects.filter(o => !(o.type === 'clouds' && o.auto));
+  if (L.weather === 'cloudy') d.objects.push(mkObj('clouds', { name: 'Clouds', auto: true, mat: 'matte', color: '#ffffff', pos: [d.camera.target[0], WYd(d) + 240, d.camera.target[2]], cloud: { ...CLOUD_DEFAULTS, coverage: 0.55, cseed: d.sky.cloudSeed } }));
+}
+const WYd = d => (d.terrain && d.terrain.waterY) || 0;
+let wiz = null;
+function wizBuild() {
+  const w = wiz;
+  if (SCENES[w.world]) {   // art-directed scenes carry their own look; only override it if the user touched Look
+    const d = generateScene(w.world, w.seed);
+    if (w.lookTouched) applyLook(d, w);
+    doc = d; applyDoc(); return;
+  }
+  const L = LANDSCAPES[w.world];
+  const d = generateDoc(w.seed, w.pal, { ...TERRAIN_DEFAULTS, ...L.t }, { layout: w.layout, base: L.base });
+  applyLook(d, w); doc = d; applyDoc();
+}
+function openWizard(startStep = 0, mode = 'new', first = false) {
+  if (wiz) return;
+  closeMenu(); commit();
+  const keep = doc ? JSON.stringify(doc) : null;
+  const cur = doc && doc.objects.find(o => o.role === 'base');
+  const sk = Object.keys(SCENES);
+  wiz = { step: startStep, mode, seed: (Math.random() * 1e9) | 0, world: mode === 'new' ? sk[(Math.random() * sk.length) | 0] : 'valley', pal: doc ? doc.palette : 'desert',
+    time: doc && doc.sky.night ? 'night' : 'day', weather: 'clear', layout: 'random', keepObjs: true, lookTouched: false };
+  if (SCENES[wiz.world]) { wiz.pal = SCENES[wiz.world].pal; wiz.time = SCENES[wiz.world].time; }
+  if (mode === 'new') wizBuild();
+  const el = document.createElement('div'); el.className = 'dialog wiz';
+  const shade = document.createElement('div'); shade.className = 'shade';   // modal: the scene behind is a preview only
+  $('win').append(shade, el);
+  const close = () => {
+    el.remove(); shade.remove(); wiz = null;
+    if (first) resetHistory(); else commit();
+  };
+  const opt = (group, val, label, on, extra = '') => `<button class="choice${on ? ' on' : ''}" data-g="${group}" data-v="${val}" title="${label}">${label}${extra}</button>`;
+  const pages = mode === 'new' ? ['World', 'Look', 'Arrangement'] : mode === 'world' ? ['World'] : ['Look'];
+  const draw = () => {
+    const p = pages[wiz.step], last = wiz.step === pages.length - 1;
+    let body = '';
+    if (p === 'World') body = (mode === 'new' ? `<div class="hint">Art-directed scenes</div><div class="choices c2">${Object.entries(SCENES).map(([k, S]) => opt('world', k, S.label, wiz.world === k)).join('')}</div>` : '')
+      + `<div class="hint">${mode === 'new' ? 'Or build on a landscape' : 'What does the scene stand on?'}</div><div class="choices c2">${Object.entries(LANDSCAPES).map(([k, L]) => opt('world', k, L.label, wiz.world === k)).join('')}</div>`
+      + (mode === 'world' ? `<label style="display:block;margin-top:6px"><input type="checkbox" data-g="keep" ${wiz.keepObjs ? 'checked' : ''}> Keep my objects (move them onto the new ground)</label>` : '');
+    if (p === 'Look') body = `<div class="hint">Palette</div><div class="choices c3">${Object.keys(PALETTES).map(k => opt('pal', k, k[0].toUpperCase() + k.slice(1), wiz.pal === k, swatch(k))).join('')}</div>
+      <div class="hint">Time of day</div><div class="choices c3">${Object.entries(LOOK_TIMES).map(([k, v]) => opt('time', k, v, wiz.time === k)).join('')}</div>
+      <div class="hint">Weather</div><div class="choices c3">${Object.entries(LOOK_WEATHER).map(([k, v]) => opt('weather', k, v, wiz.weather === k)).join('')}</div>`;
+    if (p === 'Arrangement' && SCENES[wiz.world]) body = `<div class="hint">${SCENES[wiz.world].label} has its own composition.</div><button data-a="reroll" style="margin-top:6px">🎲 Another version</button>`;
+    else if (p === 'Arrangement') body = `<div class="hint">How are the objects arranged?</div><div class="choices c2">${['random', 'Centrepiece', 'Colonnade', 'Rule of thirds', 'Stone circle', 'Still life', 'Empty'].map(k => opt('layout', k, k === 'random' ? 'Any (random)' : k, wiz.layout === k)).join('')}</div>
+      <button data-a="reroll" style="margin-top:6px">🎲 Another version</button>`;
+    el.innerHTML = `<div class="title"><span>${mode === 'new' ? 'New Scene' : mode === 'world' ? 'Change World' : 'Change Look'}${pages.length > 1 ? ` - Step ${wiz.step + 1} of ${pages.length}: ${p}` : ''}</span><span class="tb"><b data-a="cancel">×</b></span></div>
+      <div class="body">${body}</div>
+      <div class="wbtns">${mode === 'new' && wiz.step === 0 ? '<button data-a="surprise">Surprise me</button>' : '<span></span>'}<span>
+      ${wiz.step > 0 ? '<button data-a="back">&lt; Back</button>' : ''}${last ? '<button data-a="finish"><b>Finish</b></button>' : '<button data-a="next">Next &gt;</button>'}
+      <button data-a="cancel">Cancel</button></span></div>`;
+  };
+  // live preview: changes rebuild the scene behind the dialog
+  const preview = () => {
+    if (mode === 'new') wizBuild();
+    else if (mode === 'look') { applyLook(doc, wiz); applyDoc(); }
+    else if (mode === 'world') changeWorld(JSON.parse(keep), wiz.world, wiz.keepObjs);
+  };
+  el.addEventListener('click', e => {
+    const b = e.target.closest('[data-a], [data-g]'); if (!b) return;
+    if (b.dataset.g) {
+      wiz[b.dataset.g] = b.dataset.v;
+      if (['pal', 'time', 'weather'].includes(b.dataset.g)) wiz.lookTouched = true;
+      if (b.dataset.g === 'world' && mode === 'new') { const W = SCENES[b.dataset.v] || LANDSCAPES[b.dataset.v]; wiz.pal = W.pal; wiz.lookTouched = false; if (W.time) wiz.time = W.time; }
+      preview(); draw(); return;
+    }
+    const a = b.dataset.a;
+    if (a === 'next') { wiz.step++; draw(); }
+    else if (a === 'back') { wiz.step--; draw(); }
+    else if (a === 'reroll') { wiz.seed = (Math.random() * 1e9) | 0; preview(); }
+    else if (a === 'surprise') {
+      const pick = o => { const k = Object.keys(o); return k[(Math.random() * k.length) | 0]; };
+      const scene = Math.random() < 0.65;
+      Object.assign(wiz, { world: pick(scene ? SCENES : LANDSCAPES), time: pick({ day: 1, day2: 1, dusk: 1, night: 1 }).replace('2', ''), weather: pick(LOOK_WEATHER), layout: 'random', seed: (Math.random() * 1e9) | 0, lookTouched: false });
+      wiz.pal = (SCENES[wiz.world] || LANDSCAPES[wiz.world]).pal; preview(); close(); msg.textContent = `Surprise: ${(SCENES[wiz.world] || LANDSCAPES[wiz.world]).label}`;
+    }
+    else if (a === 'finish') { close(); msg.textContent = mode !== 'new' ? 'Done' : doc.scene ? `New scene: ${doc.layout}` : `New scene: ${doc.layout} layout`; }
+    else if (a === 'cancel') cancel();
+  });
+  const cancel = () => { if (keep) { doc = JSON.parse(keep); applyDoc(); } close(); };
+  el._close = cancel;
+  el.addEventListener('change', e => { if (e.target.dataset.g === 'keep') { wiz.keepObjs = e.target.checked; preview(); } });
+  if (mode !== 'new') preview();
+  draw();
+}
+// Change World: swap the landscape and the base the scene stands on; optionally carry objects along
+function changeWorld(base, worldKey, keepObjs) {
+  const L = LANDSCAPES[worldKey];
+  const terrain = { ...TERRAIN_DEFAULTS, ...L.t, stageX: base.terrain.stageX, stageZ: base.terrain.stageZ };
+  if (!keepObjs) {
+    const d = generateDoc(base.seed, base.palette, terrain); d.sky = base.sky; d.palette = base.palette; doc = d; applyDoc(); return;
+  }
+  const d = base;
+  const old = d.objects.find(o => o.role === 'base') || d.objects.find(o => o.type === 'terrain' || o.type === 'floater');
+  d.terrain = terrain;
+  const wy = terrain.waterY || 0, floating = terrain.land === false, wet = terrain.water && terrain.stageFloor < 0 && terrain.stage > 0;
+  const cx = old ? old.pos[0] : terrain.stageX, cz = old ? old.pos[2] : terrain.stageZ;
+  const nb = floating
+    ? mkObj('floater', { name: 'Floating isle', mat: 'land', color: '#cccccc', pos: [cx, wy + 80, cz], terrain: { ...FLOAT_DEFAULTS, tseed: (old && old.terrain && old.terrain.tseed) || 1 } })
+    : mkObj('terrain', { name: wet ? 'Island' : 'Knoll', mat: 'land', color: '#cccccc', pos: [cx, wy, cz], terrain: { ...TOBJ_DEFAULTS, tseed: (old && old.terrain && old.terrain.tseed) || 1 } });
+  nb.role = 'base'; nb.id = old ? old.id : nb.id;
+  // anything standing on the old base moves with it: same offset above the new surface at the same x/z
+  if (old) for (const o of d.objects) {
+    if (o === old || o.type === 'clouds') continue;
+    if (Math.hypot(o.pos[0] - cx, o.pos[2] - cz) > 110) continue;
+    const off = o.pos[1] - groundHeightOn(old, o.pos[0], o.pos[2]);
+    if (off > 80) continue;   // high flyers stay where they are
+    o.pos[1] = groundHeightOn(nb, o.pos[0], o.pos[2]) + off;
+  }
+  const dy = nb.pos[1] - (old ? old.pos[1] : 0);
+  d.camera.pos[1] += dy; d.camera.target[1] += dy;
+  d.objects = old ? d.objects.map(o => o === old ? nb : o) : [nb, ...d.objects];
+  doc = d; applyDoc();
+}
+
+// ---------- files ----------
+const randomKey = o => { const k = Object.keys(o); return k[(Math.random() * k.length) | 0]; };
+function newRandom() {
+  const sd = (Math.random() * 1e9) | 0;
+  if (Math.random() < 0.65) {
+    const k = randomKey(SCENES);
+    doc = generateScene(k, sd); applyDoc(); msg.textContent = `New random scene: ${SCENES[k].label}${undoHint()}`; commit(); return;
+  }
+  const k = randomKey(LANDSCAPES), L = LANDSCAPES[k];
+  doc = generateDoc(sd, L.pal, { ...TERRAIN_DEFAULTS, ...L.t }, { base: L.base }); applyDoc();
+  msg.textContent = `New random scene: ${L.label}, ${doc.layout} layout${undoHint()}`; commit();
+}
+function newSameLandscape() {
+  const sd = (Math.random() * 1e9) | 0;
+  if (doc.scene && SCENES[doc.scene]) { doc = generateScene(doc.scene, sd); applyDoc(); msg.textContent = `New version: ${SCENES[doc.scene].label}${undoHint()}`; commit(); return; }
+  doc = generateDoc(sd, doc.palette, doc.terrain); applyDoc(); msg.textContent = `New scene, same landscape: ${doc.layout} layout${undoHint()}`; commit();
+}
+function newEmpty() {
+  const d = generateDoc((Math.random() * 1e9) | 0, doc ? doc.palette : 'desert', doc && doc.terrain);
+  d.objects = []; doc = d; applyDoc(); msg.textContent = `Empty scene - add objects from the Create panel${undoHint()}`; commit();
+}
+function newLandscapePattern() {
+  doc.seed = (Math.random() * 1e9) | 0; applyEnvironment(); updateReflections(); if (sel === 'terrain') renderTerrainPanel();
+  msg.textContent = `New landscape pattern${undoHint()}`; commit();
+}
+const cleanName = n => n.replace(/\.tsc\.json$|\.json$|\.tsc$/i, '').replace(/[\\/:*?"<>|]+/g, '').trim();
+function saveDoc() {
+  commit();
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(doc, null, 1)], { type: 'application/json' }));
+  a.download = (doc.name || 'untitled') + '.tsc'; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  savedKey = histKey; updateTitle();
+  msg.textContent = `Saved ${a.download}`;
+}
+function saveAs() {
+  dialog('Save As', `Scene name:<input type="text" value="${(doc.name || 'untitled').replace(/"/g, '&quot;')}">`, [
+    ['Save', d => { const n = cleanName(d.querySelector('input').value); if (!n) return false; doc.name = n; saveDoc(); }], ['Cancel']]);
+}
+function openDocUI() {
+  if (histKey === savedKey) { $('openFile').click(); return; }
+  dialog('Open', `<b>${doc.name || 'untitled'}</b> has unsaved changes. Opening another scene replaces it.`, [
+    ['Save first', () => { saveDoc(); $('openFile').click(); }], ['Open anyway', () => $('openFile').click()], ['Cancel']]);
+}
+$('openFile').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = '';
+  if (!f) return;
+  try {
+    const d = JSON.parse(await f.text());
+    if (!Array.isArray(d.objects) || !d.camera || !d.sky) throw new Error('not a Terrascape scene');
+    d.name = cleanName(f.name);
+    msg.textContent = `Loading models for ${f.name}…`;
+    await loadDocModels(d);
+    doc = d; applyDoc(); resetHistory(); msg.textContent = `Opened ${f.name}`;
+  } catch (err) { dialog('Open', `Couldn't open that file: ${err.message}`); }
+});
+
+// ---------- undo / redo: whole-document snapshots ----------
+// The camera and file name are left out, so orbiting isn't an edit and undo never jumps the view.
+// Any pointer-up, change or key-up schedules a commit; it only records a step if the scene really changed.
+const MOD = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl+';
+const undoHint = () => ` - ${MOD}Z to undo`;
+const undoStack = [], redoStack = [];
+let histKey = null, savedKey = null, commitT = 0;
+const docKey = d => JSON.stringify({ ...d, camera: undefined, name: undefined });
+function updateTitle() {
+  if (!doc) return;
+  $('docname').textContent = (doc.name || 'untitled') + '.tsc' + (histKey && histKey !== savedKey ? ' *' : '');
+}
+function resetHistory() { undoStack.length = 0; redoStack.length = 0; histKey = savedKey = docKey(doc); updateTitle(); }
+function commit() {
+  clearTimeout(commitT);
+  if (!doc || wiz || histKey === null) return;
+  const k = docKey(doc);
+  if (k === histKey) return;
+  undoStack.push(histKey); if (undoStack.length > 80) undoStack.shift();
+  redoStack.length = 0; histKey = k; updateTitle();
+}
+function commitSoon() { clearTimeout(commitT); commitT = setTimeout(commit, 200); }
+['pointerup', 'change', 'keyup'].forEach(t => addEventListener(t, commitSoon, true));
+function restore(k) {
+  const keepSel = isObj() ? sel.id : sel;
+  const d = JSON.parse(k); d.camera = doc.camera; d.name = doc.name;
+  doc = d; histKey = k; applyDoc();
+  if (keepSel === 'terrain') select('terrain');
+  else if (keepSel != null) { const o = doc.objects.find(x => x.id === keepSel); if (o) select(o); }
+}
+function undo() {
+  if (wiz) return; commit();
+  if (!undoStack.length) { msg.textContent = 'Nothing to undo'; return; }
+  redoStack.push(histKey); restore(undoStack.pop()); msg.textContent = `Undone (${undoStack.length} more)`;
+}
+function redo() {
+  if (wiz) return; commit();
+  if (!redoStack.length) { msg.textContent = 'Nothing to redo'; return; }
+  undoStack.push(histKey); restore(redoStack.pop()); msg.textContent = 'Redone';
+}
+addEventListener('beforeunload', e => { if (histKey && histKey !== savedKey) e.preventDefault(); });
+
+// ---------- Sky & Fog quick controls ----------
+function skyChange(fn) { fn(doc.sky); applyEnvironment(); updateReflections(); if (sel === 'terrain') renderTerrainPanel(); if (mode !== 'edit') renderFinal(mode === 'ray'); }
+const swatch = p => { const P = PALETTES[p] || {}; return `<div class="sw">${['zenith', 'horizon', 'high', 'mid', 'low', 'water'].map(k => `<i style="background:${P[k]}"></i>`).join('')}</div>`; };
+
+// ---------- dialogs ----------
+// buttons: [label, fn]; the first is the default (Enter). fn returning false keeps the dialog open. Esc cancels.
+function dialog(title, html, buttons = [['OK']]) {
+  closeMenu();
+  const shade = document.createElement('div'); shade.className = 'shade';
+  const d = document.createElement('div'); d.className = 'dialog';
+  d.innerHTML = `<div class="title"><span>${title}</span><span class="tb"><b>×</b></span></div><div class="body">${html}</div>
+    <div class="ok">${buttons.map(([l], i) => `<button data-i="${i}">${i === 0 ? `<b>${l}</b>` : l}</button>`).join('')}</div>`;
+  $('win').append(shade, d);
+  const close = () => { d.remove(); shade.remove(); };
+  d._close = close;
+  d.querySelector('.tb b').onclick = close;
+  d.querySelector('.ok').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    const fn = buttons[+b.dataset.i][1];
+    if (fn && fn(d) === false) return;
+    close();
+  });
+  d.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.target.tagName !== 'BUTTON') { e.preventDefault(); d.querySelector('.ok button').click(); }
+    if (e.key === 'Escape') close();
+    e.stopPropagation();
+  });
+  const inp = d.querySelector('input');
+  if (inp) { inp.focus(); inp.select(); } else d.querySelector('.ok button').focus();
+  return d;
+}
+const topDialog = () => [...$('win').querySelectorAll('.dialog')].pop();
+const HELP = `<table>
+  <tr><td>Drag</td><td>orbit the camera</td></tr><tr><td>Right-drag</td><td>pan</td></tr><tr><td>Wheel</td><td>zoom</td></tr>
+  <tr><td>Click</td><td>select an object (click the far landscape for land &amp; sky)</td></tr><tr><td>W / E / R</td><td>move / rotate / scale</td></tr>
+  <tr><td>F</td><td>frame the selection</td></tr><tr><td>${MOD}D</td><td>duplicate</td></tr><tr><td>Delete</td><td>delete</td></tr>
+  <tr><td>${MOD}Z / ${MOD}⇧Z</td><td>undo / redo</td></tr>
+  <tr><td>Enter</td><td>render</td></tr><tr><td>Shift+Enter</td><td>ray trace</td></tr><tr><td>${MOD}E</td><td>save image</td></tr>
+  <tr><td>Esc</td><td>close dialog / back to edit / deselect</td></tr>
+  <tr><td>${MOD}S / ${MOD}⇧S</td><td>save / save as</td></tr><tr><td>${MOD}O</td><td>open scene</td></tr></table>`;
+
+// ---------- menus ----------
+const sep = '-';
+function menuSpec() {
+  const recent = recentModels.filter(k => MODELS[k]);
+  return {
+    File: [
+      ['New Scene…', () => openWizard()], ['New Random Scene', newRandom], ['New Scene, Same Landscape', newSameLandscape], ['New Empty Scene', newEmpty], sep,
+      ['Open…', openDocUI, MOD + 'O'], ['Save', saveDoc, MOD + 'S'], ['Save As…', saveAs, MOD + '⇧S'], sep,
+      ['Save Image…', saveImage, MOD + 'E'],
+    ],
+    Edit: [
+      ['Undo', undo, MOD + 'Z', !undoStack.length], ['Redo', redo, MOD + '⇧Z', !redoStack.length], sep,
+      ['Duplicate', duplicate, MOD + 'D', !isObj()], ['Delete', deleteSel, 'Del', !isObj()], sep,
+      ['Move', () => setGizmo('translate'), 'W', !isObj(), isObj() && gizmo.mode === 'translate'], ['Rotate', () => setGizmo('rotate'), 'E', !isObj(), isObj() && gizmo.mode === 'rotate'],
+      ['Scale', () => setGizmo('scale'), 'R', !isObj(), isObj() && gizmo.mode === 'scale'], sep,
+      ['Drop to Ground', dropToGround, '', !isObj()], ['Deselect', () => select(null), 'Esc', !sel],
+    ],
+    Objects: [
+      ...Object.entries(TYPES).map(([k, v]) => [v, () => create(k)]), sep,
+      ['Browse Poly Haven…', () => openBrowser()],
+      ...(recent.length ? [sep, { head: 'Recent models' }, ...recent.map(k => [MODELS[k].label, () => create('model', { model: k })])] : []),
+    ],
+    Landscape: [
+      ['Landscape Settings…', () => { if (mode !== 'edit') setMode('edit'); landTab = 'Shape'; select('terrain'); }],
+      ['Water Settings…', () => { if (mode !== 'edit') setMode('edit'); landTab = 'Water'; select('terrain'); }], sep,
+      ['Change World…', () => openWizard(0, 'world')], ['New Landscape Pattern', newLandscapePattern],
+    ],
+    'Sky & Fog': [
+      ['Change Look…', () => openWizard(0, 'look'), 'palette, time, weather'],
+      ['Sky Settings…', () => { if (mode !== 'edit') setMode('edit'); landTab = 'Sky'; select('terrain'); }],
+      ['Randomize Sky', () => skyChange(s => { s.elev = 8 + Math.random() * 30; s.az = (Math.random() - 0.5) * 92; s.cloudSeed = Math.random() * 100; })], sep,
+      ['Night (moon & stars)', () => skyChange(s => s.night = !s.night), '', false, !!doc.sky.night],
+      ['Add Cloud Layer', () => create('clouds')], sep,
+      ['Sun Higher', () => skyChange(s => s.elev = Math.min(85, s.elev + 5))], ['Sun Lower', () => skyChange(s => s.elev = Math.max(1, s.elev - 5))],
+      ['Sun Left', () => skyChange(s => s.az -= 15)], ['Sun Right', () => skyChange(s => s.az += 15)], sep,
+      ['Thicker Fog', () => skyChange(s => s.fog *= 1.3)], ['Thinner Fog', () => skyChange(s => s.fog /= 1.3)],
+    ],
+    View: [
+      ['Solid', () => { viewMode = 'solid'; setMode('edit'); }, '', false, viewMode === 'solid'],
+      ['Wireframe', () => { viewMode = 'wire'; setMode('edit'); }, '', false, viewMode === 'wire'], sep,
+      ['Frame Selection', frameSel, 'F', !isObj()],
+    ],
+    Render: [
+      ['Render', () => renderFinal(false), 'Enter'], ['Ray Trace', () => renderFinal(true), '⇧Enter'], ['Back to Edit', () => setMode('edit'), 'Esc', mode === 'edit'], sep,
+      ['Save Image…', saveImage, MOD + 'E'], sep,
+      ['256 Colors', () => setColors(2), '', false, colorMode === 2], ['Thousands of Colors', () => setColors(1), '', false, colorMode === 1],
+      ['Millions of Colors', () => setColors(0), '', false, colorMode === 0], sep, { head: 'Output size' },
+      ...[['400', '400 x 300'], ['640', '640 x 480'], ['800', '800 x 600'], ['full', 'Full Resolution']].map(([k, l]) => [l, () => setResolution(k), '', false, resKey === k]),
+    ],
+    Help: [['Controls', () => dialog('Controls', HELP)], ['About Terrascape', () => dialog('About Terrascape',
+      `<b>Terrascape 2.0</b><br>A 90s-style landscape renderer built on three.js.<br>Raster preview, supersampled render, and a Whitted ray tracer.<br>Models from Poly Haven (CC0).`)]],
+  };
+}
+const bar = $('menubar');
+let openMenu = null, dropEl = null, hoverOpened = null;
+function closeMenu() { if (dropEl) dropEl.remove(); dropEl = null; if (openMenu) openMenu.classList.remove('open'); openMenu = null; hoverOpened = null; }
+function showMenu(el) {
+  closeMenu();
+  if (!doc) return;
+  openMenu = el; el.classList.add('open');
+  const items = menuSpec()[el.dataset.m];
+  dropEl = document.createElement('div'); dropEl.className = 'dropdown';
+  dropEl.style.left = el.offsetLeft + 'px'; dropEl.style.top = (el.offsetTop + el.offsetHeight) + 'px';
+  for (const it of items) {
+    if (it === sep) { dropEl.insertAdjacentHTML('beforeend', '<div class="sep"></div>'); continue; }
+    if (it.head) { dropEl.insertAdjacentHTML('beforeend', `<div class="item head">${it.head}</div>`); continue; }
+    const [label, fn, key = '', disabled = false, checked = false] = it;
+    const d = document.createElement('div');
+    d.className = 'item' + (checked ? ' checked' : '') + (disabled ? ' off' : '');
+    d.innerHTML = `<span>${label}</span><span class="k">${key}</span>`;
+    d.onclick = e => { e.stopPropagation(); if (disabled) return; closeMenu(); fn(); commitSoon(); };
+    dropEl.appendChild(d);
+  }
+  bar.appendChild(dropEl);
+}
+bar.innerHTML = ['File', 'Edit', 'Objects', 'Landscape', 'Sky & Fog', 'View', 'Render', 'Help'].map(m => `<div data-m="${m}">${m}</div>`).join('');
+bar.querySelectorAll('[data-m]').forEach(el => {
+  // a click opens its menu; it only closes one that was already open before the pointer arrived
+  el.addEventListener('click', e => {
+    e.stopPropagation();
+    if (openMenu === el && hoverOpened !== el) closeMenu();
+    else { if (openMenu !== el) showMenu(el); hoverOpened = null; }
+  });
+  el.addEventListener('mouseenter', () => { if (openMenu && openMenu !== el) { showMenu(el); hoverOpened = el; } });
+});
+document.addEventListener('click', closeMenu);
+
+// ---------- buttons and keys ----------
+$('btnRender').onclick = () => renderFinal(false);
+$('btnRay').onclick = () => renderFinal(true);
+$('btnEdit').onclick = () => setMode('edit');
+$('btnSaveImg').onclick = saveImage;
+addEventListener('keydown', e => {
+  const k = e.key.toLowerCase(), mod = e.metaKey || e.ctrlKey;
+  if (k === 'escape') {
+    if (dropEl) { closeMenu(); return; }
+    const top = topDialog(); if (top) { top._close(); return; }
+  }
+  if (e.target.matches('input, select, textarea')) return;
+  if (topDialog() || wiz) return;   // shortcuts wait until dialogs are closed
+  if (mod && k === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
+  if (mod && k === 'y') { e.preventDefault(); redo(); return; }
+  if (mod && k === 's') { e.preventDefault(); e.shiftKey ? saveAs() : saveDoc(); return; }
+  if (mod && k === 'o') { e.preventDefault(); openDocUI(); return; }
+  if (mod && k === 'e') { e.preventDefault(); saveImage(); return; }
+  if (mod && k === 'd') { e.preventDefault(); duplicate(); return; }
+  if (k === 'escape') { if (mode !== 'edit') setMode('edit'); else select(null); return; }
+  if (k === 'enter') { if (e.target.closest('button, a')) return; e.preventDefault(); renderFinal(e.shiftKey); return; }
+  if (mode !== 'edit' || mod) return;
+  if (k === 'w') setGizmo('translate'); else if (k === 'e') setGizmo('rotate'); else if (k === 'r') setGizmo('scale');
+  else if (k === 'f') frameSel(); else if (k === 'delete' || k === 'backspace') { e.preventDefault(); deleteSel(); }
+});
+
+// ---------- start up ----------
+startPixelEmoji(document.body);   // 16-colour pixel icons instead of glossy system emoji
+setResolution('400');
+renderInspector();
+msg.textContent = 'Loading Poly Haven models...';
+assetsReady.then(() => {
+  doc = generateDoc(1234, 'desert');
+  applyDoc();
+  $('win').classList.remove('loading');
+  frame();
+  openWizard(0, 'new', true);   // start by choosing a world
+  // build picking structures for the big models in the background so the first click is quick
+  setTimeout(() => Object.values(models).forEach(ensureBVH), 500);
+});
+</script>
+</body>
+</html>
