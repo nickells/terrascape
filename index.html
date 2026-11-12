@@ -1421,6 +1421,7 @@ function applyCamera() {
   orbit.update();
 }
 function applyDoc() {
+  if (doc && doc.terrain && !doc.baseTerrain) doc.baseTerrain = JSON.parse(JSON.stringify(doc.terrain));   // the world's preset, for Reset
   select(null);
   if (doc.island) {   // scenes saved before terrain objects: their island becomes one
     if (!doc.objects.some(o => o.type === 'terrain'))
@@ -1761,7 +1762,7 @@ function renderWorld() {
   wp.innerHTML = `<legend>World</legend>
     <div class="tabs">${Object.keys(LAND_TABS).map(t => `<button data-tab="${t}" class="${t === landTab ? 'on' : ''}">${t}</button>`).join('')}</div>
     <div class="tabpage">${landOff && (landTab === 'Land' || landTab === 'Water') ? '<div class="hint" style="padding:0 0 3px">Mountains are off - only water and sky apply.</div>' : ''}${{ Land: land, Water: water, Sky: skyTab(), Look: lookTab() }[landTab]}</div>
-    ${landTab === 'Land' || landTab === 'Water' ? `<div class="actions"><button data-t="reset" style="width:100%" title="Reset every land and water setting">Reset land &amp; water</button></div>` : ''}`;
+    ${landTab === 'Land' || landTab === 'Water' ? `<div class="actions"><button data-t="reset" style="width:100%" title="Put every land and water setting back to how this world started">Reset to world preset</button></div>` : ''}`;
   wp.scrollTop = top;
 }
 function setPanel(p) {
@@ -1822,7 +1823,10 @@ wp.addEventListener('click', e => {
   if (k === 'rsky') return randomSun();
   if (k === 'addclouds') return create('clouds');
   if (k === 'reseed') newLandscapePattern();
-  else if (k === 'reset') { doc.terrain = { ...TERRAIN_DEFAULTS, stageX: doc.terrain.stageX, stageZ: doc.terrain.stageZ }; applyEnvironment(); updateReflections(); renderWorld(); msg.textContent = `Land & water reset to defaults${undoHint()}`; }
+  else if (k === 'reset') {
+    doc.terrain = doc.baseTerrain ? JSON.parse(JSON.stringify(doc.baseTerrain)) : { ...TERRAIN_DEFAULTS, stageX: doc.terrain.stageX, stageZ: doc.terrain.stageZ };
+    applyEnvironment(); updateReflections(); renderWorld(); msg.textContent = `Land & water back to this world's preset${undoHint()}`;
+  }
 });
 // double-click the land, water or sky to open the matching World tab (an object double-click frames it)
 canvas.addEventListener('dblclick', e => {
@@ -2245,6 +2249,7 @@ document.addEventListener('click', e => {
     startBuild(); msg.textContent = `Surprise: ${W.label}`;
   }
   renderStart();
+  canvas.focus({ preventScroll: true });   // the re-drawn sheet would otherwise swallow the next click
 });
 document.addEventListener('change', e => {
   const t = e.target; if (!t.closest || !t.closest('#start') || !t.dataset.s || !doc) return;
@@ -2261,6 +2266,7 @@ document.addEventListener('change', e => {
     msg.textContent = `World: ${W.label}`;
   }
   renderStart();
+  canvas.focus({ preventScroll: true });   // the re-drawn sheet would otherwise swallow the next click
 });
 // old entry points (File > New, Change World / Look) now just open the Start panel
 function openWizard(step, kind) {   // File > New and Change World open the sheet; Change Look just restyles
@@ -2279,7 +2285,7 @@ function changeWorld(base, worldKey, keepObjs) {
   }
   const d = base;
   const old = d.objects.find(o => o.role === 'base') || d.objects.find(o => o.type === 'terrain' || o.type === 'floater');
-  d.terrain = terrain;
+  d.terrain = terrain; d.baseTerrain = JSON.parse(JSON.stringify(terrain));   // new world: new preset to reset to
   const wy = terrain.waterY || 0, floating = terrain.land === false, wet = terrain.water && terrain.stageFloor < 0 && terrain.stage > 0;
   const cx = old ? old.pos[0] : terrain.stageX, cz = old ? old.pos[2] : terrain.stageZ;
   const nb = floating
