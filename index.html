@@ -129,7 +129,7 @@
         <button id="btnEdit" title="Leave the render and keep editing (Esc)" disabled>◀ Back to Edit</button>
         <button id="btnSaveImg" title="Save the rendered picture as a PNG (Ctrl+E)">💾 Save Image</button>
       </div>
-      <div class="modes ptabs"><button data-ptab="start" class="on" title="Pick a world, a look and an arrangement">Start</button><button data-ptab="world" title="Fine-tune land, water and sky">World</button></div>
+      <div class="modes ptabs"><button data-ptab="world" class="on" title="Fine-tune land, water, sky and look">World</button></div>
       <div class="ppage" id="startPage"><fieldset id="start"></fieldset></div>
       <div class="ppage" id="worldPage" style="display:none"><fieldset id="world"></fieldset></div>
     </div>
@@ -1526,6 +1526,7 @@ function uniqueName(base) {
   for (let n = 2; ; n++) if (!names.has(`${root} ${n}`)) return `${root} ${n}`;
 }
 function create(type, extra = {}) {
+  if (panel === 'start') setPanel('world');   // adding things means the scene has begun
   if (!doc) return;
   if (mode !== 'edit') setMode('edit');
   const p = dropPoint();
@@ -1765,6 +1766,7 @@ function setPanel(p) {
   panel = p;
   document.querySelectorAll('[data-ptab]').forEach(b => b.classList.toggle('on', b.dataset.ptab === p));
   $('startPage').style.display = p === 'start' ? '' : 'none';
+  document.querySelector('.ptabs').style.display = p === 'start' ? 'none' : '';   // the New Scene sheet replaces the tabs while open
   $('worldPage').style.display = p === 'world' ? '' : 'none';
   if (p === 'world') renderWorld();
   if (p === 'start') renderStart();
@@ -2164,7 +2166,7 @@ function renderStart() {
   const W = SCENES[start.world] || LANDSCAPES[start.world] || {};
   const opt = (g, v, label, on, extra = '') => `<button class="choice${on ? ' on' : ''}" data-s="${g}" data-v="${v}" title="${label}">${label}${extra}</button>`;
   const isScene = !!SCENES[start.world];
-  el.innerHTML = `<legend>Start here</legend>
+  el.innerHTML = `<legend>New Scene</legend>
     <div class="hint">World</div>
     <select data-s="world">
       <optgroup label="Art-directed scenes">${Object.entries(SCENES).map(([k, S]) => `<option value="${k}" ${start.world === k ? 'selected' : ''}>${S.label}</option>`).join('')}</optgroup>
@@ -2177,11 +2179,13 @@ function renderStart() {
     <div class="hint" style="margin-top:4px">Arrangement</div>
     ${isScene ? `<div class="hint">${W.label} has its own composition.</div>` : `<select data-s="layout">${['random', 'Centrepiece', 'Colonnade', 'Rule of thirds', 'Stone circle', 'Still life', 'Empty'].map(k => `<option value="${k}" ${start.layout === k ? 'selected' : ''}>${k === 'random' ? 'Any (random)' : k}</option>`).join('')}</select>`}
     <div class="grid2" style="margin-top:6px"><button data-s="reroll" title="Same choices, a different version">🎲 Another</button><button data-s="surprise" title="Random world, look and arrangement">Surprise me</button></div>
-    <div class="hint" style="margin-top:6px">Every change applies straight away. Ctrl+Z undoes it.</div>`;
+    <div class="hint" style="margin-top:6px">Every change applies straight away. Ctrl+Z undoes it.</div>
+    <button class="big" data-s="done" style="width:100%;margin-top:6px"><b>Done - start editing</b></button>`;
 }
 document.addEventListener('click', e => {
   const b = e.target.closest('#start button[data-s]'); if (!b || !doc) return;
   const g = b.dataset.s, v = b.dataset.v;
+  if (g === 'done') { setPanel('world'); msg.textContent = 'Edit - drag to orbit, click to select'; return; }
   if (mode !== 'edit') setMode('edit');
   if (g === 'pal' || g === 'time' || g === 'weather') {   // look: restyle without touching objects
     start[g] = v; start.lookTouched = true;
@@ -2214,7 +2218,12 @@ document.addEventListener('change', e => {
   renderStart();
 });
 // old entry points (File > New, Change World / Look) now just open the Start panel
-function openWizard() { if (mode !== 'edit') setMode('edit'); closeMenu(); setPanel('start'); }
+function openWizard(step, kind) {   // File > New and Change World open the sheet; Change Look just restyles
+  if (mode !== 'edit') setMode('edit'); closeMenu();
+  if (kind === 'look') return showWorld('Look');
+  if (kind === 'world') start.keepObjs = true;
+  setPanel('start');
+}
 
 // Change World: swap the landscape and the base the scene stands on; optionally carry objects along
 function changeWorld(base, worldKey, keepObjs) {
