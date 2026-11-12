@@ -994,6 +994,7 @@ function generateDoc(seedV, palName, terrain, opts = {}) {
       add('lamp', { name: 'Floating lamp', color: lampCol, pos: on(30, 18, 26) });
     },
   };
+  if (opts.layoutSeed != null) rand.seed(opts.layoutSeed);   // arrangement has its own seed, so rerolling it leaves the land alone
   const layout = opts.layout && (LAYOUTS[opts.layout] || opts.layout === 'Empty') ? opts.layout : pick(Object.keys(LAYOUTS));
   islandObj.role = 'base';
   if (layout !== 'Empty') LAYOUTS[layout]();
@@ -1758,7 +1759,7 @@ function renderWorld() {
     ${sliders(LAND_TABS.Land.slice(0, 6))}
     <div class="sect">Clearing (where objects stand)</div>${sliders(['stage', 'stageFloor'])}
     <div class="row"><span>Pattern</span><div style="display:grid;grid-template-columns:1fr auto;gap:3px"><input type="number" data-t="seed" value="${doc.seed}" title="Landscape seed"><button data-t="reseed" title="New landscape pattern">🎲</button></div></div>`;
-  const water = `<div class="row"><span>Surface</span><select data-t="surface">${Object.entries(SURFACES).map(([k, v]) => `<option value="${k}" ${surfaceOf(T) === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>${sliders(LAND_TABS.Water)}`;
+  const water = `<div class="row"><span>Surface</span><select data-t="surface">${Object.entries(SURFACES).map(([k, v]) => `<option value="${k}" ${surfaceOf(T) === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>${sliders(LAND_TABS.Water.filter(k => k !== 'floorTile' || ['checker', 'tiles', 'pool'].includes(surfaceOf(T))))}`;   // tile size only means something for tiled surfaces
   wp.innerHTML = `<legend>World</legend>
     <div class="tabs">${Object.keys(LAND_TABS).map(t => `<button data-tab="${t}" class="${t === landTab ? 'on' : ''}">${t}</button>`).join('')}</div>
     <div class="tabpage">${landOff && (landTab === 'Land' || landTab === 'Water') ? '<div class="hint" style="padding:0 0 3px">Mountains are off - only water and sky apply.</div>' : ''}${{ Land: land, Water: water, Sky: skyTab(), Look: lookTab() }[landTab]}</div>
@@ -1934,7 +1935,18 @@ async function openBrowser() {
 const tracer = createTracer(NOISE_FUNCS);
 const traceScene = new THREE.Scene(); traceScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), tracer.material));
 const accRT = new THREE.WebGLRenderTarget(W, H, { type: THREE.FloatType, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter });
-const MAX_PASSES = 16, BANDS = 6;   // Whitted tracing has no lighting noise, so passes only antialias; 16 is plenty
+const MAX_PASSES = 16, BANDS = 6;   // Whitted tracing has no lighting noise, so passes only antialias; 16 is plenty for most scenes
+// Ray trace quality: more passes smooth fine texture, thin twigs and glass-through-glass. Fine stops early once the picture settles.
+const QUALITY = { draft: [4, 'Draft'], normal: [16, 'Normal'], fine: [64, 'Fine'] };
+let traceQuality = 'normal';
+// average colour change between two snapshots of the accumulation buffer (sampled every 4th pixel)
+function accSnapshot() {
+  const buf = new Float32Array(W * H * 4);
+  renderer.readRenderTargetPixels(accRT, 0, 0, W, H, buf);
+  const out = new Float32Array(Math.ceil(W * H / 4) * 3);
+  for (let i = 0, j = 0; i < W * H; i += 4, j += 3) { const a = Math.max(buf[i * 4 + 3], 1); out[j] = buf[i * 4] / a; out[j + 1] = buf[i * 4 + 1] / a; out[j + 2] = buf[i * 4 + 2] / a; }
+  return out;
+}
 let job = 0;
 
 function traceContext() {
@@ -1991,7 +2003,8 @@ function renderFinal(ray, onDone) {
     tracer.material.uniforms.res.value.set(W, H);
     post.uniforms.tex.value = accRT.texture; post.uniforms.accum.value = true; post.uniforms.res.value.set(W, H);
     blit();
-    let pass = 0, band = 0;
+    let pass = 0, band = 0, lastSnap = null, settled = false;
+    const MAXP = QUALITY[traceQuality][0], qLabel = QUALITY[traceQuality][1];
     const t1 = performance.now();
     const step = () => {
       if (my !== job) return;
@@ -2003,10 +2016,18 @@ function renderFinal(ray, onDone) {
       renderer.render(traceScene, postCam);
       renderer.setScissorTest(false);
       blit();
-      if (++band === BANDS) { band = 0; pass++; }
-      msg.textContent = `Ray tracing - pass ${pass + (band ? 1 : 0)}/${MAX_PASSES} - ${(info.triangles / 1e6).toFixed(2)}M tris, setup ${tBuild.toFixed(1)}s`;
-      if (pass < MAX_PASSES) requestAnimationFrame(step);
-      else { msg.textContent = `Ray trace complete - ${MAX_PASSES} passes in ${((performance.now() - t1) / 1000).toFixed(1)} sec - ${MOD}E saves it, Esc to edit`; renderDone = true; }
+      if (++band === BANDS) {
+        band = 0; pass++;
+        // Fine: from pass 16, check every 8 passes and stop once the image has stopped changing
+        if (traceQuality === 'fine' && pass >= 16 && pass % 8 === 0) {
+          const snap = accSnapshot();
+          if (lastSnap) { let d = 0; for (let i = 0; i < snap.length; i++) d += Math.abs(snap[i] - lastSnap[i]); settled = d / snap.length < 0.0015; }
+          lastSnap = snap;
+        }
+      }
+      msg.textContent = `Ray tracing (${qLabel}) - pass ${pass + (band ? 1 : 0)}/${MAXP} - ${(info.triangles / 1e6).toFixed(2)}M tris, setup ${tBuild.toFixed(1)}s`;
+      if (pass < MAXP && !settled) requestAnimationFrame(step);
+      else { msg.textContent = `Ray trace complete (${qLabel}) - ${pass} passes${settled ? ', settled early' : ''} in ${((performance.now() - t1) / 1000).toFixed(1)} sec - ${MOD}E saves it, Esc to edit`; renderDone = true; }
     };
     requestAnimationFrame(step);
   }), 30);
@@ -2205,7 +2226,7 @@ function startBuild() {   // regenerate the whole scene from the Start choices
   if (W) { const d = generateScene(start.world, start.seed); if (start.lookTouched) applyLook(d, start); doc = d; }
   else {
     const L = LANDSCAPES[start.world];
-    const d = generateDoc(start.seed, start.pal, { ...TERRAIN_DEFAULTS, ...L.t }, { layout: start.layout, base: L.base });
+    const d = generateDoc(start.seed, start.pal, { ...TERRAIN_DEFAULTS, ...L.t }, { layout: start.layout, base: L.base, layoutSeed: start.layoutSeed });
     applyLook(d, start); doc = d;
   }
   applyDoc(); commit();
@@ -2216,6 +2237,7 @@ function renderStart() {
   const opt = (g, v, label, on, extra = '') => `<button class="choice${on ? ' on' : ''}" data-s="${g}" data-v="${v}" title="${label}">${label}${extra}</button>`;
   const isScene = !!SCENES[start.world];
   el.innerHTML = `<legend>New Scene</legend>
+    <button data-s="surprise" style="width:100%;margin-bottom:6px" title="Random world, look and arrangement - replaces everything">🎲 Surprise me (everything)</button>
     <div class="hint">World</div>
     <select data-s="world">
       <optgroup label="Art-directed scenes">${Object.entries(SCENES).map(([k, S]) => `<option value="${k}" ${start.world === k ? 'selected' : ''}>${S.label}</option>`).join('')}</optgroup>
@@ -2227,7 +2249,7 @@ function renderStart() {
     <div class="hint">Weather</div><div class="choices c3">${Object.entries(LOOK_WEATHER).map(([k, v]) => opt('weather', k, v, start.weather === k)).join('')}</div>
     <div class="hint" style="margin-top:4px">Arrangement</div>
     ${isScene ? `<div class="hint">${W.label} has its own composition.</div>` : `<select data-s="layout">${['random', 'Centrepiece', 'Colonnade', 'Rule of thirds', 'Stone circle', 'Still life', 'Empty'].map(k => `<option value="${k}" ${start.layout === k ? 'selected' : ''}>${k === 'random' ? 'Any (random)' : k}</option>`).join('')}</select>`}
-    <div class="grid2" style="margin-top:6px"><button data-s="reroll" title="Same choices, a different version">🎲 Another</button><button data-s="surprise" title="Random world, look and arrangement">Surprise me</button></div>
+    <button data-s="reroll" style="width:100%;margin-top:4px" title="Same world and look, a new arrangement of objects">🎲 Another arrangement</button>
     <div class="hint" style="margin-top:6px">Every change applies straight away. Ctrl+Z undoes it.</div>`;
 }
 $('startDone').onclick = () => { setPanel('world'); msg.textContent = 'Edit - drag to orbit, click to select'; };
@@ -2240,7 +2262,10 @@ document.addEventListener('click', e => {
     start[g] = v; start.lookTouched = true;
     if (g === 'pal') start.pal = v;
     applyLook(doc, { pal: start.pal, time: start.time, weather: start.weather }); applyDoc(); commit();
-  } else if (g === 'reroll') { start.seed = (Math.random() * 1e9) | 0; startBuild(); }
+  } else if (g === 'reroll') {   // only the arrangement for landscapes; art-directed scenes are one composition, so they reroll whole
+    if (SCENES[start.world]) start.seed = (Math.random() * 1e9) | 0; else start.layoutSeed = (Math.random() * 1e9) | 0;
+    startBuild();
+  }
   else if (g === 'surprise') {
     const pick = o => { const k = Object.keys(o); return k[(Math.random() * k.length) | 0]; };
     const scene = Math.random() < 0.65;
@@ -2490,6 +2515,7 @@ function menuSpec() {
     ],
     Render: [
       ['Render', () => renderFinal(false), 'Enter'], ['Ray Trace', () => renderFinal(true), '⇧Enter'], ['Back to Edit', () => setMode('edit'), 'Esc', mode === 'edit'], sep,
+      ...Object.entries(QUALITY).map(([k, [n, l]]) => [`Ray Trace Quality: ${l} (${n} passes${k === 'fine' ? ', stops early' : ''})`, () => { traceQuality = k; msg.textContent = `Ray trace quality: ${l}`; if (mode === 'ray') renderFinal(true); }, '', false, traceQuality === k]), sep,
       ['Save Image…', saveImage, MOD + 'E'], sep,
       ['256 Colors', () => setColors(2), '', false, colorMode === 2], ['Thousands of Colors', () => setColors(1), '', false, colorMode === 1],
       ['Millions of Colors', () => setColors(0), '', false, colorMode === 0], sep, { head: 'Output size' },
