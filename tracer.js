@@ -90,6 +90,7 @@ function baseEntry(m, flat) {
     // a normal map can't be followed per-pixel here; fine procedural bump stands in for it
     n2: [b.bump || 0, b.bumpFreq || 0, b.strata || 0, b.strataFreq || 0],
     tx: [-1, -1, -1, 0],   // texture-array layers: colour, normal map, roughness/metal (filled in by build)
+    mt: m.isMeshStandardMaterial ? m.metalness : 0,   // how much reflections take the surface colour, as in the raster view
   };
 }
 
@@ -111,7 +112,7 @@ export function createTracer(noiseGLSL) {
       sunDir: { value: new THREE.Vector3() }, sunLight: { value: new THREE.Color() }, hemiSky: { value: new THREE.Color() }, hemiGround: { value: new THREE.Color() },
       lampPos: { value: V3(3) }, lampLight: { value: V3(3) }, lampTint: { value: V3(3) },
       sph: { value: V4(NS) }, sphMat: { value: new Array(NS).fill(0) }, nSph: { value: 0 },
-      mCol: { value: V4(NM) }, mP: { value: V4(NM) }, mN1: { value: V4(NM) }, mN2: { value: V4(NM) }, mTx: { value: Array.from({ length: NM }, () => new THREE.Vector4(-1, -1, -1, 0)) }, texArr: { value: null },
+      mCol: { value: V4(NM) }, mP: { value: V4(NM) }, mN1: { value: V4(NM) }, mN2: { value: V4(NM) }, mMt: { value: V4(NM) }, mTx: { value: Array.from({ length: NM }, () => new THREE.Vector4(-1, -1, -1, 0)) }, texArr: { value: null },
       fogCol: { value: new THREE.Color() }, fogDensity: { value: 0 },
       zenith: { value: new THREE.Color() }, horizon: { value: new THREE.Color() }, skySun: { value: new THREE.Color() }, skySeed: { value: 0 },
       waterCol: { value: new THREE.Color() }, waterTint: { value: new THREE.Color() }, waterSeed: { value: 0 },
@@ -140,7 +141,7 @@ export function createTracer(noiseGLSL) {
       uniform vec3 sunDir, sunLight, hemiSky, hemiGround;
       uniform vec3 lampPos[3], lampLight[3], lampTint[3];
       uniform vec4 sph[NS]; uniform int sphMat[NS]; uniform int nSph;
-      uniform vec4 mCol[NM], mP[NM], mN1[NM], mN2[NM], mTx[NM];
+      uniform vec4 mCol[NM], mP[NM], mN1[NM], mN2[NM], mMt[NM], mTx[NM];
       uniform highp sampler2DArray texArr;   // model textures, one 512x512 layer each (sRGB-encoded colour, linear data)
       uniform vec3 fogCol; uniform float fogDensity;
       uniform vec3 zenith, horizon, skySun; uniform float skySeed, night, skyClouds;
@@ -604,6 +605,13 @@ export function createTracer(noiseGLSL) {
             rtint = mix(vec3(1.), clamp(albedo * 1.6, 0., 1.), mt);   // metals tint what they reflect (brass -> gold)
             albedo *= 1. - .5 * mt;   // metals get their colour mostly from reflection
           }
+          if (tx.z < 0. && mMt[h.mat].x > 0.) {   // untextured metallic (e.g. Glossy): same colour-tinted reflections as above
+            // reflectance at normal incidence is mix(4% grey, albedo, metalness), like the raster PBR shading;
+            // refl already carries the overall strength, so the tint is that colour relative to it
+            float mt = mMt[h.mat].x;
+            rtint = clamp(mix(vec3(.04), albedo, mt) / max(refl, .02), 0., 1.);
+            albedo *= 1. - .5 * mt;
+          }
           if (h.obj == 0 && tx.x < 0.) surfaceNoise(h.mat, h.p, albedo, n);
           albedo = max(albedo, 0.);
 
@@ -784,7 +792,7 @@ export function createTracer(noiseGLSL) {
 
     mats.forEach((e, i) => {
       u.mCol.value[i].set(e.col.r, e.col.g, e.col.b, e.kind);
-      u.mP.value[i].fromArray(e.p); u.mN1.value[i].fromArray(e.n1); u.mN2.value[i].fromArray(e.n2);
+      u.mP.value[i].fromArray(e.p); u.mN1.value[i].fromArray(e.n1); u.mN2.value[i].fromArray(e.n2); u.mMt.value[i].set(e.mt || 0, 0, 0, 0);
     });
     u.leafTex.value = leafTex || blank;
     mats.forEach((e, i) => u.mTx.value[i].fromArray(e.tx || [-1, -1, -1, 0]));

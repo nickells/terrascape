@@ -24,7 +24,10 @@
   .main{display:flex;gap:4px;align-items:flex-start;}
   .side{display:flex;flex-direction:column;gap:4px;width:196px;height:604px;}
   .win.loading .side{pointer-events:none;opacity:.55;}
-  #inspector{flex:1 1 auto;min-height:0;overflow-y:auto;}
+  #inspector,#world{flex:1 1 auto;min-height:0;overflow-y:auto;}
+  .ppage{display:flex;flex-direction:column;gap:4px;flex:1 1 auto;min-height:0;}
+  .ptabs{margin:0;} .ptabs button{padding:3px 1px;}
+  #world .tabpage{margin-bottom:0;} #world .slider{grid-template-columns:62px 1fr 50px;} #world .sect{color:#404040;margin:6px 0 2px;border-bottom:1px solid #808080;box-shadow:0 1px #fff;padding-bottom:1px;}
   button,select,input{font:inherit;}
   button{background:#c0c0c0;border:2px solid;border-color:#fff #000 #000 #fff;box-shadow:inset -1px -1px #808080;padding:3px 4px;cursor:pointer;}
   button:disabled{color:#808080;text-shadow:1px 1px #fff;cursor:default;}
@@ -70,6 +73,9 @@
   .wiz .body{height:514px;overflow-y:auto;box-sizing:border-box;}
   .shade{position:absolute;inset:0;z-index:29;cursor:not-allowed;}
   .wiz .choices{display:grid;gap:3px;margin:3px 0 6px;} .wiz .c2{grid-template-columns:1fr 1fr;} .wiz .c3{grid-template-columns:1fr 1fr 1fr;}
+  .choices{display:grid;gap:3px;} .choices.c2{grid-template-columns:1fr 1fr;}
+  .choice.on{border-color:#000 #fff #fff #000;box-shadow:inset 1px 1px #808080;background:#d8d8d8;font-weight:bold;}
+  .choice{padding:4px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .wiz .choice{padding:4px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .wiz .choice.on{border-color:#000 #fff #fff #000;box-shadow:inset 1px 1px #808080;background:#d8d8d8;font-weight:bold;}
   .wiz .wbtns{display:flex;justify-content:space-between;padding:0 10px 10px;} .wiz .wbtns button{min-width:64px;margin-left:4px;}
   .dialog.ph{max-width:none;width:600px;top:48%;}
@@ -82,12 +88,21 @@
   .tile .pc{color:#555;font-size:10px;} .tile .pc.heavy,.phfoot .heavy{color:#a02020;}
   .tile.busy{opacity:.5;cursor:wait;}
   .phfoot{display:flex;justify-content:space-between;padding:4px 8px 6px;color:#404040;}
-  .well{border:2px solid;border-color:#808080 #fff #fff #808080;background:#000;line-height:0;}
+  .well{border:2px solid;border-color:#808080 #fff #fff #808080;background:#000;line-height:0;position:relative;}
+  #loader{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;line-height:normal;
+    background:#008080 repeating-conic-gradient(#007070 0 25%, #008080 0 50%) 0 0/4px 4px;}
+  #loader .lbox{background:#c0c0c0;border:2px solid;border-color:#fff #000 #000 #fff;box-shadow:inset -1px -1px #808080,3px 3px 0 rgba(0,0,0,.35);width:300px;padding:2px;}
+  #loader .lbody{padding:12px 12px 14px;}
+  #loader #lmsg{margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #loader .lbar{height:16px;border:2px solid;border-color:#808080 #fff #fff #808080;background:#fff;padding:1px;}
+  /* classic segmented progress bar */
+  #loader #lfill{height:100%;width:5%;background:repeating-linear-gradient(90deg,#000080 0 8px,transparent 8px 10px);transition:width .25s steps(4);}
   canvas{width:800px;height:600px;image-rendering:pixelated;display:block;outline:none;}
   .status{display:flex;gap:3px;margin-top:3px;}
   .status div{border:1px solid;border-color:#808080 #fff #fff #808080;padding:2px 4px;}
   .status #msg{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
-  .status #modeLbl{flex:0 0 70px;} .status #pct{flex:0 0 130px;padding:0;}
+  .status #modeLbl{flex:0 0 70px;}
+  .status #lens{flex:0 0 230px;display:flex;align-items:center;gap:4px;padding:0 4px;} #lens input{flex:1;min-width:0;height:14px;margin:0;} #lensVal{flex:0 0 84px;text-align:right;} .status #pct{flex:0 0 130px;padding:0;}
   #resSel{border:0;background:transparent;width:100%;padding:1px 2px;cursor:pointer;}
   .dialog{position:absolute;z-index:30;left:50%;top:40%;transform:translate(-50%,-50%);background:#c0c0c0;border:2px solid;border-color:#fff #000 #000 #fff;box-shadow:inset -1px -1px #808080,3px 3px 0 rgba(0,0,0,.35);min-width:320px;max-width:420px;}
   .dialog .body{padding:10px 12px;line-height:1.5;}
@@ -108,8 +123,10 @@
         <button id="btnEdit" title="Leave the render and keep editing (Esc)" disabled>◀ Back to Edit</button>
         <button id="btnSaveImg" title="Save the rendered picture as a PNG (Ctrl+E)">💾 Save Image</button>
       </div>
+      <div class="modes ptabs"><button data-ptab="objects" class="on" title="Add, list and edit objects">Objects</button><button data-ptab="world" title="Land, water, sky and palette">World</button></div>
+      <div class="ppage" id="objPage">
       <div class="ctabs">
-        <div class="tabs"><button data-ctab="create" class="on">Create</button><button data-ctab="list">Objects</button></div>
+        <div class="tabs"><button data-ctab="create" class="on">Add</button><button data-ctab="list">List</button></div>
         <div class="tabpage" id="createPage">
           <div class="grid2" id="createBtns"></div>
           <button id="btnPH" style="width:100%;margin-top:3px">🌐 Browse Poly Haven…</button>
@@ -117,10 +134,17 @@
         <div class="tabpage" id="listPage" style="display:none"><div class="listbox" id="objList"></div></div>
       </div>
       <fieldset id="inspector"></fieldset>
+      </div>
+      <div class="ppage" id="worldPage" style="display:none"><fieldset id="world"></fieldset></div>
     </div>
-    <div class="well"><canvas id="view" tabindex="0"></canvas></div>
+    <div class="well"><canvas id="view" tabindex="0"></canvas>
+      <!-- startup progress: plain HTML so it shows before three.js has even downloaded -->
+      <div id="loader"><div class="lbox">
+        <div class="title"><span>Terrascape 2.0</span></div>
+        <div class="lbody"><div id="lmsg">Loading the 3D engine…</div><div class="lbar"><div id="lfill"></div></div></div>
+      </div></div></div>
   </div>
-  <div class="status"><div id="msg">Loading...</div><div id="modeLbl">Edit</div><div id="pct"><select id="resSel" title="Output size for Render, Ray Trace and Save Image">
+  <div class="status"><div id="msg">Loading...</div><div id="lens" title="Camera lens (field of view): left = telephoto, right = wide-angle. Changing it keeps your subject the same size."><span>Lens</span><input type="range" id="lensIn" min="10" max="100" step="1" value="50"><span id="lensVal">50° Normal</span></div><div id="modeLbl">Edit</div><div id="pct"><select id="resSel" title="Output size for Render, Ray Trace and Save Image">
     <option value="400">Size: 400 x 300</option><option value="640">Size: 640 x 480</option><option value="800">Size: 800 x 600</option><option value="full">Size: Full</option></select></div></div>
 </div>
 <input type="file" id="openFile" accept=".tsc,.json" hidden>
@@ -1381,7 +1405,7 @@ function applyView() {
 }
 
 function applyCamera() {
-  camera.fov = doc.camera.fov || 50; camera.updateProjectionMatrix();
+  camera.fov = doc.camera.fov || 50; camera.updateProjectionMatrix(); updateLensUI();
   camera.position.fromArray(doc.camera.pos); orbit.target.fromArray(doc.camera.target);
   orbit.update();
 }
@@ -1403,6 +1427,7 @@ function applyDoc() {
   updateReflections();
   updateTitle();
   setMode('edit');
+  renderWorld();
 }
 
 const raycaster = new THREE.Raycaster();
@@ -1419,9 +1444,10 @@ function pick(ev) {
   targets.forEach(ensureBVH);
   const hit = raycaster.intersectObjects(targets, true)[0];
   if (!hit) return select(null);
-  if (hit.object === terrain) return select('terrain');
-  const r = rootOf(hit.object);
-  select(r ? doc.objects.find(o => o.id === r.userData.docId) : null);
+  if (hit.object === terrain) { select(null); msg.textContent = 'Double-click the land, water or sky to edit the World'; return; }
+  const r = rootOf(hit.object), o = r ? doc.objects.find(x => x.id === r.userData.docId) : null;
+  if (o && panel === 'world') setPanel('objects');   // picking an object means you want its settings
+  select(o);
 }
 let downAt = null;
 canvas.addEventListener('pointerdown', e => { downAt = [e.clientX, e.clientY]; });
@@ -1437,8 +1463,8 @@ canvas.addEventListener('pointerup', e => {
 const isObj = () => !!sel && typeof sel === 'object';
 function select(o) {
   sel = o || null;
-  gizmo.getHelper().visible = !!sel && sel !== 'terrain' && mode === 'edit';
-  if (!sel || sel === 'terrain') { gizmo.detach(); selBox.visible = false; }
+  gizmo.getHelper().visible = !!sel && mode === 'edit';
+  if (!sel) { gizmo.detach(); selBox.visible = false; }
   else {
     const target = roots.get(sel.id);
     gizmo.attach(target);
@@ -1467,7 +1493,7 @@ function onTransformEnd() {
   updateReflections();
 }
 function setGizmo(m) {
-  if (sel === 'terrain' || (!isObj() && m !== 'translate')) return;
+  if (!isObj() && m !== 'translate') return;
   if (isObj() && sel.type === 'lamp' && m === 'rotate') return;   // a point light has no direction
   gizmo.setMode(m); refreshModeButtons(); dirty = true;
   msg.textContent = { translate: 'Move: drag an arrow, or the centre square to slide along the view', rotate: 'Rotate: drag a ring', scale: 'Scale: drag a handle, or the centre cube to scale evenly' }[m];
@@ -1501,6 +1527,7 @@ function create(type, extra = {}) {
   o.pos = [p.x, Math.max(p.y, WY()) + LIFT[type] * o.scale[1], p.z];
   if (type === 'clouds') o.pos[1] = 220 + 80 * doc.objects.filter(x => x.type === 'clouds').length;   // stack new layers higher
   doc.objects.push(o); addRoot(o);
+  if (panel === 'world') setPanel('objects');
   updateReflections(); select(o);
   msg.textContent = `Added ${o.name}`;
 }
@@ -1537,17 +1564,41 @@ function frameSel() {
   orbit.target.copy(c); camera.position.copy(c).add(off); orbit.update();
 }
 
+// ---------- camera lens ----------
+// Field of view in degrees (vertical, as three.js measures it). Changing it dollies the camera so whatever
+// is at the orbit pivot stays the same size on screen: a telephoto then flattens depth instead of just zooming.
+const LENSES = [[85, 'Wide'], [50, 'Normal'], [35, 'Portrait'], [20, 'Telephoto']];
+const lensName = f => { const L = LENSES.find(([v]) => v === f); return L ? L[1] : f > 60 ? 'wide' : f < 30 ? 'tele' : ''; };
+function updateLensUI() {
+  const f = Math.round(camera.fov);
+  if ($('lensIn') !== document.activeElement) $('lensIn').value = f;
+  $('lensVal').textContent = `${f}° ${lensName(f)}`.trim();
+}
+function setLens(f, rerender = false) {
+  if (!doc) return;
+  f = Math.max(10, Math.min(100, Math.round(f)));
+  const k = Math.tan(camera.fov * Math.PI / 360) / Math.tan(f * Math.PI / 360);
+  const off = camera.position.clone().sub(orbit.target).multiplyScalar(k);
+  off.setLength(Math.min(orbit.maxDistance, Math.max(orbit.minDistance, off.length())));
+  camera.position.copy(orbit.target).add(off);
+  camera.fov = f; camera.updateProjectionMatrix(); orbit.update();
+  doc.camera.fov = f; doc.camera.pos = camera.position.toArray(); doc.camera.target = orbit.target.toArray();
+  updateLensUI(); dirty = true;
+  if (rerender && mode !== 'edit') renderFinal(mode === 'ray');
+}
+$('lensIn').addEventListener('input', e => { setLens(+e.target.value); msg.textContent = `Lens ${$('lensVal').textContent}`; });
+$('lensIn').addEventListener('change', e => { setLens(+e.target.value, true); e.target.blur(); });
+
 // ---------- object inspector ----------
 const insp = $('inspector');
 const R2D = 180 / Math.PI;
 const num = (f, v, step) => { const ax = f.split('.')[1]; return `<input type="number" data-f="${f}" step="${step}" value="${v}"${ax ? ` data-ax="${ax}" title="${'XYZ'[ax]}"` : ''}>`; };
 function renderInspector() {
   if (!sel) {
-    insp.innerHTML = `<legend>Object</legend><div class="hint">Click something in the view to select it, or add one above. For land, water and sky, click the distant landscape or <b>Landscape &amp; Sky</b> in the Objects tab.<br><br>
+    insp.innerHTML = `<legend>Object</legend><div class="hint">Click something in the view to select it, or add one above. Land, water and sky live in the <b>World</b> tab - or double-click them in the view.<br><br>
       Drag: orbit · Right-drag: pan · Wheel: zoom<br>W / E / R: move / rotate / scale<br>F: frame · Del: delete · Esc: deselect<br>${MOD}Z: undo · ${MOD}⇧Z: redo</div>`;
     return;
   }
-  if (sel === 'terrain') { renderTerrainPanel(); return; }
   const o = sel;
   const isModel = o.type === 'model', isLamp = o.type === 'lamp';
   const isFloat = o.type === 'floater', isTerr = o.type === 'terrain' || isFloat, isCloud = o.type === 'clouds';
@@ -1593,14 +1644,13 @@ function modeButtons(modes) {
 }
 function refreshModeButtons() { insp.querySelectorAll('[data-mode]').forEach(b => b.classList.toggle('on', b.dataset.mode === gizmo.mode)); }
 function updateInspectorFields() {
-  if (!sel || sel === 'terrain') return;
+  if (!sel) return;
   const set = (f, v) => { const el = insp.querySelector(`[data-f="${f}"]`); if (el && el !== document.activeElement) el.value = v; };
   set('size', sel.scale[0].toFixed(2));
   for (let i = 0; i < 3; i++) { set('pos.' + i, sel.pos[i].toFixed(1)); set('rot.' + i, (sel.rot[i] * R2D).toFixed(0)); set('scale.' + i, sel.scale[i].toFixed(2)); }
 }
 let tobjTimer = 0;
 insp.addEventListener('input', e => {
-  if (sel === 'terrain') return terrainInput(e);
   const cf = e.target.dataset.cf;
   if (cf && isObj()) {
     sel.cloud = { ...CLOUD_DEFAULTS, ...sel.cloud, [cf]: +e.target.value };
@@ -1636,7 +1686,7 @@ insp.addEventListener('input', e => {
 });
 insp.addEventListener('change', e => {
   if (e.target.dataset.tf) { clearTimeout(tobjTimer); rebuildKeepSel(sel); updateReflections(); return; }
-  if (sel === 'terrain') { if (e.target.type === 'range' || e.target.dataset.t === 'seed') updateReflections(); return; } if (e.target.type === 'number') updateReflections(); });
+  if (e.target.type === 'number') updateReflections(); });
 insp.addEventListener('click', e => {
   if (e.target.dataset.mode) { setGizmo(e.target.dataset.mode); return; }
   const a = e.target.dataset.a; if (!a) return;
@@ -1662,86 +1712,114 @@ const TERRAIN_SLIDERS = [
   ['stage', 'Clearing', 0, 500, 5, v => v ? v.toFixed(0) : 'off'],
   ['stageFloor', 'Clear lvl', -20, 40, 1, v => v < 0 ? `${v.toFixed(0)} wet` : `+${v.toFixed(0)} dry`],
 ];
-const LAND_TABS = { Shape: ['height', 'size', 'sharp', 'rough', 'variety', 'terrace'], Water: ['waterY', 'floorTile', 'riverWidth', 'wiggle', 'coast', 'basin'], Sky: [], Scene: ['stage', 'stageFloor'] };
+const LAND_TABS = { Land: ['height', 'size', 'sharp', 'rough', 'variety', 'terrace', 'stage', 'stageFloor'], Water: ['waterY', 'floorTile', 'riverWidth', 'wiggle', 'coast', 'basin'], Sky: [], Look: [] };
 const SKY_SLIDERS = [
   ['elev', 'Sun height', 1, 85, 1, v => v.toFixed(0) + '°'],
   ['az', 'Sun dir', -180, 180, 1, v => v.toFixed(0) + '°'],
   ['fog', 'Haze', 0.0002, 0.003, 0.0001, v => (v * 1000).toFixed(1)],
   ['ambient', 'Ambient', 0.2, 3, 0.05, v => (+v).toFixed(2)],
 ];
-let landTab = 'Shape';
+let landTab = 'Land', panel = 'objects';
+const wp = $('world');
 function skyTab() {
   const S = doc.sky;
   return SKY_SLIDERS.map(([k, label, lo, hi, st, fmt]) =>
     `<div class="slider" title="${label}"><div><span>${label}</span><span data-v="s-${k}">${fmt(S[k] ?? 1)}</span></div><input type="range" data-s="${k}" min="${lo}" max="${hi}" step="${st}" value="${S[k] ?? 1}"></div>`).join('')
     + `<div class="row"><label style="grid-column:1/-1"><input type="checkbox" data-s="night" ${S.night ? 'checked' : ''}> Night (moon &amp; stars)</label></div>
     <div class="row"><label style="grid-column:1/-1"><input type="checkbox" data-s="clouds" ${S.clouds !== false ? 'checked' : ''}> Sky clouds (off = airbrushed gradient)</label></div>
-    <div class="row"><span>Clouds</span><button data-t="clouds">🎲 New pattern</button></div>`;
+    <div class="row"><span>Clouds</span><button data-t="clouds">🎲 New pattern</button></div>
+    <div class="grid2" style="margin-top:4px"><button data-t="rsky" title="Random sun position">Random sun</button><button data-t="addclouds" title="Add a cloud layer object">+ Clouds</button></div>`;
 }
-function renderTerrainPanel() {
-  const T = doc.terrain;
-  const palOpts = Object.keys(PALETTES).map(p => `<option value="${p}" ${doc.palette === p ? 'selected' : ''}>${p[0].toUpperCase() + p.slice(1)}</option>`).join('');
+function lookTab() {
+  return `<div class="grid2"><button data-t="cworld" title="Swap the land your scene stands on">Change World…</button><button data-t="clook" title="Palette, time of day and weather together">Change Look…</button></div>
+    <div class="sect">Palette</div>
+    <div class="choices c2">${Object.keys(PALETTES).map(p => `<button class="choice${doc.palette === p ? ' on' : ''}" data-pal="${p}" title="${p}">${p[0].toUpperCase() + p.slice(1)}${swatch(p)}</button>`).join('')}</div>`;
+}
+// The World panel: everything that isn't an object. It never takes the selection, so a selected object
+// keeps its gizmo while you light it.
+function renderWorld() {
+  if (!doc || panel !== 'world') return;
+  const T = doc.terrain, top = wp.scrollTop;
   const landOff = T.land === false, NEEDS_LAND = new Set(['height', 'size', 'sharp', 'rough', 'variety', 'terrace', 'riverWidth', 'wiggle', 'coast', 'basin', 'stage', 'stageFloor']);
   const sliders = keys => TERRAIN_SLIDERS.filter(r => keys.includes(r[0])).map(([k, label, lo, hi, st, fmt]) =>
     `<div class="slider${landOff && NEEDS_LAND.has(k) ? ' off' : ''}" title="${landOff && NEEDS_LAND.has(k) ? 'Turn the landscape on to use this' : label}"><div><span>${label}</span><span data-v="${k}">${fmt(T[k])}</span></div><input type="range" data-t="${k}" min="${lo}" max="${hi}" step="${st}" value="${T[k]}" ${landOff && NEEDS_LAND.has(k) ? 'disabled' : ''}></div>`).join('');
-  const scene = `<div class="grid2" style="margin-bottom:4px"><button data-t="cworld">Change World…</button><button data-t="clook">Change Look…</button></div>
-    <div class="row"><span>Palette</span><div><select data-t="palette">${palOpts}</select>${swatch(doc.palette)}</div></div>
-    <div class="row"><span>Seed</span><div style="display:grid;grid-template-columns:1fr auto;gap:3px"><input type="number" data-t="seed" value="${doc.seed}"><button data-t="reseed" title="New random seed">🎲</button></div></div>`;
-  insp.innerHTML = `<legend>Landscape</legend>
+  const land = `<div class="row"><label style="grid-column:1/-1"><input type="checkbox" data-t="land" ${T.land !== false ? 'checked' : ''}> Mountains</label></div>
+    ${sliders(LAND_TABS.Land.slice(0, 6))}
+    <div class="sect">Clearing (where objects stand)</div>${sliders(['stage', 'stageFloor'])}
+    <div class="row"><span>Pattern</span><div style="display:grid;grid-template-columns:1fr auto;gap:3px"><input type="number" data-t="seed" value="${doc.seed}" title="Landscape seed"><button data-t="reseed" title="New landscape pattern">🎲</button></div></div>`;
+  const water = `<div class="row"><span>Surface</span><select data-t="surface">${Object.entries(SURFACES).map(([k, v]) => `<option value="${k}" ${surfaceOf(T) === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>${sliders(LAND_TABS.Water)}`;
+  wp.innerHTML = `<legend>World</legend>
     <div class="tabs">${Object.keys(LAND_TABS).map(t => `<button data-tab="${t}" class="${t === landTab ? 'on' : ''}">${t}</button>`).join('')}</div>
-    <div class="tabpage">${landOff && landTab !== 'Sky' ? '<div class="hint" style="padding:0 0 3px">Landscape is off - only water and sky apply.</div>' : ''}${landTab === 'Shape' ? `<div class="row"><label style="grid-column:1/-1"><input type="checkbox" data-t="land" ${T.land !== false ? 'checked' : ''}> Landscape (mountains)</label></div>` : ''}${landTab === 'Water' ? `<div class="row"><span>Surface</span><select data-t="surface">${Object.entries(SURFACES).map(([k, v]) => `<option value="${k}" ${surfaceOf(T) === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>` : ''}${landTab === 'Scene' ? scene : ''}${landTab === 'Sky' ? skyTab() : ''}${sliders(LAND_TABS[landTab])}</div>
-    <div class="grid2 actions"><button data-t="reset" title="Reset every landscape setting">Defaults</button><button data-t="done" title="Deselect (Esc)">Close</button></div>`;
+    <div class="tabpage">${landOff && (landTab === 'Land' || landTab === 'Water') ? '<div class="hint" style="padding:0 0 3px">Mountains are off - only water and sky apply.</div>' : ''}${{ Land: land, Water: water, Sky: skyTab(), Look: lookTab() }[landTab]}</div>
+    ${landTab === 'Land' || landTab === 'Water' ? `<div class="actions"><button data-t="reset" style="width:100%" title="Reset every land and water setting">Reset land &amp; water</button></div>` : ''}`;
+  wp.scrollTop = top;
 }
+function setPanel(p) {
+  panel = p;
+  document.querySelectorAll('[data-ptab]').forEach(b => b.classList.toggle('on', b.dataset.ptab === p));
+  $('objPage').style.display = p === 'objects' ? '' : 'none';
+  $('worldPage').style.display = p === 'world' ? '' : 'none';
+  if (p === 'world') renderWorld();
+}
+function showWorld(tab) {
+  if (mode !== 'edit') setMode('edit');
+  if (tab) landTab = tab;
+  setPanel('world');
+}
+document.querySelector('.ptabs').addEventListener('click', e => { if (e.target.dataset.ptab) setPanel(e.target.dataset.ptab); });
 let terrTimer = 0;
 function regenTerrain() {
   clearTimeout(terrTimer);
-  terrTimer = setTimeout(() => { applyEnvironment(); msg.textContent = 'Terrain updated'; }, 40);
+  terrTimer = setTimeout(() => { applyEnvironment(); msg.textContent = 'Landscape updated'; }, 40);
 }
 let skyTimer = 0;
-function terrainInput(e) {
+wp.addEventListener('input', e => {
   const sk = e.target.dataset.s;
   if (sk) {
     if (sk === 'night') { doc.sky.night = e.target.checked; applyEnvironment(); updateReflections(); return; }
     if (sk === 'clouds') { doc.sky.clouds = e.target.checked; applyEnvironment(); updateReflections(); return; }
     const row = SKY_SLIDERS.find(r => r[0] === sk);
     doc.sky[sk] = +e.target.value;
-    insp.querySelector(`[data-v="s-${sk}"]`).textContent = row[5](doc.sky[sk]);
+    wp.querySelector(`[data-v="s-${sk}"]`).textContent = row[5](doc.sky[sk]);
     clearTimeout(skyTimer); skyTimer = setTimeout(applyEnvironment, 20);
     return;
   }
   const k = e.target.dataset.t; if (!k) return;
-  if (k === 'palette') { doc.palette = e.target.value; applyEnvironment(); updateReflections(); renderTerrainPanel(); return; }
-  if (k === 'land') { doc.terrain.land = e.target.checked; applyEnvironment(); updateReflections(); renderTerrainPanel(); msg.textContent = e.target.checked ? 'Landscape on' : 'Landscape off - open water'; return; }
+  if (k === 'land') { doc.terrain.land = e.target.checked; applyEnvironment(); updateReflections(); renderWorld(); msg.textContent = e.target.checked ? 'Mountains on' : 'Mountains off - open water'; return; }
   if (k === 'surface') {
     const v = e.target.value;
     doc.terrain.water = v !== 'none';   // the plane exists for every surface but None
     doc.terrain.floor = FLOOR_MODE[v] ? v : '';
     doc.terrain.floorTile = 0;          // each floor starts at its own natural tile size
-    applyEnvironment(); updateReflections(); renderTerrainPanel(); msg.textContent = `Surface: ${SURFACES[v]}`; return;
-  }
-  if (k === 'water') { doc.terrain.water = e.target.checked; applyEnvironment(); updateReflections(); msg.textContent = e.target.checked ? 'Water on' : 'Water off - dry land'; return; }
-  if (k === 'preset') {
-    const L = LANDSCAPES[e.target.value]; if (!L) return;
-    doc.terrain = { ...TERRAIN_DEFAULTS, ...L.t, stageX: doc.terrain.stageX, stageZ: doc.terrain.stageZ };
-    doc.palette = L.pal; applyEnvironment(); updateReflections(); renderTerrainPanel();
-    msg.textContent = `Landscape: ${L.label}`; return;
+    applyEnvironment(); updateReflections(); renderWorld(); msg.textContent = `Surface: ${SURFACES[v]}`; return;
   }
   if (k === 'seed') { const v = parseInt(e.target.value); if (isFinite(v)) { doc.seed = v; regenTerrain(); } return; }
   const row = TERRAIN_SLIDERS.find(r => r[0] === k); if (!row) return;
   doc.terrain[k] = +e.target.value;
-  insp.querySelector(`[data-v="${k}"]`).textContent = row[5](doc.terrain[k]);
+  wp.querySelector(`[data-v="${k}"]`).textContent = row[5](doc.terrain[k]);
   regenTerrain();
-}
-insp.addEventListener('click', e => {
-  if (sel !== 'terrain') return;
-  if (e.target.dataset.tab) { landTab = e.target.dataset.tab; renderTerrainPanel(); return; }
-  if (e.target.dataset.t === 'cworld') return openWizard(0, 'world');
-  if (e.target.dataset.t === 'clook') return openWizard(0, 'look');
-  if (e.target.dataset.t === 'clouds') { doc.sky.cloudSeed = Math.random() * 100; applyEnvironment(); updateReflections(); return; }
-  const k = e.target.dataset.t;
-  if (k === 'reseed') { doc.seed = (Math.random() * 1e9) | 0; applyEnvironment(); updateReflections(); renderTerrainPanel(); }
-  else if (k === 'reset') { doc.terrain = { ...TERRAIN_DEFAULTS, stageX: doc.terrain.stageX, stageZ: doc.terrain.stageZ }; applyEnvironment(); updateReflections(); renderTerrainPanel(); msg.textContent = `Landscape reset to defaults${undoHint()}`; }
-  else if (k === 'done') select(null);
+});
+wp.addEventListener('change', e => { if (e.target.type === 'range' || e.target.dataset.t === 'seed') updateReflections(); });
+wp.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.tab) { landTab = b.dataset.tab; renderWorld(); return; }
+  if (b.dataset.pal) { setPalette(b.dataset.pal); return; }
+  const k = b.dataset.t;
+  if (k === 'cworld') return openWizard(0, 'world');
+  if (k === 'clook') return openWizard(0, 'look');
+  if (k === 'clouds') { doc.sky.cloudSeed = Math.random() * 100; applyEnvironment(); updateReflections(); return; }
+  if (k === 'rsky') return randomSun();
+  if (k === 'addclouds') return create('clouds');
+  if (k === 'reseed') newLandscapePattern();
+  else if (k === 'reset') { doc.terrain = { ...TERRAIN_DEFAULTS, stageX: doc.terrain.stageX, stageZ: doc.terrain.stageZ }; applyEnvironment(); updateReflections(); renderWorld(); msg.textContent = `Land & water reset to defaults${undoHint()}`; }
+});
+// double-click the land, water or sky to open the matching World tab (an object double-click frames it)
+canvas.addEventListener('dblclick', e => {
+  if (mode !== 'edit' || !doc) return;
+  rayFromEvent(e);
+  const h = raycaster.intersectObjects([...objectsGroup.children.filter(r => r.visible), ...(terrain.visible ? [terrain] : [])], true)[0];   // same targets as a click
+  if (h && h.object !== terrain) { frameSel(); return; }
+  showWorld(h ? 'Land' : water.visible && raycaster.intersectObject(water, false).length ? 'Water' : 'Sky');
 });
 
 // ---------- object list ----------
@@ -1754,8 +1832,7 @@ function renderList() {
       <span class="g">${GLYPH[o.type] || '?'}</span><span class="nm">${o.name}</span>${extra && extra !== o.name ? `<span class="x">${extra}</span>` : ''}
       <span class="eye" data-eye="${o.id}" title="${o.hidden ? 'Show' : 'Hide'}">${o.hidden ? '–' : '👁'}</span></div>`;
   };
-  el.innerHTML = `<div class="li land${sel === 'terrain' ? ' sel' : ''}" data-id="land"><span class="g">≈</span><span class="nm">Landscape &amp; Sky</span></div>`
-    + doc.objects.map(row).join('');
+  el.innerHTML = doc.objects.length ? doc.objects.map(row).join('') : '<div class="hint" style="padding:4px">No objects yet - add some from the Add tab.</div>';
   const s2 = el.querySelector('.li.sel'); if (s2) s2.scrollIntoView({ block: 'nearest' });
 }
 $('objList').addEventListener('click', e => {
@@ -1769,7 +1846,6 @@ $('objList').addEventListener('click', e => {
   }
   const li = e.target.closest('.li'); if (!li) return;
   if (mode !== 'edit') setMode('edit');
-  if (li.dataset.id === 'land') return select('terrain');
   select(doc.objects.find(x => x.id === +li.dataset.id));
 });
 $('objList').addEventListener('dblclick', e => { if (e.target.closest('.li') && isObj() && !sel.hidden) frameSel(); });
@@ -1866,7 +1942,7 @@ function setMode(m) {
   mode = m; job++;
   const edit = m === 'edit';
   orbit.enabled = edit; gizmo.enabled = edit;
-  gizmo.getHelper().visible = edit && !!sel && sel !== 'terrain'; selBox.visible = edit && !!sel && sel !== 'terrain';
+  gizmo.getHelper().visible = edit && !!sel; selBox.visible = edit && !!sel;
   if (edit) renderDone = false;
   $('btnEdit').disabled = edit;
   $('btnRender').classList.toggle('pressed', m === 'render'); $('btnRay').classList.toggle('pressed', m === 'ray');
@@ -1892,6 +1968,7 @@ function renderFinal(ray, onDone) {
       renderDone = true; if (onDone) onDone();
       return;
     }
+    camera.updateMatrixWorld(); scene.updateMatrixWorld();   // the tracer reads world matrices; they may be stale if nothing has drawn since the last change
     const info = tracer.build(traceContext());
     const tBuild = (performance.now() - t0) / 1000;
     accRT.setSize(W, H);
@@ -2114,7 +2191,7 @@ function newEmpty() {
   d.objects = []; doc = d; applyDoc(); msg.textContent = `Empty scene - add objects from the Create panel${undoHint()}`; commit();
 }
 function newLandscapePattern() {
-  doc.seed = (Math.random() * 1e9) | 0; applyEnvironment(); updateReflections(); if (sel === 'terrain') renderTerrainPanel();
+  doc.seed = (Math.random() * 1e9) | 0; applyEnvironment(); updateReflections(); renderWorld();
   msg.textContent = `New landscape pattern${undoHint()}`; commit();
 }
 const cleanName = n => n.replace(/\.tsc\.json$|\.json$|\.tsc$/i, '').replace(/[\\/:*?"<>|]+/g, '').trim();
@@ -2150,13 +2227,14 @@ $('openFile').addEventListener('change', async e => {
 });
 
 // ---------- undo / redo: whole-document snapshots ----------
-// The camera and file name are left out, so orbiting isn't an edit and undo never jumps the view.
+// The camera position and file name are left out, so orbiting isn't an edit and undo never jumps the view.
+// The lens is kept: choosing one is a deliberate change.
 // Any pointer-up, change or key-up schedules a commit; it only records a step if the scene really changed.
 const MOD = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl+';
 const undoHint = () => ` - ${MOD}Z to undo`;
 const undoStack = [], redoStack = [];
 let histKey = null, savedKey = null, commitT = 0;
-const docKey = d => JSON.stringify({ ...d, camera: undefined, name: undefined });
+const docKey = d => JSON.stringify({ ...d, camera: undefined, name: undefined, fov: (d.camera && d.camera.fov) || 50 });
 function updateTitle() {
   if (!doc) return;
   $('docname').textContent = (doc.name || 'untitled') + '.tsc' + (histKey && histKey !== savedKey ? ' *' : '');
@@ -2174,10 +2252,11 @@ function commitSoon() { clearTimeout(commitT); commitT = setTimeout(commit, 200)
 ['pointerup', 'change', 'keyup'].forEach(t => addEventListener(t, commitSoon, true));
 function restore(k) {
   const keepSel = isObj() ? sel.id : sel;
-  const d = JSON.parse(k); d.camera = doc.camera; d.name = doc.name;
+  const d = JSON.parse(k), fov = d.fov; delete d.fov;
+  d.camera = doc.camera; d.name = doc.name;
   doc = d; histKey = k; applyDoc();
-  if (keepSel === 'terrain') select('terrain');
-  else if (keepSel != null) { const o = doc.objects.find(x => x.id === keepSel); if (o) select(o); }
+  if (fov && fov !== Math.round(camera.fov)) setLens(fov);   // dolly back too, so the subject keeps its size
+  if (keepSel != null) { const o = doc.objects.find(x => x.id === keepSel); if (o) select(o); }
 }
 function undo() {
   if (wiz) return; commit();
@@ -2192,7 +2271,9 @@ function redo() {
 addEventListener('beforeunload', e => { if (histKey && histKey !== savedKey) e.preventDefault(); });
 
 // ---------- Sky & Fog quick controls ----------
-function skyChange(fn) { fn(doc.sky); applyEnvironment(); updateReflections(); if (sel === 'terrain') renderTerrainPanel(); if (mode !== 'edit') renderFinal(mode === 'ray'); }
+function skyChange(fn) { fn(doc.sky); applyEnvironment(); updateReflections(); renderWorld(); if (mode !== 'edit') renderFinal(mode === 'ray'); }
+function setPalette(p) { doc.palette = p; applyEnvironment(); updateReflections(); renderWorld(); if (mode !== 'edit') renderFinal(mode === 'ray'); msg.textContent = `Palette: ${p[0].toUpperCase() + p.slice(1)}`; }
+const randomSun = () => skyChange(s => { s.elev = 8 + Math.random() * 30; s.az = (Math.random() - 0.5) * 92; s.cloudSeed = Math.random() * 100; });
 const swatch = p => { const P = PALETTES[p] || {}; return `<div class="sw">${['zenith', 'horizon', 'high', 'mid', 'low', 'water'].map(k => `<i style="background:${P[k]}"></i>`).join('')}</div>`; };
 
 // ---------- dialogs ----------
@@ -2225,7 +2306,7 @@ function dialog(title, html, buttons = [['OK']]) {
 const topDialog = () => [...$('win').querySelectorAll('.dialog')].pop();
 const HELP = `<table>
   <tr><td>Drag</td><td>orbit the camera</td></tr><tr><td>Right-drag</td><td>pan</td></tr><tr><td>Wheel</td><td>zoom</td></tr>
-  <tr><td>Click</td><td>select an object (click the far landscape for land &amp; sky)</td></tr><tr><td>W / E / R</td><td>move / rotate / scale</td></tr>
+  <tr><td>Click</td><td>select an object</td></tr><tr><td>Double-click</td><td>frame an object, or open the World tab for land, water or sky</td></tr><tr><td>W / E / R</td><td>move / rotate / scale</td></tr>
   <tr><td>F</td><td>frame the selection</td></tr><tr><td>${MOD}D</td><td>duplicate</td></tr><tr><td>Delete</td><td>delete</td></tr>
   <tr><td>${MOD}Z / ${MOD}⇧Z</td><td>undo / redo</td></tr>
   <tr><td>Enter</td><td>render</td></tr><tr><td>Shift+Enter</td><td>ray trace</td></tr><tr><td>${MOD}E</td><td>save image</td></tr>
@@ -2254,15 +2335,10 @@ function menuSpec() {
       ['Browse Poly Haven…', () => openBrowser()],
       ...(recent.length ? [sep, { head: 'Recent models' }, ...recent.map(k => [MODELS[k].label, () => create('model', { model: k })])] : []),
     ],
-    Landscape: [
-      ['Landscape Settings…', () => { if (mode !== 'edit') setMode('edit'); landTab = 'Shape'; select('terrain'); }],
-      ['Water Settings…', () => { if (mode !== 'edit') setMode('edit'); landTab = 'Water'; select('terrain'); }], sep,
-      ['Change World…', () => openWizard(0, 'world')], ['New Landscape Pattern', newLandscapePattern],
-    ],
-    'Sky & Fog': [
-      ['Change Look…', () => openWizard(0, 'look'), 'palette, time, weather'],
-      ['Sky Settings…', () => { if (mode !== 'edit') setMode('edit'); landTab = 'Sky'; select('terrain'); }],
-      ['Randomize Sky', () => skyChange(s => { s.elev = 8 + Math.random() * 30; s.az = (Math.random() - 0.5) * 92; s.cloudSeed = Math.random() * 100; })], sep,
+    World: [
+      ['Land Settings…', () => showWorld('Land')], ['Water Settings…', () => showWorld('Water')], ['Sky Settings…', () => showWorld('Sky')], ['Palette…', () => showWorld('Look')], sep,
+      ['Change World…', () => openWizard(0, 'world')], ['Change Look…', () => openWizard(0, 'look'), 'palette, time, weather'],
+      ['New Landscape Pattern', newLandscapePattern], ['Random Sun', randomSun], sep,
       ['Night (moon & stars)', () => skyChange(s => s.night = !s.night), '', false, !!doc.sky.night],
       ['Add Cloud Layer', () => create('clouds')], sep,
       ['Sun Higher', () => skyChange(s => s.elev = Math.min(85, s.elev + 5))], ['Sun Lower', () => skyChange(s => s.elev = Math.max(1, s.elev - 5))],
@@ -2272,7 +2348,8 @@ function menuSpec() {
     View: [
       ['Solid', () => { viewMode = 'solid'; setMode('edit'); }, '', false, viewMode === 'solid'],
       ['Wireframe', () => { viewMode = 'wire'; setMode('edit'); }, '', false, viewMode === 'wire'], sep,
-      ['Frame Selection', frameSel, 'F', !isObj()],
+      ['Frame Selection', frameSel, 'F', !isObj()], sep, { head: 'Lens' },
+      ...LENSES.map(([f, l]) => [`${l} (${f}°)`, () => { setLens(f, true); msg.textContent = `Lens: ${l} ${f}°`; }, '', false, Math.round(camera.fov) === f]),
     ],
     Render: [
       ['Render', () => renderFinal(false), 'Enter'], ['Ray Trace', () => renderFinal(true), '⇧Enter'], ['Back to Edit', () => setMode('edit'), 'Esc', mode === 'edit'], sep,
@@ -2307,7 +2384,7 @@ function showMenu(el) {
   }
   bar.appendChild(dropEl);
 }
-bar.innerHTML = ['File', 'Edit', 'Objects', 'Landscape', 'Sky & Fog', 'View', 'Render', 'Help'].map(m => `<div data-m="${m}">${m}</div>`).join('');
+bar.innerHTML = ['File', 'Edit', 'Objects', 'World', 'View', 'Render', 'Help'].map(m => `<div data-m="${m}">${m}</div>`).join('');
 bar.querySelectorAll('[data-m]').forEach(el => {
   // a click opens its menu; it only closes one that was already open before the pointer arrived
   el.addEventListener('click', e => {
@@ -2350,14 +2427,27 @@ startPixelEmoji(document.body);   // 16-colour pixel icons instead of glossy sys
 setResolution('400');
 renderInspector();
 msg.textContent = 'Loading Poly Haven models...';
+const loadStep = (text, f) => { $('lmsg').textContent = text; $('lfill').style.width = Math.round(f * 100) + '%'; };
+const modelKeys = Object.keys(MODELS);
+let modelsDone = 0;
+loadStep(`Downloading models from Poly Haven… 0 of ${modelKeys.length}`, 0.15);
+modelKeys.forEach(k => modelLoads[k].finally(() => {
+  modelsDone++;
+  loadStep(`Downloading models from Poly Haven… ${modelsDone} of ${modelKeys.length}`, 0.15 + 0.65 * modelsDone / modelKeys.length);
+}));
 assetsReady.then(() => {
-  doc = generateDoc(1234, 'desert');
-  applyDoc();
-  $('win').classList.remove('loading');
-  frame();
-  openWizard(0, 'new', true);   // start by choosing a world
-  // build picking structures for the big models in the background so the first click is quick
-  setTimeout(() => Object.values(models).forEach(ensureBVH), 500);
+  loadStep('Building the landscape…', 0.85);
+  setTimeout(() => {   // let the message paint before the heavy terrain build
+    doc = generateDoc(1234, 'desert');
+    applyDoc();
+    $('win').classList.remove('loading');
+    frame();
+    loadStep('Ready', 1);
+    setTimeout(() => $('loader').remove(), 250);   // after the first frame is on screen
+    openWizard(0, 'new', true);   // start by choosing a world
+    // build picking structures for the big models in the background so the first click is quick
+    setTimeout(() => Object.values(models).forEach(ensureBVH), 500);
+  }, 30);
 });
 </script>
 </body>
