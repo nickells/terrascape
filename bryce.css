@@ -1,0 +1,295 @@
+/* Bryce-style interface for Terrascape. Everything is scoped to html.bryce (set by ?ui=bryce), so the
+   classic Win95 interface is untouched when the skin is off. Layout is built by bryce.js. */
+
+html.bryce, html.bryce body { background: #202024 var(--bz-noise); }
+html.bryce body { display: block; min-height: 100%; overflow: auto; color: #ddd8ce; font: 10px Geneva, Verdana, sans-serif; }
+html.bryce .bz-stash { display: none !important; }
+
+/* the whole screen is the app, as in Bryce */
+html.bryce #win { position: relative; min-height: 100vh; min-width: 990px; padding: 0; border: 0; box-shadow: none; background: transparent; }
+
+/* ---------- classic Mac menu bar ---------- */
+html.bryce .bz-mac { display: flex; align-items: center; height: 20px; padding: 0 10px; background: #fff; color: #000;
+  border-bottom: 1px solid #000; font: bold 12px Charcoal, Chicago, Geneva, "Lucida Grande", sans-serif; position: relative; z-index: 35; }
+html.bryce .bz-logo { width: 26px; display: flex; justify-content: center; }
+html.bryce .bz-logo i { width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 13px solid #000; position: relative; }
+html.bryce .bz-logo i::after { content: ""; position: absolute; left: -8px; top: 0; width: 16px; height: 13px;
+  background: linear-gradient(#61bb46 0 2.2px, #fdb827 0 4.4px, #f5821f 0 6.6px, #e03a3e 0 8.8px, #963d97 0 11px, #009ddc 0);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+html.bryce #menubar { padding: 0; height: 20px; }
+html.bryce #menubar > div { padding: 0 9px; line-height: 20px; }
+html.bryce #menubar > div.open { background: #000; color: #fff; }
+html.bryce .bz-spacer { flex: 1; }
+html.bryce .bz-doc { font-weight: normal; margin-right: 14px; color: #333; }
+html.bryce .bz-clock { min-width: 64px; text-align: right; }
+
+html.bryce .dropdown { background: #fff; color: #000; border: 1px solid #000; box-shadow: 2px 2px 0 rgba(0,0,0,.55); padding: 2px 0; border-radius: 0;
+  font: 12px Geneva, "Lucida Grande", sans-serif; }
+html.bryce .dropdown .item, html.bryce .dropdown button.item { padding: 2px 14px 2px 20px; color: #000; }
+html.bryce .dropdown button.item:hover, html.bryce .dropdown button.item:focus-visible { background: #000; color: #fff; }
+html.bryce .dropdown .item.off { color: #999; }
+html.bryce .dropdown .item.head { color: #777; font-weight: bold; padding-left: 10px; }
+html.bryce .dropdown .sep { border: 0; border-top: 1px dotted #888; margin: 3px 0; }
+
+/* ---------- main arrangement ---------- */
+html.bryce .bz-body { display: flex; gap: 12px; justify-content: center; align-items: flex-start; padding: 12px 16px 16px; }
+html.bryce .bz-left { flex: 0 0 136px; display: flex; flex-direction: column; align-items: center; gap: 9px; padding: 10px 6px 12px;
+  border-radius: 14px; background: #333337 var(--bz-noise);
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,.12), inset -1px -1px 0 rgba(0,0,0,.6), 0 3px 10px rgba(0,0,0,.45); }
+html.bryce .bz-stage { display: flex; flex-direction: column; gap: 6px; width: 812px; }
+html.bryce button { font: inherit; cursor: pointer; }
+
+/* embossed mode words */
+html.bryce .bz-modes { display: flex; flex-direction: column; align-items: center; gap: 0; }
+html.bryce .bz-modes button { background: none; border: 0; box-shadow: none; padding: 1px 4px; line-height: 1.05;
+  font: italic bold 21px "Gill Sans", "Gill Sans MT", Optima, "Trebuchet MS", sans-serif; letter-spacing: -.3px;
+  color: #77767a; text-shadow: -1px -1px 0 rgba(0,0,0,.75), 1px 1px 0 rgba(255,255,255,.16); }
+html.bryce .bz-modes button:hover { color: #a6a3a0; }
+html.bryce .bz-modes button.on { color: #ffab8a; text-shadow: 0 0 8px rgba(255,120,80,.55), -1px -1px 0 rgba(0,0,0,.6), 1px 1px 0 rgba(255,255,255,.2); }
+html.bryce .bz-modes button:active { border: 0; box-shadow: none; transform: translateY(1px); }
+
+/* nano preview */
+html.bryce .bz-nano { position: relative; width: 122px; height: 93px; padding: 0; border: 3px solid; border-color: #18181a #5a5a5e #5a5a5e #18181a;
+  border-radius: 3px; background: #0d0d10 repeating-linear-gradient(45deg, #151518 0 4px, #0f0f12 4px 8px); box-shadow: none; }
+html.bryce .bz-nano canvas { display: block; width: 116px; height: 87px; image-rendering: auto; opacity: 0; }
+html.bryce .bz-nano.has canvas { opacity: 1; }
+html.bryce .bz-nano span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #66646a; font-size: 9px; }
+html.bryce .bz-nano.has span { display: none; }
+html.bryce .bz-nano:active { border-color: #18181a #5a5a5e #5a5a5e #18181a; box-shadow: none; }
+
+/* view presets */
+html.bryce .bz-views { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; width: 122px; }
+html.bryce .bz-views button, html.bryce .bz-round button { border: 0; border-radius: 9px; padding: 2px 0; font-size: 9px; color: #d8d2c8;
+  background: linear-gradient(#66666c, #3c3c42); box-shadow: inset 0 1px rgba(255,255,255,.25), 0 1px 2px rgba(0,0,0,.6); }
+html.bryce .bz-views button:active, html.bryce .bz-round button:active { background: linear-gradient(#36363a, #55555a); box-shadow: inset 0 1px 2px rgba(0,0,0,.7); border: 0; }
+
+/* sculpted arrow pads */
+html.bryce .bz-pad { position: relative; width: 96px; height: 84px; }
+html.bryce .bz-ar { position: absolute; border: 0; padding: 0; box-shadow: none; background: linear-gradient(135deg, #ffd8bc, #e09068 45%, #8a4a30);
+  filter: drop-shadow(1px 2px 1px rgba(0,0,0,.6)); transition: filter .05s; }
+html.bryce .bz-ar:hover { background: linear-gradient(135deg, #ffe6d2, #f0a078 45%, #9a5638); }
+html.bryce .bz-ar.down, html.bryce .bz-ar:active { border: 0; box-shadow: none; filter: brightness(.82) drop-shadow(0 1px 0 rgba(0,0,0,.6)); }
+html.bryce .bz-pad .up, html.bryce .bz-pad .dn { left: 34px; width: 28px; height: 30px; }
+html.bryce .bz-pad .up { top: 0; clip-path: polygon(50% 0, 100% 52%, 72% 52%, 72% 100%, 28% 100%, 28% 52%, 0 52%); }
+html.bryce .bz-pad .dn { bottom: 0; clip-path: polygon(50% 100%, 100% 48%, 72% 48%, 72% 0, 28% 0, 28% 48%, 0 48%); }
+html.bryce .bz-pad .lf, html.bryce .bz-pad .rt { top: 28px; width: 34px; height: 28px; }
+html.bryce .bz-pad .lf { left: 0; clip-path: polygon(0 50%, 48% 0, 48% 28%, 100% 28%, 100% 72%, 48% 72%, 48% 100%); }
+html.bryce .bz-pad .rt { right: 0; clip-path: polygon(100% 50%, 52% 0, 52% 28%, 0 28%, 0 72%, 52% 72%, 52% 100%); }
+html.bryce .bz-hub { position: absolute; left: 39px; top: 33px; width: 18px; height: 18px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffe0c8, #c06a44 60%, #5a2a18); box-shadow: 0 1px 2px rgba(0,0,0,.6); }
+/* the fly pair is drawn lying down, receding into the screen */
+html.bryce .bz-fly { position: relative; width: 70px; height: 38px; transform: perspective(90px) rotateX(42deg); margin: -4px 0 -2px; }
+html.bryce .bz-fly .fw, html.bryce .bz-fly .bk { left: 20px; width: 30px; height: 20px; }
+html.bryce .bz-fly .fw { top: 0; clip-path: polygon(50% 0, 100% 60%, 70% 60%, 70% 100%, 30% 100%, 30% 60%, 0 60%); }
+html.bryce .bz-fly .bk { bottom: -2px; clip-path: polygon(50% 100%, 100% 40%, 70% 40%, 70% 0, 30% 0, 30% 40%, 0 40%); }
+
+/* trackball */
+html.bryce .bz-ball { width: 84px; height: 84px; border-radius: 50%; cursor: grab; touch-action: none;
+  background: var(--bz-sand), radial-gradient(circle at 34% 30%, #fff, #000);
+  background-blend-mode: multiply; background-size: 48px 48px, 100% 100%;
+  box-shadow: inset -10px -12px 18px rgba(30,10,0,.75), inset 8px 8px 14px rgba(255,240,220,.45), 0 4px 8px rgba(0,0,0,.6);
+  filter: saturate(1.35) hue-rotate(-8deg); }
+html.bryce .bz-ball.down { cursor: grabbing; filter: saturate(1.5) hue-rotate(-8deg) brightness(1.08); }
+html.bryce .bz-round { display: flex; gap: 4px; }
+html.bryce .bz-round button { width: 26px; height: 22px; border-radius: 50%; font-size: 13px; line-height: 16px; padding: 0; }
+html.bryce .bz-round button:disabled { color: #77767a; text-shadow: none; }
+
+/* the red render ball */
+html.bryce .bz-render { position: relative; width: 58px; height: 58px; border-radius: 50%; padding: 0; border: 0;
+  background: radial-gradient(circle at 36% 30%, #ffd0c0 0, #ff4a30 22%, #b8160c 58%, #4a0402 100%);
+  box-shadow: 0 4px 10px rgba(0,0,0,.6), inset 0 -4px 8px rgba(0,0,0,.4); }
+html.bryce .bz-render i { position: absolute; left: 13px; top: 8px; width: 18px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.55); filter: blur(1.5px); }
+html.bryce .bz-render:hover { filter: brightness(1.12); }
+html.bryce .bz-render:active { border: 0; box-shadow: 0 2px 5px rgba(0,0,0,.6), inset 0 3px 8px rgba(0,0,0,.6); transform: translateY(1px); }
+html.bryce .bz-render.busy { animation: bz-pulse 1.1s ease-in-out infinite; }
+@keyframes bz-pulse { 50% { filter: brightness(1.35) drop-shadow(0 0 8px #ff5030); } }
+
+html.bryce .bz-lcd { width: 118px; padding: 4px 6px; display: grid; gap: 1px; border-radius: 4px; background: #0a0c08;
+  box-shadow: inset 1px 1px 3px #000, 0 1px rgba(255,255,255,.1); font: 10px Monaco, "Courier New", monospace; color: #ffb040; text-shadow: 0 0 4px rgba(255,150,40,.5); }
+html.bryce .bz-lcd .t { font-size: 16px; letter-spacing: 1px; }
+html.bryce .bz-lcd .s { color: #a87028; }
+
+/* ---------- shelf: a sand tabletop in perspective with the objects standing on it ---------- */
+html.bryce .bz-shelf { position: relative; height: 98px; border-radius: 12px; overflow: hidden; background: #2c2c30 var(--bz-noise);
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,.1), inset -1px -1px 0 rgba(0,0,0,.6), 0 3px 10px rgba(0,0,0,.45); }
+html.bryce .bz-shelf::before { content: ""; position: absolute; left: 10px; right: 10px; top: 38px; height: 62px; border-radius: 6px;
+  background: var(--bz-sand); transform: perspective(260px) rotateX(48deg); transform-origin: 50% 100%;
+  box-shadow: inset 0 10px 18px rgba(255,240,210,.35), inset 0 -6px 10px rgba(60,30,10,.4); }
+html.bryce #win[data-bztab=sky] .bz-shelf::before, html.bryce #win[data-bztab=render] .bz-shelf::before { background: var(--bz-slate); }
+html.bryce .bz-hint { position: absolute; left: 14px; right: 14px; top: 3px; height: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font: italic bold 12px "Gill Sans", "Gill Sans MT", Optima, sans-serif; color: #c8b8a6; text-shadow: -1px -1px 0 rgba(0,0,0,.7), 1px 1px 0 rgba(255,255,255,.08); }
+html.bryce .bz-tiles { position: absolute; left: 8px; right: 8px; top: 18px; bottom: 2px; display: flex; justify-content: center; align-items: flex-end; gap: 9px; }
+html.bryce .bz-group { display: flex; flex-direction: column; align-items: center; gap: 0; }
+html.bryce .bz-gt { display: flex; align-items: flex-end; gap: 1px; }
+html.bryce .bz-gl { font: bold 8px Geneva, Verdana, sans-serif; text-transform: uppercase; letter-spacing: 1px; color: rgba(50,30,14,.75);
+  text-shadow: 0 1px 0 rgba(255,240,210,.45); white-space: nowrap; margin-top: 1px; }
+html.bryce #win[data-bztab=sky] .bz-gl, html.bryce #win[data-bztab=render] .bz-gl { color: rgba(220,228,255,.7); text-shadow: 0 1px 0 rgba(0,0,0,.5); }
+
+html.bryce .bz-tile { position: relative; width: 42px; height: 58px; padding: 0; border: 0; box-shadow: none; background: none; display: flex; align-items: flex-end; justify-content: center; }
+html.bryce .bz-tile:active { border: 0; box-shadow: none; }
+html.bryce .bz-tile img, html.bryce .bz-tile .bz-ph { width: 52px; height: 52px; margin: 0 -4px 2px; pointer-events: none;
+  filter: drop-shadow(2px 5px 2px rgba(50,25,5,.5)); transition: transform .08s; }
+html.bryce .bz-tile .bz-ph { border-radius: 50%; background: radial-gradient(circle at 35% 30%, #8fe0e0, #1a6a70 70%); transform: scale(.6); }
+html.bryce .bz-tile:hover img, html.bryce .bz-tile:focus-visible img { transform: translateY(-4px) scale(1.1); }
+html.bryce .bz-tile:active img { transform: translateY(1px) scale(.96); }
+html.bryce .bz-tile.on::after { content: ""; position: absolute; bottom: -1px; left: 50%; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%;
+  background: #ff8a5a; box-shadow: 0 0 6px #ff6a3a; }
+html.bryce .bz-tile.off { opacity: .32; cursor: default; }
+html.bryce .bz-tile.off:hover img { transform: none; }
+html.bryce .bz-tile:focus-visible { outline: 1px dotted #ffab8a; outline-offset: 1px; }
+
+/* edit tools: engraved keycaps */
+html.bryce .bz-tile.bz-key { width: 42px; align-items: center; }
+html.bryce .bz-key svg { width: 34px; height: 34px; padding: 3px; border-radius: 8px; margin-bottom: 8px;
+  background: linear-gradient(#5e5e64, #2e2e34); box-shadow: inset 0 1px rgba(255,255,255,.3), 0 3px 4px rgba(40,20,0,.55);
+  fill: none; stroke: #e6ddcc; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; transition: transform .08s; }
+html.bryce .bz-key:hover svg { transform: translateY(-3px); }
+html.bryce .bz-key.on svg { stroke: #ffab8a; background: linear-gradient(#3a3a40, #55555c); box-shadow: inset 0 2px 3px rgba(0,0,0,.7), 0 1px 1px rgba(255,255,255,.2); }
+
+/* sky tiles */
+html.bryce .bz-pals .bz-gt { display: grid; grid-template-columns: repeat(11, 20px); gap: 3px; margin-bottom: 3px; }
+html.bryce .bz-tile.bz-sw { width: 20px; height: 24px; align-items: stretch; }
+html.bryce .bz-chip { width: 20px; height: 24px; border-radius: 3px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.5), 0 2px 3px rgba(0,0,0,.5); transition: transform .08s; }
+html.bryce .bz-sw:hover .bz-chip { transform: translateY(-2px) scale(1.12); }
+html.bryce .bz-sw.on .bz-chip { box-shadow: 0 0 0 2px #ffab8a, 0 0 8px #ff7a4a; }
+html.bryce .bz-sw.on::after { display: none; }
+html.bryce .bz-tile.bz-sq { width: 46px; height: 58px; align-items: center; }
+html.bryce .bz-mini { width: 38px; height: 38px; border-radius: 6px; margin-bottom: 6px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.5), 0 3px 4px rgba(0,0,0,.5); transition: transform .08s; }
+html.bryce .bz-sq:hover .bz-mini, html.bryce .bz-sq:hover .bz-orb, html.bryce .bz-sq:hover .bz-size, html.bryce .bz-sq:hover .bz-bands,
+html.bryce .bz-sq:hover .bz-disk, html.bryce .bz-sq:hover .bz-die, html.bryce .bz-sq:hover img { transform: translateY(-3px); }
+html.bryce .t-day { background: radial-gradient(circle at 70% 30%, #fff8d0 0 4px, transparent 6px), linear-gradient(#1d4fa8, #9cc4f0 70%, #c8a070 71%); }
+html.bryce .t-dusk { background: radial-gradient(circle at 50% 66%, #ffe090 0 4px, transparent 7px), linear-gradient(#2a1a50, #e0603a 60%, #ffb060 70%, #5a3020 71%); }
+html.bryce .t-night { background: radial-gradient(circle at 30% 30%, #f0f0e0 0 4px, transparent 5px), radial-gradient(circle at 72% 20%, #fff 0 .8px, transparent 1px),
+  radial-gradient(circle at 80% 50%, #fff 0 .8px, transparent 1px), radial-gradient(circle at 55% 40%, #fff 0 .6px, transparent 1px), linear-gradient(#02040c, #142040 70%, #202028 71%); }
+html.bryce .w-clear { background: linear-gradient(#2a6ad0, #a8d0f8 72%, #5a7a40 73%); }
+html.bryce .w-cloudy { background: radial-gradient(ellipse 10px 6px at 30% 34%, #fff 70%, transparent), radial-gradient(ellipse 12px 7px at 64% 40%, #f4f4f8 70%, transparent),
+  radial-gradient(ellipse 9px 5px at 46% 24%, #fff 70%, transparent), linear-gradient(#5a7ab0, #b8c8e0 72%, #5a7a40 73%); }
+html.bryce .w-hazy { background: linear-gradient(#a8b4c4, #e4e0d8 60%, #c8c4b8 73%, #9a9a88 74%); }
+html.bryce .bz-dial { position: relative; width: 56px; height: 56px; margin-bottom: 1px; border-radius: 50%; cursor: crosshair; touch-action: none;
+  background: radial-gradient(circle, #9cc8f8, #3a6ac0 70%, #1a2a60);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.6), inset 0 3px 8px rgba(0,0,0,.5), 0 3px 5px rgba(0,0,0,.5); }
+html.bryce .bz-dial::before { content: ""; position: absolute; left: 50%; top: 3px; margin-left: -3px; border: 3px solid transparent; border-bottom: 5px solid rgba(255,255,255,.7); }
+html.bryce .bz-dial.night { background: radial-gradient(circle, #34406a, #10183a 70%, #04060e); }
+html.bryce .bz-sun { position: absolute; left: 21px; top: 21px; width: 14px; height: 14px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle at 40% 35%, #fff, #ffd040 60%, #e08010); box-shadow: 0 0 8px #ffd040; }
+html.bryce .bz-dial.night .bz-sun { background: radial-gradient(circle at 40% 35%, #fff, #c8ccd8 60%, #808898); box-shadow: 0 0 6px #b8c4e0; }
+html.bryce .bz-die { width: 36px; height: 36px; margin-bottom: 8px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-style: normal; font-size: 22px;
+  color: #1a1a1e; background: linear-gradient(#fbf6ea, #c8c0b0); box-shadow: inset 0 -2px 3px rgba(0,0,0,.3), 0 3px 4px rgba(0,0,0,.5); transition: transform .08s; }
+
+/* render tiles */
+html.bryce .bz-orb { width: 34px; height: 34px; border-radius: 50%; margin-bottom: 8px; transition: transform .08s; box-shadow: 0 3px 5px rgba(0,0,0,.6); }
+html.bryce .bz-orb.red { background: radial-gradient(circle at 36% 30%, #ffd0c0 0, #ff4a30 22%, #b8160c 58%, #4a0402 100%); }
+html.bryce .bz-orb.amber { width: 26px; height: 26px; background: radial-gradient(circle at 36% 30%, #fff0c0 0, #ffb030 25%, #b86a0c 60%, #4a2002 100%); }
+html.bryce .bz-sq img { width: 38px; height: 38px; margin: 0 0 6px; border-radius: 6px; image-rendering: pixelated; box-shadow: 0 3px 4px rgba(0,0,0,.5); filter: none; }
+html.bryce .bz-size { display: flex; align-items: center; justify-content: center; margin-bottom: 9px; border: 1px solid #e8e4dc; background: rgba(20,24,40,.6);
+  box-shadow: 0 2px 3px rgba(0,0,0,.5); transition: transform .08s; }
+html.bryce .bz-size.any { width: 30px; height: 22px; border-style: dashed; }
+html.bryce .bz-size b { font: bold 8px Geneva, Verdana, sans-serif; color: #f0ece4; }
+html.bryce .bz-bands { width: 38px; height: 24px; margin-bottom: 12px; border-radius: 3px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.5), 0 3px 4px rgba(0,0,0,.5); transition: transform .08s; }
+html.bryce .bz-disk { position: relative; width: 32px; height: 32px; margin-bottom: 10px; border-radius: 2px 6px 2px 2px; background: #2a2a34;
+  box-shadow: 0 3px 4px rgba(0,0,0,.5), inset 0 0 0 1px #000; transition: transform .08s; }
+html.bryce .bz-disk::before { content: ""; position: absolute; left: 7px; top: 0; width: 17px; height: 11px; background: linear-gradient(90deg, #c8ccd4 0 60%, #2a2a34 60% 75%, #c8ccd4 75%); }
+html.bryce .bz-disk::after { content: ""; position: absolute; left: 4px; right: 4px; bottom: 2px; height: 14px; background: #f4f0e6; border-radius: 1px; }
+
+/* ---------- viewport ---------- */
+html.bryce .bz-viewwrap { position: relative; }
+html.bryce .well { border: 4px solid; border-color: #141416 #5c5c62 #5c5c62 #141416; border-radius: 3px; background: #000; }
+html.bryce #loader { background: #1a1a1e var(--bz-noise); }
+html.bryce #loader .lbox { background: #dcdcdc; border: 1px solid #000; box-shadow: 2px 2px 0 rgba(0,0,0,.6); color: #000; }
+html.bryce #loader .lbar { border: 1px solid #000; padding: 0; background: #fff; }
+html.bryce #loader #lfill { background: repeating-linear-gradient(-45deg, #e8875a 0 6px, #8a3a20 6px 12px); }
+html.bryce #btnEdit { position: absolute; left: 14px; top: 12px; z-index: 6; padding: 4px 12px; border: 0; border-radius: 12px; color: #fff;
+  background: linear-gradient(#ff9a6a, #c04a20); box-shadow: inset 0 1px rgba(255,255,255,.4), 0 2px 6px rgba(0,0,0,.6); font: bold 11px Geneva, sans-serif; }
+html.bryce #btnEdit[hidden] { display: none; }
+
+/* status line: an amber readout under the view */
+html.bryce .status { margin: 0; gap: 6px; padding: 3px 6px; border-radius: 6px; background: #0e0f0c; box-shadow: inset 1px 1px 3px #000, 0 1px rgba(255,255,255,.08);
+  font: 10px Monaco, "Courier New", monospace; color: #ffb040; }
+html.bryce .status div { border: 0; padding: 2px 4px; }
+html.bryce .status #modeLbl { color: #ff8a5a; text-align: right; }
+html.bryce #lens { color: #c88a30; }
+html.bryce #lens input { accent-color: #e8875a; }
+
+/* ---------- floating palette: the classic panels, dark and rounded ---------- */
+html.bryce .bz-float { position: absolute; z-index: 5; width: 214px; max-height: calc(100% - 20px); display: flex; flex-direction: column;
+  border-radius: 12px; background: rgba(46,46,50,.95) var(--bz-noise); color: #e0dbd2;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,.14), inset -1px -1px 0 rgba(0,0,0,.6), 0 8px 22px rgba(0,0,0,.6); transition: opacity .15s; }
+html.bryce .bz-float.idle:not(.dock) { display: none; }
+html.bryce .bz-float.idle.dock { visibility: hidden; }
+html.bryce #win[data-mode=ray] .bz-float:not(:hover):not(.dock), html.bryce #win[data-mode=render] .bz-float:not(:hover):not(.dock) { opacity: .3; }
+/* docked: a column to the right of the view, as tall as the stage */
+html.bryce #win.bz-docked { min-width: 1240px; }
+html.bryce .bz-float.dock { position: relative; flex: 0 0 226px; width: 226px; align-self: stretch; max-height: none; }
+html.bryce .bz-float.dock .bz-fbody { flex: 1 1 auto; overflow-y: auto; }
+html.bryce .bz-float.dock.min { align-self: flex-start; }
+html.bryce .bz-float.dock .bz-fhead { cursor: grab; }
+html.bryce .bz-float.snap { box-shadow: 0 0 0 2px #ffab8a, 0 0 16px rgba(255,120,80,.6), 0 8px 22px rgba(0,0,0,.6); }
+html.bryce .bz-fdock { width: 20px; height: 16px; padding: 0; border: 0; border-radius: 8px; font-size: 11px; line-height: 14px; color: #ddd;
+  background: linear-gradient(#66666c, #3c3c42); box-shadow: inset 0 1px rgba(255,255,255,.25); }
+html.bryce .bz-fdock:active, html.bryce .bz-fmin:active { border: 0; background: linear-gradient(#36363a, #55555a); box-shadow: inset 0 1px 2px rgba(0,0,0,.7); }
+html.bryce .bz-fhead { display: flex; align-items: center; gap: 4px; padding: 5px 8px 4px 12px; cursor: move; user-select: none; touch-action: none;
+  font: italic bold 13px "Gill Sans", "Gill Sans MT", Optima, sans-serif; color: #ffab8a; text-shadow: -1px -1px 0 rgba(0,0,0,.7); }
+html.bryce .bz-ftitle { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.bryce .bz-fmin { width: 18px; height: 16px; padding: 0; border: 0; border-radius: 8px; font-size: 9px; color: #ddd; background: linear-gradient(#66666c, #3c3c42);
+  box-shadow: inset 0 1px rgba(255,255,255,.25); }
+html.bryce .bz-float.min .bz-fmin { transform: rotate(180deg); }
+html.bryce .bz-float.min .bz-fbody { display: none; }
+html.bryce .bz-fbody { display: flex; flex-direction: column; min-height: 0; padding: 0 8px 8px; overflow: hidden; }
+html.bryce .bz-fbody > .ppage { display: none !important; width: auto; height: auto; min-height: 0; }
+html.bryce .bz-fbody > .ppage.bz-show { display: flex !important; }
+html.bryce #start, html.bryce #world, html.bryce #inspector { overflow-y: auto; max-height: 520px; }
+html.bryce .object-list { flex: 0 0 auto; }
+html.bryce .object-list .listbox { height: 132px; flex: none; }
+html.bryce #objPage { gap: 6px; }
+
+html.bryce .bz-float fieldset { border: 0; border-top: 1px solid rgba(0,0,0,.55); box-shadow: inset 0 1px rgba(255,255,255,.07); border-radius: 0; padding: 4px 0 2px; margin: 0; }
+html.bryce .bz-float legend { padding: 0 4px 0 0; font: bold 9px Geneva, Verdana, sans-serif; text-transform: uppercase; letter-spacing: 1px; color: #a8a29a; }
+html.bryce .bz-float .hint { color: #9a958c; }
+html.bryce .bz-float .section-label { color: #c8b8a6; }
+html.bryce .bz-float summary { color: #c0b8ac; }
+html.bryce .bz-float button { color: #ece6dc; border: 0; border-radius: 6px; padding: 3px 5px;
+  background: linear-gradient(#606066, #404046); box-shadow: inset 0 1px rgba(255,255,255,.22), 0 1px 2px rgba(0,0,0,.6); }
+html.bryce .bz-float button:hover { background: linear-gradient(#6c6c72, #48484e); }
+html.bryce .bz-float button:active, html.bryce .bz-float button.pressed { border: 0; background: linear-gradient(#34343a, #4a4a50); box-shadow: inset 0 1px 3px rgba(0,0,0,.7); }
+html.bryce .bz-float button:disabled { color: #807c76; text-shadow: none; }
+html.bryce .bz-float .choice.on, html.bryce .bz-float .modes button.on, html.bryce .bz-float .tabs button.on, html.bryce #start .choice.on {
+  color: #ffab8a; background: linear-gradient(#34343a, #4a4a50); box-shadow: inset 0 1px 3px rgba(0,0,0,.7); border: 0; }
+html.bryce .bz-float .tabs { gap: 2px; margin: 2px 0 4px; }
+html.bryce .bz-float .tabs button { margin: 0; padding: 3px 0; border-radius: 8px; }
+html.bryce .bz-float .tabs button.on { padding: 3px 0; margin: 0; }
+html.bryce .bz-float .tabpage { border: 0; box-shadow: none; padding: 2px 0; }
+html.bryce .bz-float .actions { position: static; background: none; margin: 6px 0 0; padding: 6px 0 0; border-top: 1px solid rgba(0,0,0,.5); box-shadow: inset 0 1px rgba(255,255,255,.06); }
+html.bryce .bz-float select, html.bryce .bz-float input[type=text], html.bryce .bz-float input[type=number] {
+  color: #ece6dc; background: #1c1c20; border: 0; border-radius: 4px; padding: 2px 4px; box-shadow: inset 1px 1px 2px #000, 0 1px rgba(255,255,255,.08); }
+html.bryce .bz-float .xyz input[data-ax='0'] { box-shadow: inset 2px 0 #e05040, inset 1px 1px 2px #000; }
+html.bryce .bz-float .xyz input[data-ax='1'] { box-shadow: inset 2px 0 #40c060, inset 1px 1px 2px #000; }
+html.bryce .bz-float .xyz input[data-ax='2'] { box-shadow: inset 2px 0 #4a7ae8, inset 1px 1px 2px #000; }
+html.bryce .bz-float .axes span { color: #8a857c; }
+html.bryce .bz-float input[type=color] { border: 0; border-radius: 4px; background: #1c1c20; box-shadow: inset 1px 1px 2px #000; }
+html.bryce .bz-float input[type=range] { accent-color: #e8875a; }
+html.bryce .bz-float .slider.off { color: #77736c; }
+html.bryce .bz-float .listbox { background: #18181c; border: 0; border-radius: 6px; box-shadow: inset 1px 1px 3px #000, 0 1px rgba(255,255,255,.08); color: #d8d2c8; }
+html.bryce .bz-float .li.sel { background: #2b8a90; color: #fff; }
+html.bryce .bz-float .li.sel .x { color: #bff0f0; }
+html.bryce .bz-float .li.land { border-bottom-color: #333; }
+html.bryce .bz-float .sw { border-color: #000; }
+html.bryce #world .sect { color: #c8b8a6; border-bottom-color: #000; box-shadow: 0 1px rgba(255,255,255,.08); }
+html.bryce .bz-float #startDone { margin-top: 6px; color: #fff; background: linear-gradient(#ff9a6a, #c04a20); }
+
+/* ---------- dialogs: classic Mac windows with pinstriped title bars ---------- */
+html.bryce .dialog { background: #dedede; color: #000; border: 1px solid #000; border-radius: 0; box-shadow: 2px 2px 0 rgba(0,0,0,.65); font: 11px Geneva, Verdana, sans-serif; }
+html.bryce .dialog .title { position: relative; justify-content: center; padding: 2px 4px; color: #000; font: bold 12px Charcoal, Chicago, Geneva, sans-serif;
+  background: repeating-linear-gradient(#dedede 0 1px, #8a8a8a 1px 2px) 0 3px / 100% 12px no-repeat, #dedede; border-bottom: 1px solid #000; }
+html.bryce .dialog .title > span:first-child { background: #dedede; padding: 0 8px; }
+html.bryce .dialog .title .tb { position: absolute; left: 6px; top: 3px; }
+html.bryce .dialog .title .tb b { width: 11px; height: 11px; border: 1px solid #000; background: #dedede; color: transparent; margin: 0; box-shadow: none; }
+html.bryce .dialog button { background: #fff; color: #000; border: 1px solid #000; border-radius: 5px; box-shadow: none; padding: 3px 10px; }
+html.bryce .dialog button:active { background: #000; color: #fff; border: 1px solid #000; box-shadow: none; }
+html.bryce .dialog .ok button:first-child { box-shadow: 0 0 0 2px #dedede, 0 0 0 4px #000; }
+html.bryce .dialog input[type=text], html.bryce .dialog input[type=number], html.bryce .dialog select { background: #fff; border: 1px solid #000; box-shadow: inset 1px 1px #888; }
+html.bryce .phgrid { border: 1px solid #000; }
+
+/* no accidental text selection while clicking and dragging the controls */
+html.bryce .bz-mac, html.bryce .bz-left, html.bryce .bz-shelf, html.bryce .bz-fhead { user-select: none; -webkit-user-select: none; }
+html.bryce .bz-round button:disabled { color: #8e8a86; }
+html.bryce .status #modeLbl { flex: 0 0 104px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

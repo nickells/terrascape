@@ -121,6 +121,17 @@
   .dialog .ok{display:flex;justify-content:center;gap:6px;padding:0 0 10px;} .dialog .ok button{min-width:70px;}
   .dialog .body input[type=text]{width:100%;margin-top:4px;}
 </style>
+<script>
+// Interface skin: ?ui=bryce switches to the Bryce-style interface (remembered), ?ui=classic switches back
+(() => {
+  const q = new URLSearchParams(location.search).get('ui');
+  let ui = q;
+  try { if (q) localStorage.setItem('terrascape-ui', q); else ui = localStorage.getItem('terrascape-ui'); } catch {}
+  if (ui === 'bryce') document.documentElement.classList.add('bryce');
+})();
+</script>
+<link rel="stylesheet" href="bryce.css">
+<script defer src="bryce.js"></script>
 </head>
 <body>
 <div class="win loading" id="win">
@@ -1544,7 +1555,7 @@ function applyDoc() {
   updateReflections();
   updateTitle();
   setMode('edit');
-  renderWorld();
+  renderWorld(); emit('doc');
 }
 
 const raycaster = new THREE.Raycaster();
@@ -1589,7 +1600,7 @@ function select(o) {
     selBox.setFromObject(target); selBox.visible = true;
   }
   renderInspector(); renderList();
-  dirty = true;
+  dirty = true; emit('select');
 }
 function onTransformChange() {
   if (isObj()) {
@@ -1898,11 +1909,12 @@ function setPanel(p) {
   $('worldPage').style.display = p === 'world' ? '' : 'none';
   if (p === 'world') renderWorld();
   if (p === 'start') renderStart();
+  emit('panel');
 }
 function showWorld(tab) {
   if (mode !== 'edit') setMode('edit');
   if (tab) landTab = ['Land', 'Water', 'Surface'].includes(tab) ? 'Ground' : tab;
-  setPanel('world');
+  setPanel('world'); emit('world');
 }
 let terrTimer = 0;
 function regenTerrain(label = 'Terrain updated') {
@@ -2124,6 +2136,7 @@ function setMode(m) {
   $('modeLbl').textContent = edit ? (viewMode === 'wire' ? 'Wireframe' : 'Edit') : m === 'ray' ? 'Rendered image' : 'Snapshot';
   applyView();
   if (edit) msg.textContent = 'Edit - drag to orbit, click to select';
+  emit('mode');
 }
 let renderDone = false;
 function renderFinal(ray, onDone) {
@@ -2303,7 +2316,7 @@ function setLookValue(key, value) {
     applyWeather(doc, value);
     doc.objects.filter(o => o.type === 'clouds' && o.auto).forEach(addRoot);
   }
-  applyEnvironment(); updateReflections(); renderWorld(); renderList(); commit();
+  applyEnvironment(); updateReflections(); renderWorld(); renderList(); commit(); emit('sky');
 }
 const WYd = d => (d.terrain && d.terrain.waterY) || 0;
 // ---------- Start panel: one page, live, undoable (replaces the step-by-step wizard) ----------
@@ -2497,8 +2510,8 @@ function redo() {
 addEventListener('beforeunload', e => { if (histKey && histKey !== savedKey) e.preventDefault(); });
 
 // ---------- Sky & Fog quick controls ----------
-function skyChange(fn) { fn(doc.sky); applyEnvironment(); updateReflections(); renderWorld(); if (mode !== 'edit') renderFinal(mode === 'ray'); }
-function setPalette(p) { doc.palette = p; applyEnvironment(); updateReflections(); renderWorld(); if (mode !== 'edit') renderFinal(mode === 'ray'); msg.textContent = `Palette: ${p[0].toUpperCase() + p.slice(1)}`; }
+function skyChange(fn) { fn(doc.sky); applyEnvironment(); updateReflections(); renderWorld(); if (mode !== 'edit') renderFinal(mode === 'ray'); emit('sky'); }
+function setPalette(p) { doc.palette = p; applyEnvironment(); updateReflections(); renderWorld(); if (mode !== 'edit') renderFinal(mode === 'ray'); emit('sky'); msg.textContent = `Palette: ${p[0].toUpperCase() + p.slice(1)}`; }
 const randomSun = () => skyChange(s => { s.elev = 8 + Math.random() * 30; s.az = (Math.random() - 0.5) * 92; s.cloudSeed = Math.random() * 100; });
 const swatch = p => { const P = PALETTES[p] || {}; return `<div class="sw">${['zenith', 'horizon', 'high', 'mid', 'low', 'water'].map(k => `<i style="background:${P[k]}"></i>`).join('')}</div>`; };
 
@@ -2577,7 +2590,8 @@ function menuSpec() {
       ['Solid', () => { viewMode = 'solid'; setMode('edit'); }, '', false, viewMode === 'solid'],
       ['Wireframe', () => { viewMode = 'wire'; setMode('edit'); }, '', false, viewMode === 'wire'], sep,
       ['Frame Selection', frameSel, 'F', !isObj()], sep, { head: 'Lens' },
-      ...LENSES.map(([f, l]) => [`${l} (${f}°)`, () => { setLens(f, true); msg.textContent = `Lens: ${l} ${f}°`; }, '', false, Math.round(camera.fov) === f]),
+      ...LENSES.map(([f, l]) => [`${l} (${f}°)`, () => { setLens(f, true); msg.textContent = `Lens: ${l} ${f}°`; }, '', false, Math.round(camera.fov) === f]), sep,
+      ['Bryce-style Interface', toggleSkin, '', false, document.documentElement.classList.contains('bryce')],
     ],
     Render: [
       ['Render Image', () => renderFinal(true), 'Enter'], ['Edit Scene', () => setMode('edit'), 'Esc', mode === 'edit'], ['Quick Snapshot', () => renderFinal(false)], sep,
@@ -2671,6 +2685,25 @@ addEventListener('keydown', e => {
   else if (k === 'f') frameSel(); else if (k === 'delete' || k === 'backspace') { e.preventDefault(); deleteSel(); }
 });
 
+// ---------- interface hooks: lets the Bryce-style skin (bryce.js) drive the editor ----------
+function emit(what) { document.dispatchEvent(new CustomEvent('terrascape:change', { detail: what })); }
+function toggleSkin() {
+  const u = new URL(location.href);
+  u.searchParams.set('ui', document.documentElement.classList.contains('bryce') ? 'classic' : 'bryce');
+  location.href = u;
+}
+window.terrascape = {
+  THREE, renderer, camera, orbit, canvas,
+  get doc() { return doc; }, get sel() { return isObj() ? sel : null; }, get mode() { return mode; }, get panel() { return panel; },
+  get gizmoMode() { return gizmo.mode; }, get traceQuality() { return traceQuality; }, get resKey() { return resKey; },
+  get colorMode() { return colorMode; }, get renderDone() { return renderDone; }, get size() { return [W, H]; },
+  TYPES, MATS, MODELS, PALETTES, LOOK_TIMES, LOOK_WEATHER, TOBJ_DEFAULTS, FLOAT_DEFAULTS,
+  create, openBrowser, showWorld, openScenePresets, renderFinal, setMode, saveImage, setGizmo, duplicate, deleteSel,
+  dropToGround, frameSel, select, undo, redo, skyChange, setLookValue, currentLook, randomSun, newLandscapePattern,
+  setColors, toggleSkin, buildObject, makeMaterial,
+  redraw() { dirty = true; },
+};
+
 // ---------- start up ----------
 startPixelEmoji(document.body);   // 16-colour pixel icons instead of glossy system emoji
 setResolution('400');
@@ -2690,7 +2723,7 @@ assetsReady.then(() => {
     doc = generateDoc(1234, 'desert');
     applyDoc();
     $('win').classList.remove('loading');
-    frame();
+    frame(); emit('ready');
     loadStep('Ready', 1);
     setTimeout(() => $('loader').remove(), 250);   // after the first frame is on screen
     const requestedScene = new URLSearchParams(location.search).get('scene');
