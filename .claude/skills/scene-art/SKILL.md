@@ -14,8 +14,8 @@ Terrascape is a single-page three.js app (`index.html`) with its own ray tracer.
 3. **Render each as a draft**:
    `node scripts/render.mjs --scene <key> --seed 42 --size 400x400 --quality draft --out <scratchpad>/<key>.png`
    (about 4-10 s each; run them in one Bash call). Always pin `--seed`: same scene + seed gives identical pixels. Use a size matching the target shape.
-4. **Show the images** (Read each PNG) with one line per variant on what it changes. Let the user pick/mix. Do not over-narrate.
-5. **Refine the chosen one**, delete the losing variants from `index.html`, then render at `--quality normal` (~800x800) to check, and finally the large `--quality fine` render (2560x2560 took ~10 s on an M-series Mac).
+4. **Show the images to the user.** Reading a PNG only lets *you* see it; the Claude desktop app does not display it inline. Send each render with the `SendUserFile` tool (`display: "render"`, `status: "normal"`, a caption naming the variant and what it changes); load it first with ToolSearch (`select:SendUserFile`) if it is deferred. Send all variants in one call, in order. Also Read them yourself to judge. In environments without that tool (e.g. Codex), give the absolute file paths. Let the user pick/mix. Do not over-narrate.
+5. **Refine the chosen one**, delete the losing variants from `index.html`, then render at `--quality normal` (~800x800) to check, and finally the large `--quality fine` render (2560x2560 took ~10 s on an M-series Mac). Send the final PNG the same way (`display: "attach"` for a 2560 file the user will save, or `"render"` to view it).
 6. Save a keeper still to `scenes/<name>.png` if the user wants one. Don't commit unless asked.
 
 ## Scene anatomy
