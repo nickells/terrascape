@@ -2142,12 +2142,12 @@ function traceContext() {
     if (o.type === 'lamp') { spheres.push({ mesh: r.userData.lamp.bulb, entry: { kind: KIND.emissive } }); lamps.push(r.userData.lamp); }
   }
   const clouds = doc.objects.filter(o => o.type === 'clouds' && roots.get(o.id)?.visible).slice(0, 4)
-    .map(o => ({ ...CLOUD_DEFAULTS, ...o.cloud, pos: o.pos, color: new THREE.Color(o.color) }));
+    .map(o => ({ ...CLOUD_DEFAULTS, ...o.cloud, pos: [o.pos[0] + anim.cx, o.pos[1], o.pos[2] + anim.cz], color: new THREE.Color(o.color) }));
   const cloudMeshes = doc.objects.filter(o => o.type === 'clouds' && roots.has(o.id)).map(o => roots.get(o.id).children[0]);
   const surf = surfaceOf(doc.terrain), fc = floorColors(PALETTES[doc.palette] || PALETTES.desert, surf);
   return { scene, camera, spheres, skip: new Set([sky, water, floorMesh, ...cloudMeshes]), water: surf !== 'none', waterY: WY(),
     floor: FLOOR_MODE[surf] ? { mode: FLOOR_MODE[surf], a: new THREE.Color(fc[0]), b: new THREE.Color(fc[1]), tile: doc.terrain.floorTile || DEFAULT_TILE[surf] || 20, depth: POOL_DEPTH } : null, clouds, night: !!doc.sky.night, heightFields: doc.terrain.land === false ? [] : [terrain], patches: doc.objects.filter(o => o.type === 'terrain' && roots.get(o.id)?.visible).map(o => roots.get(o.id).children[0]), sun, hemi, lamps: lamps.slice(0, 3),
-    skyU: skyMat.uniforms, waterU: water.material.uniforms, fog: scene.fog };
+    skyU: { ...skyMat.uniforms, seed: { value: skyMat.uniforms.seed.value + anim.sky } }, waterU: { ...water.material.uniforms, seed: { value: water.material.uniforms.seed.value + anim.water } }, fog: scene.fog };
 }
 
 function setMode(m) {
@@ -2169,6 +2169,8 @@ function renderFinal(ray, onDone) {
   if (!doc) return;
   if (panel === 'start') setPanel('world');
   setMode(ray ? 'ray' : 'render');
+// animation offsets applied at trace time only (the document is untouched): cloud drift in world units, sky/water noise shifts
+const anim = { cx: 0, cz: 0, sky: 0, water: 0 };
   const my = job;
   msg.textContent = ray ? 'Building ray tracing structures...' : 'Rendering...';
   setTimeout(() => requestAnimationFrame(() => {
@@ -2258,6 +2260,25 @@ let colorMode = 0, resKey = '400';
 const RES = { 400: [400, 300], 640: [640, 480], 800: [800, 600] };
 // the view is an 800x600 frame; other shapes are letterboxed inside it and the camera takes their aspect
 function fitView() {
+// Animation: renders one ray-traced frame at loop position t in [0,1). spec = { orbit: degrees swept over the loop (360 = full turn) or [from, to] degrees,
+// clouds: world units of drift over the loop, water: ripple travel in noise cells over the loop, sky: sky-cloud drift in noise units }.
+// Resolves when the frame is finished; scripts/animate.mjs calls this once per frame.
+let animBase = null;
+function renderFrame(spec, t) {
+  if (!animBase) animBase = JSON.parse(JSON.stringify(doc.camera));
+  // focus: [x,y,z] or an object's name; the camera circles it and looks at it (default: the camera's own target)
+  let focus = spec.focus;
+  if (typeof focus === 'string') { const o = doc.objects.find(o => o.name === focus); focus = o ? o.pos : null; }
+  const { pos } = animBase, target = Array.isArray(focus) ? focus : animBase.target, [o0, o1] = Array.isArray(spec.orbit) ? spec.orbit : [0, spec.orbit || 0], a = (o0 + (o1 - o0) * t) * Math.PI / 180;
+  const dx = pos[0] - target[0], dz = pos[2] - target[2], c = Math.cos(a), s = Math.sin(a);
+  doc.camera.pos = [target[0] + dx * c - dz * s, pos[1], target[2] + dx * s + dz * c];
+  doc.camera.target = target.slice();
+  applyCamera();
+  Object.assign(anim, { cx: (spec.clouds || 0) * t, cz: 0, sky: (spec.sky || 0) * t, water: (spec.water || 0) * t });
+  renderDone = false;
+  return new Promise(res => { renderFinal(true); const poll = () => renderDone ? res() : setTimeout(poll, 50); poll(); });
+}
+
   const a = W / H, bw = 800, bh = 600;
   let cw = bw, ch = bw / a;
   if (ch > bh) { ch = bh; cw = bh * a; }
@@ -2724,7 +2745,7 @@ window.terrascape = {
   get gizmoMode() { return gizmo.mode; }, get traceQuality() { return traceQuality; }, get resKey() { return resKey; },
   get colorMode() { return colorMode; }, get renderDone() { return renderDone; }, get size() { return [W, H]; },
   TYPES, MATS, MODELS, PALETTES, LOOK_TIMES, LOOK_WEATHER, TOBJ_DEFAULTS, FLOAT_DEFAULTS,
-  create, openBrowser, showWorld, openScenePresets, renderFinal, setMode, saveImage, setGizmo, duplicate, deleteSel,
+  renderFrame, create, openBrowser, showWorld, openScenePresets, renderFinal, setMode, saveImage, setGizmo, duplicate, deleteSel,
   dropToGround, frameSel, select, undo, redo, skyChange, setLookValue, currentLook, randomSun, newLandscapePattern,
   setColors, toggleSkin, buildObject, makeMaterial,
   redraw() { dirty = true; },
