@@ -381,6 +381,7 @@ const PALETTES = {
   airbrush:  { low: '#9ab0e0', mid: '#6a70c0', rock: '#3a3a80', high: '#f4f8ff', zenith: '#24126a', horizon: '#92dcff', sun: '#ffffff', water: '#3a6ad0', chkA: '#35287e', chkB: '#e6f2ff' },
   prism:     { low: '#30408a', mid: '#20307a', rock: '#101a4a', high: '#dde6ff', zenith: '#02031a', horizon: '#1c2a8c', sun: '#ffffff', water: '#0a1450', chkA: '#0a1040', chkB: '#4050b0' },
   algebra:   { low: '#7a9ad8', mid: '#4a6ac0', rock: '#1a2a5a', high: '#eef4ff', zenith: '#163c9c', horizon: '#cfe6ff', sun: '#fff8f0', water: '#4080c0', chkA: '#0e1628', chkB: '#e8f0ff' },
+  drift:     { low: '#c8b48c', mid: '#9a6e52', rock: '#5a4a4c', high: '#f4ece0', zenith: '#4f78b0', horizon: '#f2e4cc', sun: '#fff6e4', water: '#3a5a7a', chkA: '#29303a', chkB: '#efe6d6' },
   piranesi:  { low: '#a89878', mid: '#8a7a60', rock: '#4a4030', high: '#e8dcc0', zenith: '#56606c', horizon: '#d8c6a0', sun: '#fff0d0', water: '#5a5040', chkA: '#857760', chkB: '#ab9d80' },
   poolhall:  { low: '#e8e6d8', mid: '#cfcab4', rock: '#8a8670', high: '#f6f3e6', zenith: '#86b0cc', horizon: '#f2ecd2', sun: '#fff2d2', water: '#2aa894', pool: '#86dcc8', tile: '#eef4ec' },
   poolgreen: { low: '#d8e0d0', mid: '#a0b0a0', rock: '#506050', high: '#e6ece0', zenith: '#1e2a24', horizon: '#6a8070', sun: '#fff0d0', water: '#3a9a78', pool: '#8ccfae', tile: '#d8e6da' },
@@ -1292,6 +1293,31 @@ const SCENES = {
       ball('Red sphere', 'glossy', '#c81e1e', 14, -side * 48, 62, -40);
       add('cone', { name: 'Cone', mat: 'glossy', color: '#203a8a', scale: [2.4, 2.4, 2.4], pos: [side * 34, 52, -25], rot: [0.3, 0, side * 1.25] });
       add('octahedron', { name: 'Octahedron', mat: 'glossy', color: '#8ad050', scale: [1.7, 1.7, 1.7], pos: [side * 2, 16, 22], rot: [r(0, 1), r(0, 1), r(0, 1)] });
+    } },
+  tbDrift: { label: 'Textbook: drift', pal: 'drift', time: 'day',   // a wide flat clearing of checkerboard; fractal mountains only far off
+    t: { ...DRY, height: 520, size: 300, sharp: 0.85, rough: 0.55, stage: 900, stageX: 0, stageZ: 0, stageFloor: -20, floor: 'checker', floorTile: 40 },
+    build({ d, r, side, ball, box, beam, hex, azTo }) {   // a book-cover still life: slate shards drifting over a slate block, a chrome bead, a ruled frame, a spectrum of neon index stripes
+      const slate = '#29303a', cream = '#d8cfbf';
+      box('Block', 'matte', slate, [360, 110, 60], [0, 55, 0]);
+      box('Shard', 'glossy', slate, [230, 3, 130], [side * 15, 158, -40], [r(0.42, 0.52), side * r(0.1, 0.2), -side * r(0.1, 0.16)]);
+      box('Upper shard', 'glossy', slate, [200, 3, 36], [-side * 10, 246, -70], [r(0.2, 0.3), -side * r(0.15, 0.25), side * r(0.06, 0.1)]);
+      ball('Bead', 'metal', '#f2eee6', 7, 0, 154, 55);
+      ball('Glass ball', 'glass', '#f4f2ec', 18, side * 82, 18, 235);
+      ball('Chrome ball', 'metal', '#f2eee6', 9, -side * 100, 9, 190);
+      // the ruled square: four thin cream bars standing in front of everything
+      const fx = 112, y0 = 70, y1 = 290, fz = 70, t = 1.2;
+      box('Frame', 'matte', cream, [fx * 2 + t, t, t], [0, y0, fz]);
+      box('Frame', 'matte', cream, [fx * 2 + t, t, t], [0, y1, fz]);
+      box('Frame', 'matte', cream, [t, y1 - y0, t], [-fx, (y0 + y1) / 2, fz]);
+      box('Frame', 'matte', cream, [t, y1 - y0, t], [fx, (y0 + y1) / 2, fz]);
+      // index stripes along the block's face, split by a gap in the middle like the spine of a set of books
+      const L = ['#e6c6ee', '#5a7a8c', '#c6ff1a', '#2aa6ea'], R = ['#5cf080', '#ff7a1a', '#14f0ff', '#b04eb4'];
+      [L, R].forEach((cols, k) => {
+        const s = k ? 1 : -1;
+        cols.forEach((c, i) => beam('Stripe', hex(new THREE.Color(c).multiplyScalar(0.45)), [s * 18, 30 - i * 3.4, 31.5], [s * 178, 30 - i * 3.4, 31.5], 1.6));   // glow brightens ~2.2x
+      });
+      d.camera = { pos: [side * 10, 150, 560], target: [0, 125, 0], fov: 40 };
+      d.sky = { ...d.sky, ambient: 1.4, elev: r(32, 44), az: azTo(d.camera.pos, d.camera.target) + 180 + side * r(25, 45), fog: 0.00035 };
     } },
 
   // ---- architecture ----
@@ -2728,8 +2754,16 @@ assetsReady.then(() => {
     setTimeout(() => $('loader').remove(), 250);   // after the first frame is on screen
     const requestedScene = new URLSearchParams(location.search).get('scene');
     const sk = Object.keys(SCENES); start.world = Object.hasOwn(SCENES, requestedScene) ? requestedScene : sk[(Math.random() * sk.length) | 0]; start.seed = (Math.random() * 1e9) | 0;
+    const qp = new URLSearchParams(location.search);   // headless / repeatable renders: ?scene=&seed=&size=2560x2560&quality=fine&render=1
+    if (qp.has('seed') && Number.isFinite(+qp.get('seed'))) start.seed = +qp.get('seed') | 0;
     start.pal = SCENES[start.world].pal; if (SCENES[start.world].time) start.time = SCENES[start.world].time;
     await startBuild(); resetHistory(); setPanel('start');   // land on a finished scene with the Start panel open
+    {
+      const m = /^(\d+)x(\d+)$/i.exec(qp.get('size') || '');
+      if (m) { RES.custom = [Math.min(4096, Math.max(16, +m[1])), Math.min(4096, Math.max(16, +m[2]))]; setResolution('custom'); }
+      const q = qp.get('quality'); if (q && QUALITY[q]) { traceQuality = q; $('qualitySel').value = q; }
+      if (qp.get('render') === '1') renderFinal(true);
+    }
     // build picking structures for the big models in the background so the first click is quick
     setTimeout(() => Object.values(models).forEach(ensureBVH), 500);
   }, 30);
