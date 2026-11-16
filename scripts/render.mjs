@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Headless render: node scripts/render.mjs --scene tbDrift --seed 42 --size 2560x2560 --quality fine --out drift.png
+// Headless render: node scripts/render.mjs --scene tbDrift --seed 42 --size 2560x2560 --quality fine --out drift.png [--save drift.tsc]
 // Needs Google Chrome installed (uses playwright-core, no browser download). Starts serve.py on a free port and stops it afterwards.
 import { chromium } from 'playwright-core';
 import { spawn } from 'node:child_process';
@@ -10,8 +10,8 @@ import { dirname, resolve } from 'node:path';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const a = Object.fromEntries(process.argv.slice(2).reduce((o, v, i, all) => (v.startsWith('--') ? [...o, [v.slice(2), all[i + 1]]] : o), []));
-const { scene, seed = '1', size = '800x800', quality = 'normal', out = 'render.png', timeout = '1800' } = a;
-if (!scene) { console.error('usage: render.mjs --scene <key> [--seed n] [--size WxH] [--quality draft|normal|fine] [--out file.png] [--timeout seconds]'); process.exit(1); }
+const { scene, seed = '1', size = '800x800', quality = 'normal', out = 'render.png', timeout = '1800', save } = a;
+if (!scene) { console.error('usage: render.mjs --scene <key> [--seed n] [--size WxH] [--quality draft|normal|fine] [--out file.png] [--save file.tsc] [--timeout seconds]'); process.exit(1); }
 
 const port = await new Promise(res => { const s = createServer().listen(0, () => { const p = s.address().port; s.close(() => res(p)); }); });
 const server = spawn('python3', ['serve.py', String(port)], { cwd: root, stdio: 'ignore' });
@@ -32,4 +32,9 @@ try {
   const data = await page.evaluate(() => window.terrascape.canvas.toDataURL('image/png').split(',')[1]);
   writeFileSync(out, Buffer.from(data, 'base64'));
   console.log('wrote', out);
+  if (save) {   // same JSON as File > Save; reopen it with File > Open
+    const doc = await page.evaluate(() => JSON.stringify(window.terrascape.doc, null, 1));
+    writeFileSync(save, doc + '\n');
+    console.log('wrote', save);
+  }
 } finally { await browser.close(); stop(); }

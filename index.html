@@ -381,6 +381,11 @@ const PALETTES = {
   airbrush:  { low: '#9ab0e0', mid: '#6a70c0', rock: '#3a3a80', high: '#f4f8ff', zenith: '#24126a', horizon: '#92dcff', sun: '#ffffff', water: '#3a6ad0', chkA: '#35287e', chkB: '#e6f2ff' },
   prism:     { low: '#30408a', mid: '#20307a', rock: '#101a4a', high: '#dde6ff', zenith: '#02031a', horizon: '#1c2a8c', sun: '#ffffff', water: '#0a1450', chkA: '#0a1040', chkB: '#4050b0' },
   algebra:   { low: '#7a9ad8', mid: '#4a6ac0', rock: '#1a2a5a', high: '#eef4ff', zenith: '#163c9c', horizon: '#cfe6ff', sun: '#fff8f0', water: '#4080c0', chkA: '#0e1628', chkB: '#e8f0ff' },
+  wondersDusk: { low: '#4a3a8a', mid: '#33236a', rock: '#1a0c38', high: '#a890e0', zenith: '#0c0838', horizon: '#e0689a', sun: '#ffa860', water: '#1a2a7a', pool: '#40e8e8', tile: '#d0d8ff' },
+  wondersGold: { low: '#a8784a', mid: '#7a4a5a', rock: '#3a2030', high: '#ffe0b8', zenith: '#5a4aa0', horizon: '#ffc070', sun: '#ffd890', water: '#2a6a8a', pool: '#50e0d0', tile: '#f0e0d0' },
+  wondersBlue: { low: '#3a4a9a', mid: '#2a3a8a', rock: '#101850', high: '#b8d0ff', zenith: '#0a1a5a', horizon: '#78b8e8', sun: '#c8e0ff', water: '#1a3a8a', pool: '#50d8f0', tile: '#c8e0ff' },
+  wondersMint: { low: '#c0a8e0', mid: '#a088d0', rock: '#7a62b0', high: '#ece6fa', zenith: '#5aa0dc', horizon: '#cfe8e0', sun: '#fff0d8', water: '#3ab0c0', pool: '#60e0d0', tile: '#e8f4f0' },
+  wondersAurora: { low: '#103040', mid: '#0a2430', rock: '#040e14', high: '#7affc8', zenith: '#010310', horizon: '#0c3a5c', sun: '#8affd0', water: '#06182e', pool: '#10a0a8', tile: '#88d8d0' },
   drift:     { low: '#c8b48c', mid: '#9a6e52', rock: '#5a4a4c', high: '#f4ece0', zenith: '#4f78b0', horizon: '#f2e4cc', sun: '#fff6e4', water: '#3a5a7a', chkA: '#29303a', chkB: '#efe6d6' },
   piranesi:  { low: '#a89878', mid: '#8a7a60', rock: '#4a4030', high: '#e8dcc0', zenith: '#56606c', horizon: '#d8c6a0', sun: '#fff0d0', water: '#5a5040', chkA: '#857760', chkB: '#ab9d80' },
   poolhall:  { low: '#e8e6d8', mid: '#cfcab4', rock: '#8a8670', high: '#f6f3e6', zenith: '#86b0cc', horizon: '#f2ecd2', sun: '#fff2d2', water: '#2aa894', pool: '#86dcc8', tile: '#eef4ec' },
@@ -1147,7 +1152,7 @@ const SCENES = {
   silver: { label: 'Silver sea', pal: 'silver', time: 'dusk', t: { land: false, water: true },
     build({ d, r, side, ball, add, azTo }) {   // eye on the water, tele lens, sun low dead ahead: glitter path and silhouettes
       d.camera = { pos: [0, 4, 160], target: [side * 8, 8, 0], fov: 35 };
-      d.sky = { ...d.sky, elev: r(3, 6), az: azTo(d.camera.pos, d.camera.target) + r(-6, 6), fog: 0.0011 };
+      d.sky = { ...d.sky, elev: r(3, 6), az: azTo(d.camera.pos, d.camera.target) + r(-6, 6), fog: 0.0006 };
       ball('Chrome ball', 'metal', '#ececec', 16, side * 22, r(2, 7), -30);
       add('torus', { name: 'Arch', mat: 'metal', color: '#e6e6e6', scale: [4.5, 4.5, 4.5], pos: [-side * 62, -2, -280], rot: [0, r(-0.5, 0.5), 0] });
       ball('Glass ball', 'glass', '#f4f6f8', 3, -side * 4, 3, 72);
@@ -1320,6 +1325,27 @@ const SCENES = {
       d.sky = { ...d.sky, ambient: 1.4, elev: r(32, 44), az: azTo(d.camera.pos, d.camera.target) + 180 + side * r(25, 45), fog: 0.00035 };
     } },
 
+  // ---- Natural Wonders: 2000s mall crystal-and-science-store cover concepts ----
+  wondersB: { label: 'Natural Wonders: crystal pool', pal: 'wondersDusk', time: 'day',
+    t: { ...DRY, height: 360, size: 300, sharp: 0.85, rough: 0.55, stage: 1150, stageFloor: -20, floor: 'pool', floorTile: 6 },
+    build({ d, r, side, add, box, ball, hex, azTo }) {   // dusk pool: stepping slabs lead to a glowing amethyst cluster; palm islet, planets
+      const glow = c => hex(new THREE.Color(c).multiplyScalar(0.45));
+      for (let i = 0; i < 7; i++) box('Slab', 'matte', '#3a2a5a', [26, 4, 26], [side * (i - 3) * 6 + r(-3, 3), 0, 110 - i * 38], [0, r(-0.4, 0.4), 0]);
+      for (let i = 0; i < 6; i++) {
+        const x = (i - 2.5) * 11, y = 18 + i * 4, z = -170 + (i % 2) * 8, sx = 3 + i * 0.3, sy = 8 + i * 1.6;
+        add('octahedron', { name: 'Amethyst', mat: 'glass', color: i % 2 ? '#c8a0ff' : '#f0c8ff', scale: [sx, sy, sx], pos: [x, y, z], rot: [0, i, (i - 2.5) * 0.1] });
+        add('octahedron', { name: 'Inner glow', mat: 'glow', color: glow(i % 2 ? '#a060ff' : '#ff80e0'), scale: [sx * 0.55, sy * 0.6, sx * 0.55], pos: [x, y, z], rot: [0, i, (i - 2.5) * 0.1] });
+      }
+      box('Pool glow', 'glow', hex(new THREE.Color('#20c8d0').multiplyScalar(0.2)), [520, 0.5, 620], [0, -4.8, -40]);   // submerged light panels: the water glows from below
+      box('Crystal pool glow', 'glow', glow('#a050ff'), [150, 0.5, 130], [0, -4.5, -150]);
+      ball('Planet', 'glossy', '#ff7ab8', 7, -side * 18, 11, 70);
+      ball('Planet', 'glossy', '#3ab8ff', 4.5, side * 20, 8, 32);
+      box('Palm islet', 'matte', '#241040', [30, 3, 30], [side * 56, 0, -66], [0, 0.3, 0]);
+      add('model', { name: 'Oil palm', model: 'local:oil-palm', scale: [1, 1, 1], pos: [side * 56, 1.5, -66], rot: [0, r(0, 6), 0] });
+      d.camera = { pos: [side * 8, 20, 190], target: [0, 26, -60], fov: 48 };
+      d.sky = { ...d.sky, ambient: 1.15, elev: r(5, 9), az: azTo(d.camera.pos, d.camera.target) + 180 + side * r(20, 35), fog: 0.00042 };
+    } },
+
   // ---- architecture ----
   piranesi: { label: 'Piranesi arcade', pal: 'piranesi', time: 'day', t: { land: false, water: false, floor: 'checker', floorTile: 30 },
     build({ d, r, side, add, box, azTo }) {   // two storeys of arcades, giant fluted columns, a stair climbing across, statues on plinths, haze
@@ -1340,7 +1366,7 @@ const SCENES = {
       onPlinth('horse', 'Horse', side * 28, -150, 22, 2.2, -side * 0.9);
       onPlinth('urn', 'Urn', -side * 30, -110, 10, 1.4, 0);
       d.camera = { pos: [-side * 14, 8, 185], target: [side * 4, 78, -90], fov: 58 };
-      d.sky = { ...d.sky, elev: r(30, 42), az: azTo(d.camera.pos, d.camera.target) + side * r(70, 95), fog: 0.0011 };
+      d.sky = { ...d.sky, elev: r(30, 42), az: azTo(d.camera.pos, d.camera.target) + side * r(70, 95), fog: 0.0006 };
     } },
   poolhall: { label: 'Pool hall', pal: 'poolhall', time: 'day', t: { land: false, water: true, floor: 'pool', floorTile: 3.5 },
     build({ d, r, side, box, cyl, azTo }) {   // backrooms-style tiled hall: columns in still green water, low sun from the open side
@@ -1377,6 +1403,16 @@ const SCENES = {
       d.sky = { ...d.sky, clouds: false, ambient: 2.2, elev: r(14, 22), az: azTo(d.camera.pos, d.camera.target) + side * r(40, 70), fog: 0.0007 };
     } },
 };
+// environment colourways of Natural Wonders: same scene, different palette (and sun height)
+const wondersEnv = (key, label, pal, elev, sky = {}) => SCENES[key] = { ...SCENES.wondersB, label: 'Natural Wonders: ' + label, pal,
+  build(ctx) { SCENES.wondersB.build(ctx); if (elev) ctx.d.sky = { ...ctx.d.sky, elev: ctx.r(elev[0], elev[1]) }; ctx.d.sky = { ...ctx.d.sky, ...sky }; } };
+wondersEnv('wondersGold', 'golden hour', 'wondersGold');
+wondersEnv('wondersBlue', 'blue hour', 'wondersBlue');
+wondersEnv('wondersMint', 'mint daylight', 'wondersMint', [30, 40], { ambient: 0.85 });
+wondersEnv('wondersAurora', 'aurora night', 'wondersAurora', [4, 8], { ambient: 0.6, fog: 0.0007 });
+// portrait (9:16) framing: same scene and lighting, camera pulled back so the palm and the far slab stay in frame
+SCENES.wondersAuroraTall = { ...SCENES.wondersAurora, label: 'Natural Wonders: aurora night (portrait)',
+  build(ctx) { SCENES.wondersAurora.build(ctx); const c = ctx.d.camera; ctx.d.camera = { ...c, pos: [c.pos[0] - 14, c.pos[1] + 6, c.pos[2] + 75], target: [c.target[0] - 10, c.target[1] - 2, c.target[2]] }; } };
 function generateScene(key, seedV) {
   const S = SCENES[key], pal = PALETTES[S.pal];
   seed = seedV; rand.seed(seedV); phase = rand() * 10;   // same order as buildTerrain, so heightAt matches the built land
@@ -2133,6 +2169,8 @@ function accSnapshot() {
   return out;
 }
 let job = 0;
+// animation offsets applied at trace time only (the document is untouched): cloud drift in world units, sky/water noise shifts
+const anim = { cx: 0, cz: 0, sky: 0, water: 0 };
 
 function traceContext() {
   const spheres = [], lamps = [];
@@ -2169,8 +2207,6 @@ function renderFinal(ray, onDone) {
   if (!doc) return;
   if (panel === 'start') setPanel('world');
   setMode(ray ? 'ray' : 'render');
-// animation offsets applied at trace time only (the document is untouched): cloud drift in world units, sky/water noise shifts
-const anim = { cx: 0, cz: 0, sky: 0, water: 0 };
   const my = job;
   msg.textContent = ray ? 'Building ray tracing structures...' : 'Rendering...';
   setTimeout(() => requestAnimationFrame(() => {
@@ -2224,6 +2260,25 @@ const anim = { cx: 0, cz: 0, sky: 0, water: 0 };
   }), 30);
 }
 
+// Animation: renders one ray-traced frame at loop position t in [0,1). spec = { orbit: degrees swept over the loop (360 = full turn) or [from, to] degrees,
+// clouds: world units of drift over the loop, water: ripple travel in noise cells over the loop, sky: sky-cloud drift in noise units }.
+// Resolves when the frame is finished; scripts/animate.mjs calls this once per frame.
+let animBase = null;
+function renderFrame(spec, t) {
+  if (!animBase) animBase = JSON.parse(JSON.stringify(doc.camera));
+  // focus: [x,y,z] or an object's name; the camera circles it and looks at it (default: the camera's own target)
+  let focus = spec.focus;
+  if (typeof focus === 'string') { const o = doc.objects.find(o => o.name === focus); focus = o ? o.pos : null; }
+  const { pos } = animBase, target = Array.isArray(focus) ? focus : animBase.target, [o0, o1] = Array.isArray(spec.orbit) ? spec.orbit : [0, spec.orbit || 0], a = (o0 + (o1 - o0) * t) * Math.PI / 180;
+  const dx = pos[0] - target[0], dz = pos[2] - target[2], c = Math.cos(a), s = Math.sin(a);
+  doc.camera.pos = [target[0] + dx * c - dz * s, pos[1], target[2] + dx * s + dz * c];
+  doc.camera.target = target.slice();
+  applyCamera();
+  Object.assign(anim, { cx: (spec.clouds || 0) * t, cz: 0, sky: (spec.sky || 0) * t, water: (spec.water || 0) * t });
+  renderDone = false;
+  return new Promise(res => { renderFinal(true); const poll = () => renderDone ? res() : setTimeout(poll, 50); poll(); });
+}
+
 // Save Image: the canvas holds the finished picture at the output size (preserveDrawingBuffer keeps it readable)
 function saveImage() {
   if (!doc) return;
@@ -2260,25 +2315,6 @@ let colorMode = 0, resKey = '400';
 const RES = { 400: [400, 300], 640: [640, 480], 800: [800, 600] };
 // the view is an 800x600 frame; other shapes are letterboxed inside it and the camera takes their aspect
 function fitView() {
-// Animation: renders one ray-traced frame at loop position t in [0,1). spec = { orbit: degrees swept over the loop (360 = full turn) or [from, to] degrees,
-// clouds: world units of drift over the loop, water: ripple travel in noise cells over the loop, sky: sky-cloud drift in noise units }.
-// Resolves when the frame is finished; scripts/animate.mjs calls this once per frame.
-let animBase = null;
-function renderFrame(spec, t) {
-  if (!animBase) animBase = JSON.parse(JSON.stringify(doc.camera));
-  // focus: [x,y,z] or an object's name; the camera circles it and looks at it (default: the camera's own target)
-  let focus = spec.focus;
-  if (typeof focus === 'string') { const o = doc.objects.find(o => o.name === focus); focus = o ? o.pos : null; }
-  const { pos } = animBase, target = Array.isArray(focus) ? focus : animBase.target, [o0, o1] = Array.isArray(spec.orbit) ? spec.orbit : [0, spec.orbit || 0], a = (o0 + (o1 - o0) * t) * Math.PI / 180;
-  const dx = pos[0] - target[0], dz = pos[2] - target[2], c = Math.cos(a), s = Math.sin(a);
-  doc.camera.pos = [target[0] + dx * c - dz * s, pos[1], target[2] + dx * s + dz * c];
-  doc.camera.target = target.slice();
-  applyCamera();
-  Object.assign(anim, { cx: (spec.clouds || 0) * t, cz: 0, sky: (spec.sky || 0) * t, water: (spec.water || 0) * t });
-  renderDone = false;
-  return new Promise(res => { renderFinal(true); const poll = () => renderDone ? res() : setTimeout(poll, 50); poll(); });
-}
-
   const a = W / H, bw = 800, bh = 600;
   let cw = bw, ch = bw / a;
   if (ch > bh) { ch = bh; cw = bh * a; }

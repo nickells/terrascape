@@ -1,0 +1,629 @@
+{
+ "version": 1,
+ "name": "Natural Wonders",
+ "seed": 42,
+ "palette": "wondersDusk",
+ "layout": "Natural Wonders: crystal pool",
+ "scene": "wondersB",
+ "sky": {
+  "elev": 6.883127694949508,
+  "az": 149.272778117293,
+  "cloudSeed": 85.24657934904099,
+  "fog": 0.00042,
+  "waterSeed": 66.97340414393693,
+  "night": false,
+  "ambient": 1.15
+ },
+ "camera": {
+  "pos": [
+   -8,
+   19.99999999999999,
+   190
+  ],
+  "target": [
+   0,
+   26,
+   -60
+  ],
+  "fov": 48
+ },
+ "objects": [
+  {
+   "id": 16,
+   "type": "cube",
+   "name": "Slab",
+   "pos": [
+    16.048883392475545,
+    0,
+    110
+   ],
+   "rot": [
+    0,
+    0.02127403374761344,
+    0
+   ],
+   "scale": [
+    3.25,
+    0.5,
+    3.25
+   ],
+   "mat": "matte",
+   "color": "#3a2a5a"
+  },
+  {
+   "id": 17,
+   "type": "cube",
+   "name": "Slab 2",
+   "pos": [
+    10.639367965981364,
+    0,
+    72
+   ],
+   "rot": [
+    0,
+    0.09979572314769031,
+    0
+   ],
+   "scale": [
+    3.25,
+    0.5,
+    3.25
+   ],
+   "mat": "matte",
+   "color": "#3a2a5a"
+  },
+  {
+   "id": 18,
+   "type": "cube",
+   "name": "Slab 3",
+   "pos": [
+    8.192847889848053,
+    0,
+    34
+   ],
+   "rot": [
+    0,
+    -0.02214635591953995,
+    0
+   ],
+   "scale": [
+    3.25,
+    0.5,
+    3.25
+   ],
+   "mat": "matte",
+   "color": "#3a2a5a"
+  },
+  {
+   "id": 19,
+   "type": "cube",
+   "name": "Slab 4",
+   "pos": [
+    -1.5004575946368277,
+    0,
+    -4
+   ],
+   "rot": [
+    0,
+    0.30564706679433584,
+    0
+   ],
+   "scale": [
+    3.25,
+    0.5,
+    3.25
+   ],
+   "mat": "matte",
+   "color": "#3a2a5a"
+  },
+  {
+   "id": 20,
+   "type": "cube",
+   "name": "Slab 5",
+   "pos": [
+    -4.525574610102922,
+    0,
+    -42
+   ],
+   "rot": [
+    0,
+    -0.15439878925681116,
+    0
+   ],
+   "scale": [
+    3.25,
+    0.5,
+    3.25
+   ],
+   "mat": "matte",
+   "color": "#3a2a5a"
+  },
+  {
+   "id": 21,
+   "type": "cube",
+   "name": "Slab 6",
+   "pos": [
+    -13.81647697230801,
+    0,
+    -80
+   ],
+   "rot": [
+    0,
+    0.000583590194582928,
+    0
+   ],
+   "scale": [
+    3.25,
+    0.5,
+    3.25
+   ],
+   "mat": "matte",
+   "color": "#3a2a5a"
+  },
+  {
+   "id": 22,
+   "type": "cube",
+   "name": "Slab 7",
+   "pos": [
+    -16.88032789248973,
+    0,
+    -118
+   ],
+   "rot": [
+    0,
+    0.08849671874195336,
+    0
+   ],
+   "scale": [
+    3.25,
+    0.5,
+    3.25
+   ],
+   "mat": "matte",
+   "color": "#3a2a5a"
+  },
+  {
+   "id": 23,
+   "type": "octahedron",
+   "name": "Amethyst",
+   "pos": [
+    -27.5,
+    18,
+    -170
+   ],
+   "rot": [
+    0,
+    0,
+    -0.25
+   ],
+   "scale": [
+    3,
+    8,
+    3
+   ],
+   "mat": "glass",
+   "color": "#f0c8ff"
+  },
+  {
+   "id": 24,
+   "type": "octahedron",
+   "name": "Inner glow",
+   "pos": [
+    -27.5,
+    18,
+    -170
+   ],
+   "rot": [
+    0,
+    0,
+    -0.25
+   ],
+   "scale": [
+    1.6500000000000001,
+    4.8,
+    1.6500000000000001
+   ],
+   "mat": "glow",
+   "color": "#b3589d"
+  },
+  {
+   "id": 25,
+   "type": "octahedron",
+   "name": "Amethyst 2",
+   "pos": [
+    -16.5,
+    22,
+    -162
+   ],
+   "rot": [
+    0,
+    1,
+    -0.15000000000000002
+   ],
+   "scale": [
+    3.3,
+    9.6,
+    3.3
+   ],
+   "mat": "glass",
+   "color": "#c8a0ff"
+  },
+  {
+   "id": 26,
+   "type": "octahedron",
+   "name": "Inner glow 2",
+   "pos": [
+    -16.5,
+    22,
+    -162
+   ],
+   "rot": [
+    0,
+    1,
+    -0.15000000000000002
+   ],
+   "scale": [
+    1.815,
+    5.76,
+    1.815
+   ],
+   "mat": "glow",
+   "color": "#6f41b3"
+  },
+  {
+   "id": 27,
+   "type": "octahedron",
+   "name": "Amethyst 3",
+   "pos": [
+    -5.5,
+    26,
+    -170
+   ],
+   "rot": [
+    0,
+    2,
+    -0.05
+   ],
+   "scale": [
+    3.6,
+    11.2,
+    3.6
+   ],
+   "mat": "glass",
+   "color": "#f0c8ff"
+  },
+  {
+   "id": 28,
+   "type": "octahedron",
+   "name": "Inner glow 3",
+   "pos": [
+    -5.5,
+    26,
+    -170
+   ],
+   "rot": [
+    0,
+    2,
+    -0.05
+   ],
+   "scale": [
+    1.9800000000000002,
+    6.72,
+    1.9800000000000002
+   ],
+   "mat": "glow",
+   "color": "#b3589d"
+  },
+  {
+   "id": 29,
+   "type": "octahedron",
+   "name": "Amethyst 4",
+   "pos": [
+    5.5,
+    30,
+    -162
+   ],
+   "rot": [
+    0,
+    3,
+    0.05
+   ],
+   "scale": [
+    3.9,
+    12.8,
+    3.9
+   ],
+   "mat": "glass",
+   "color": "#c8a0ff"
+  },
+  {
+   "id": 30,
+   "type": "octahedron",
+   "name": "Inner glow 4",
+   "pos": [
+    5.5,
+    30,
+    -162
+   ],
+   "rot": [
+    0,
+    3,
+    0.05
+   ],
+   "scale": [
+    2.145,
+    7.68,
+    2.145
+   ],
+   "mat": "glow",
+   "color": "#6f41b3"
+  },
+  {
+   "id": 31,
+   "type": "octahedron",
+   "name": "Amethyst 5",
+   "pos": [
+    16.5,
+    34,
+    -170
+   ],
+   "rot": [
+    0,
+    4,
+    0.15000000000000002
+   ],
+   "scale": [
+    4.2,
+    14.4,
+    4.2
+   ],
+   "mat": "glass",
+   "color": "#f0c8ff"
+  },
+  {
+   "id": 32,
+   "type": "octahedron",
+   "name": "Inner glow 5",
+   "pos": [
+    16.5,
+    34,
+    -170
+   ],
+   "rot": [
+    0,
+    4,
+    0.15000000000000002
+   ],
+   "scale": [
+    2.3100000000000005,
+    8.64,
+    2.3100000000000005
+   ],
+   "mat": "glow",
+   "color": "#b3589d"
+  },
+  {
+   "id": 33,
+   "type": "octahedron",
+   "name": "Amethyst 6",
+   "pos": [
+    27.5,
+    38,
+    -162
+   ],
+   "rot": [
+    0,
+    5,
+    0.25
+   ],
+   "scale": [
+    4.5,
+    16,
+    4.5
+   ],
+   "mat": "glass",
+   "color": "#c8a0ff"
+  },
+  {
+   "id": 34,
+   "type": "octahedron",
+   "name": "Inner glow 6",
+   "pos": [
+    27.5,
+    38,
+    -162
+   ],
+   "rot": [
+    0,
+    5,
+    0.25
+   ],
+   "scale": [
+    2.475,
+    9.6,
+    2.475
+   ],
+   "mat": "glow",
+   "color": "#6f41b3"
+  },
+  {
+   "id": 35,
+   "type": "cube",
+   "name": "Pool glow",
+   "pos": [
+    0,
+    -4.8,
+    -40
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "scale": [
+    65,
+    0.0625,
+    77.5
+   ],
+   "mat": "glow",
+   "color": "#0a5f64"
+  },
+  {
+   "id": 36,
+   "type": "cube",
+   "name": "Crystal pool glow",
+   "pos": [
+    0,
+    -4.5,
+    -150
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "scale": [
+    18.75,
+    0.0625,
+    16.25
+   ],
+   "mat": "glow",
+   "color": "#6f35b3"
+  },
+  {
+   "id": 37,
+   "type": "sphere",
+   "name": "Planet",
+   "pos": [
+    18,
+    11,
+    70
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "scale": [
+    1.4,
+    1.4,
+    1.4
+   ],
+   "mat": "glossy",
+   "color": "#ff7ab8"
+  },
+  {
+   "id": 38,
+   "type": "sphere",
+   "name": "Planet 2",
+   "pos": [
+    -20,
+    8,
+    32
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "scale": [
+    0.9,
+    0.9,
+    0.9
+   ],
+   "mat": "glossy",
+   "color": "#3ab8ff"
+  },
+  {
+   "id": 39,
+   "type": "cube",
+   "name": "Palm islet",
+   "pos": [
+    -56,
+    0,
+    -66
+   ],
+   "rot": [
+    0,
+    0.3,
+    0
+   ],
+   "scale": [
+    3.75,
+    0.375,
+    3.75
+   ],
+   "mat": "matte",
+   "color": "#241040"
+  },
+  {
+   "id": 40,
+   "type": "model",
+   "name": "Oil palm",
+   "pos": [
+    -56,
+    1.5,
+    -66
+   ],
+   "rot": [
+    0,
+    0.023057711776345968,
+    0
+   ],
+   "scale": [
+    1,
+    1,
+    1
+   ],
+   "mat": "glossy",
+   "color": "#cccccc",
+   "model": "local:oil-palm"
+  }
+ ],
+ "terrain": {
+  "height": 360,
+  "size": 300,
+  "sharp": 0.85,
+  "rough": 0.55,
+  "variety": 0,
+  "riverWidth": 0,
+  "wiggle": 90,
+  "sea": 0,
+  "coast": 0,
+  "terrace": 0,
+  "basin": 0,
+  "stage": 1150,
+  "stageX": 0,
+  "stageZ": 270,
+  "water": false,
+  "stageFloor": -20,
+  "land": true,
+  "waterY": 0,
+  "floor": "pool",
+  "floorTile": 6,
+  "landLevel": 0
+ },
+ "baseTerrain": {
+  "height": 360,
+  "size": 300,
+  "sharp": 0.85,
+  "rough": 0.55,
+  "variety": 0,
+  "riverWidth": 0,
+  "wiggle": 90,
+  "sea": 0,
+  "coast": 0,
+  "terrace": 0,
+  "basin": 0,
+  "stage": 1150,
+  "stageX": 0,
+  "stageZ": 270,
+  "water": false,
+  "stageFloor": -20,
+  "land": true,
+  "waterY": 0,
+  "floor": "pool",
+  "floorTile": 6,
+  "landLevel": 0
+ }
+}
