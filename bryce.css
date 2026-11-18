@@ -179,6 +179,7 @@ html.bryce .bz-die { width: 36px; height: 36px; margin-bottom: 8px; border-radiu
 /* render tiles */
 html.bryce .bz-orb { width: 34px; height: 34px; border-radius: 50%; margin-bottom: 8px; transition: transform .08s; box-shadow: 0 3px 5px rgba(0,0,0,.6); }
 html.bryce .bz-orb.red { background: radial-gradient(circle at 36% 30%, #ffd0c0 0, #ff4a30 22%, #b8160c 58%, #4a0402 100%); }
+html.bryce .bz-orb.blue { width: 28px; height: 28px; background: radial-gradient(circle at 36% 30%, #d0e4ff 0, #4a8cff 24%, #1650b8 60%, #04164a 100%); }
 html.bryce .bz-orb.amber { width: 26px; height: 26px; background: radial-gradient(circle at 36% 30%, #fff0c0 0, #ffb030 25%, #b86a0c 60%, #4a2002 100%); }
 html.bryce .bz-sq img { width: 38px; height: 38px; margin: 0 0 6px; border-radius: 6px; image-rendering: pixelated; box-shadow: 0 3px 4px rgba(0,0,0,.5); filter: none; }
 html.bryce .bz-size { display: flex; align-items: center; justify-content: center; margin-bottom: 9px; border: 1px solid #e8e4dc; background: rgba(20,24,40,.6);

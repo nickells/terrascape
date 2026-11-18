@@ -165,7 +165,8 @@ function renderShelf() {
         tile('r:' + k, label, w ? `<i class="bz-size" style="width:${w}px;height:${w * 0.75}px"><b>${k === 'full' ? 'Full' : k}</b></i>` : '<i class="bz-size any"><b>W×H</b></i>', `bz-sq${r === k ? ' on' : ''}`)).join(''))
       + group('Colors', [[0, 'Millions of colors', 64], [1, 'Thousands of colors', 12], [2, '256 colors', 4]].map(([k, label, n]) =>
         tile('c:' + k, label, `<i class="bz-bands" style="background:${bands(n)}"></i>`, `bz-sq${c === k ? ' on' : ''}`)).join(''))
-      + group('Output', tile('save', 'Save image… (⌘E)', `<i class="bz-disk"></i>`, 'bz-sq'));
+      + group('Output', tile('save', 'Save image… (⌘E)', `<i class="bz-disk"></i>`, 'bz-sq'))
+      + group('Animate', tile('anim', 'Animate… preview a camera move and render a short video', '<i class="bz-orb blue"></i>', 'bz-sq'));
   }
   tiles.innerHTML = html;
   if (tab === 'sky') placeSun();
@@ -229,6 +230,7 @@ tiles.addEventListener('click', e => {
     if (k === 'go') return T.renderFinal(true);
     if (k === 'snap') return T.renderFinal(false);
     if (k === 'save') return T.saveImage();
+    if (k === 'anim') return T.openAnimate();
     if (kind === 'q') pickSelect('qualitySel', val);
     if (kind === 'r') pickSelect('resSel', val);
     if (kind === 'c') T.setColors(+val);

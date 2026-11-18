@@ -120,6 +120,20 @@
   .dialog .body table{border-collapse:collapse;} .dialog .body td{padding:1px 10px 1px 0;vertical-align:top;}
   .dialog .ok{display:flex;justify-content:center;gap:6px;padding:0 0 10px;} .dialog .ok button{min-width:70px;}
   .dialog .body input[type=text]{width:100%;margin-top:4px;}
+  /* Animate: a panel along the bottom of the view, small enough to leave the picture visible */
+  #pvDlg{top:auto;bottom:10px;transform:translateX(-50%);width:540px;max-width:none;} #pvDlg [hidden]{display:none !important;}
+  #pvDlg .body{padding:8px 10px;} #pvDlg .title{cursor:move;user-select:none;touch-action:none;}
+  #pvDlg .pvgrid{display:grid;grid-template-columns:auto 1fr auto 1fr;gap:4px 8px;align-items:center;}
+  #pvDlg .pvf{display:flex;align-items:center;gap:5px;} #pvDlg .pvf input{width:64px;} #pvDlg .pvf input[type=checkbox]{width:auto;margin:0;} #pvDlg .pvwide{gap:14px;grid-column:2/-1;} #pvDlg .pvwide label{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
+  #pvDlg .pvinfo{margin-top:6px;font-size:11px;color:#404040;} #pvDlg .pvinfo.warn{color:#8a3b00;}
+  #pvDlg .pvbar{display:flex;align-items:center;gap:8px;margin-top:6px;} #pvDlg .pvbar input[type=range]{flex:1;min-width:0;} #pvDlg .pvtime{min-width:96px;text-align:right;white-space:nowrap;}
+  #pvDlg .pvprog{flex:1;height:14px;background:#fff;border:2px solid;border-color:#808080 #fff #fff #808080;} #pvDlg .pvprog i{display:block;height:100%;width:0;background:#000080;}
+  #pvDlg .pv-run{display:flex;gap:10px;align-items:flex-start;margin-top:6px;} #pvDlg .pvlive{flex:none;width:220px;background:#000;border:2px solid;border-color:#808080 #fff #fff #808080;}
+  #pvDlg .pvcol{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;} #pvDlg .pvcol .pvprog{flex:none;} #pvDlg .pvbtns{display:flex;gap:8px;}
+  #pvDlg .pvhint{font-size:11px;line-height:1.3;color:#404040;margin-top:4px;min-height:14px;}
+  #pvDlg video{display:block;width:100%;max-height:240px;background:#000;} #pvDlg .pvnote{margin-top:4px;font-size:11px;color:#404040;}
+  /* while a clip renders nothing else may change the scene */
+  #win.cliplock .menubar, #win.cliplock .side, #win.cliplock .toolbar, #win.cliplock #view{pointer-events:none;}   /* looks unchanged: the shield only stops clicks */
 </style>
 <script>
 // Interface skin: ?ui=bryce switches to the Bryce-style interface (remembered), ?ui=classic switches back
@@ -148,6 +162,7 @@
       <option value="400">400 × 300</option><option value="640">640 × 480</option><option value="800">800 × 600</option><option value="full">Full resolution</option><option value="custom">Custom size…</option>
     </select>
     <button id="btnRender" title="Ray traced render (Enter)">✦ Render</button>
+    <button id="btnAnimate" title="Preview a camera move and render it as a short video">Animate…</button>
     <button id="btnSaveImg" title="Save the current render (Ctrl+E)" hidden>Save Image…</button>
   </div>
   <div class="main">
@@ -190,6 +205,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
 import { createTracer, KIND, MOON_GLSL, MOON_R } from './tracer.js';
+import { PRESETS, CLIP, DRIFT, cameraAt, timeAt } from './motion.js';
 import { startPixelEmoji } from './emoji.js';
 import { SAVED_SCENES, loadSavedScene } from './saved-scenes.js';
 import { getLocalCatalogue, getFurniMeshCatalogue, getModelCatalogues, isIndexedModel, getIndexedModel } from './model-catalog.js';
@@ -382,10 +398,6 @@ const PALETTES = {
   prism:     { low: '#30408a', mid: '#20307a', rock: '#101a4a', high: '#dde6ff', zenith: '#02031a', horizon: '#1c2a8c', sun: '#ffffff', water: '#0a1450', chkA: '#0a1040', chkB: '#4050b0' },
   algebra:   { low: '#7a9ad8', mid: '#4a6ac0', rock: '#1a2a5a', high: '#eef4ff', zenith: '#163c9c', horizon: '#cfe6ff', sun: '#fff8f0', water: '#4080c0', chkA: '#0e1628', chkB: '#e8f0ff' },
   wondersDusk: { low: '#4a3a8a', mid: '#33236a', rock: '#1a0c38', high: '#a890e0', zenith: '#0c0838', horizon: '#e0689a', sun: '#ffa860', water: '#1a2a7a', pool: '#40e8e8', tile: '#d0d8ff' },
-  wondersGold: { low: '#a8784a', mid: '#7a4a5a', rock: '#3a2030', high: '#ffe0b8', zenith: '#5a4aa0', horizon: '#ffc070', sun: '#ffd890', water: '#2a6a8a', pool: '#50e0d0', tile: '#f0e0d0' },
-  wondersBlue: { low: '#3a4a9a', mid: '#2a3a8a', rock: '#101850', high: '#b8d0ff', zenith: '#0a1a5a', horizon: '#78b8e8', sun: '#c8e0ff', water: '#1a3a8a', pool: '#50d8f0', tile: '#c8e0ff' },
-  wondersMint: { low: '#c0a8e0', mid: '#a088d0', rock: '#7a62b0', high: '#ece6fa', zenith: '#5aa0dc', horizon: '#cfe8e0', sun: '#fff0d8', water: '#3ab0c0', pool: '#60e0d0', tile: '#e8f4f0' },
-  wondersAurora: { low: '#103040', mid: '#0a2430', rock: '#040e14', high: '#7affc8', zenith: '#010310', horizon: '#0c3a5c', sun: '#8affd0', water: '#06182e', pool: '#10a0a8', tile: '#88d8d0' },
   drift:     { low: '#c8b48c', mid: '#9a6e52', rock: '#5a4a4c', high: '#f4ece0', zenith: '#4f78b0', horizon: '#f2e4cc', sun: '#fff6e4', water: '#3a5a7a', chkA: '#29303a', chkB: '#efe6d6' },
   piranesi:  { low: '#a89878', mid: '#8a7a60', rock: '#4a4030', high: '#e8dcc0', zenith: '#56606c', horizon: '#d8c6a0', sun: '#fff0d0', water: '#5a5040', chkA: '#857760', chkB: '#ab9d80' },
   poolhall:  { low: '#e8e6d8', mid: '#cfcab4', rock: '#8a8670', high: '#f6f3e6', zenith: '#86b0cc', horizon: '#f2ecd2', sun: '#fff2d2', water: '#2aa894', pool: '#86dcc8', tile: '#eef4ec' },
@@ -1403,16 +1415,6 @@ const SCENES = {
       d.sky = { ...d.sky, clouds: false, ambient: 2.2, elev: r(14, 22), az: azTo(d.camera.pos, d.camera.target) + side * r(40, 70), fog: 0.0007 };
     } },
 };
-// environment colourways of Natural Wonders: same scene, different palette (and sun height)
-const wondersEnv = (key, label, pal, elev, sky = {}) => SCENES[key] = { ...SCENES.wondersB, label: 'Natural Wonders: ' + label, pal,
-  build(ctx) { SCENES.wondersB.build(ctx); if (elev) ctx.d.sky = { ...ctx.d.sky, elev: ctx.r(elev[0], elev[1]) }; ctx.d.sky = { ...ctx.d.sky, ...sky }; } };
-wondersEnv('wondersGold', 'golden hour', 'wondersGold');
-wondersEnv('wondersBlue', 'blue hour', 'wondersBlue');
-wondersEnv('wondersMint', 'mint daylight', 'wondersMint', [30, 40], { ambient: 0.85 });
-wondersEnv('wondersAurora', 'aurora night', 'wondersAurora', [4, 8], { ambient: 0.6, fog: 0.0007 });
-// portrait (9:16) framing: same scene and lighting, camera pulled back so the palm and the far slab stay in frame
-SCENES.wondersAuroraTall = { ...SCENES.wondersAurora, label: 'Natural Wonders: aurora night (portrait)',
-  build(ctx) { SCENES.wondersAurora.build(ctx); const c = ctx.d.camera; ctx.d.camera = { ...c, pos: [c.pos[0] - 14, c.pos[1] + 6, c.pos[2] + 75], target: [c.target[0] - 10, c.target[1] - 2, c.target[2]] }; } };
 function generateScene(key, seedV) {
   const S = SCENES[key], pal = PALETTES[S.pal];
   seed = seedV; rand.seed(seedV); phase = rand() * 10;   // same order as buildTerrain, so heightAt matches the built land
@@ -1565,12 +1567,13 @@ function blit() { renderer.setRenderTarget(null); renderer.clear(); renderer.ren
 const $ = id => document.getElementById(id);
 const msg = $('msg');
 let sceneBuild = 0;
-let mode = 'edit', viewMode = 'solid', dirty = true, sel = null;
+let mode = 'edit', viewMode = 'solid', dirty = true, sel = null, previewing = false;
 const overlay = new THREE.Scene();
 const orbit = new OrbitControls(camera, canvas);
 orbit.maxDistance = 3000; orbit.minDistance = 3;
 orbit.addEventListener('change', () => {
   if (mode !== 'edit' || !doc) return;
+  if (previewing) { dirty = true; return; }   // the motion preview moves the camera without touching the document
   doc.camera.pos = camera.position.toArray(); doc.camera.target = orbit.target.toArray(); dirty = true;
 });
 const gizmo = new TransformControls(camera, canvas);
@@ -1591,9 +1594,9 @@ function applyView() {
   dirty = true;
 }
 
-function applyCamera() {
-  camera.fov = doc.camera.fov || 50; camera.updateProjectionMatrix(); updateLensUI();
-  camera.position.fromArray(doc.camera.pos); orbit.target.fromArray(doc.camera.target);
+function applyCamera(c = doc.camera) {
+  camera.fov = c.fov || 50; camera.updateProjectionMatrix(); updateLensUI();
+  camera.position.fromArray(c.pos); orbit.target.fromArray(c.target);
   orbit.update();
 }
 function applyDoc() {
@@ -1766,6 +1769,7 @@ function updateLensUI() {
 }
 function setLens(f, rerender = false) {
   if (!doc) return;
+  if (previewing) { msg.textContent = 'Close Animate to change the lens'; updateLensUI(); return; }   // the preview camera must not be written into the document
   f = Math.max(10, Math.min(100, Math.round(f)));
   const k = Math.tan(camera.fov * Math.PI / 360) / Math.tan(f * Math.PI / 360);
   const off = camera.position.clone().sub(orbit.target).multiplyScalar(k);
@@ -2169,6 +2173,14 @@ function accSnapshot() {
   return out;
 }
 let job = 0;
+// Turbo is for clips and the animate script, where nobody watches the picture build up: instead of one band per display frame (which leaves the GPU
+// idle between vsyncs and makes a frame cost ~passes x 6 display frames whatever its size) it keeps the GPU busy back to back, in slices of about
+// TURBO_MS that each wait for the GPU so no single submission runs long. Same passes in the same order, so the picture is identical.
+let turbo = false;
+const TURBO_MS = 60, syncBuf = new Float32Array(4);
+const deferCh = new MessageChannel(), deferred = [];
+deferCh.port1.onmessage = () => deferred.shift()?.();
+const defer = f => { deferred.push(f); deferCh.port2.postMessage(0); };   // next task, without waiting for a display frame (and not paused in a background tab)
 // animation offsets applied at trace time only (the document is untouched): cloud drift in world units, sky/water noise shifts
 const anim = { cx: 0, cz: 0, sky: 0, water: 0 };
 
@@ -2185,11 +2197,12 @@ function traceContext() {
   const surf = surfaceOf(doc.terrain), fc = floorColors(PALETTES[doc.palette] || PALETTES.desert, surf);
   return { scene, camera, spheres, skip: new Set([sky, water, floorMesh, ...cloudMeshes]), water: surf !== 'none', waterY: WY(),
     floor: FLOOR_MODE[surf] ? { mode: FLOOR_MODE[surf], a: new THREE.Color(fc[0]), b: new THREE.Color(fc[1]), tile: doc.terrain.floorTile || DEFAULT_TILE[surf] || 20, depth: POOL_DEPTH } : null, clouds, night: !!doc.sky.night, heightFields: doc.terrain.land === false ? [] : [terrain], patches: doc.objects.filter(o => o.type === 'terrain' && roots.get(o.id)?.visible).map(o => roots.get(o.id).children[0]), sun, hemi, lamps: lamps.slice(0, 3),
-    skyU: { ...skyMat.uniforms, seed: { value: skyMat.uniforms.seed.value + anim.sky } }, waterU: { ...water.material.uniforms, seed: { value: water.material.uniforms.seed.value + anim.water } }, fog: scene.fog };
+    skyU: { ...skyMat.uniforms, seed: { value: doc.sky.cloudSeed + anim.sky } }, waterU: { ...water.material.uniforms, seed: { value: doc.sky.waterSeed + anim.water } }, fog: scene.fog };
 }
 
 function setMode(m) {
   mode = m; job++;
+  if (clipLock) return;   // a clip traces in ray mode behind the scenes: leave the toolbar, labels and skin exactly as they are
   const edit = m === 'edit';
   orbit.enabled = edit; gizmo.enabled = edit;
   gizmo.getHelper().visible = edit && !!sel; selBox.visible = edit && !!sel;
@@ -2205,11 +2218,12 @@ function setMode(m) {
 let renderDone = false;
 function renderFinal(ray, onDone) {
   if (!doc) return;
+  if (clipLock && !clipAllow) return;   // a clip is rendering: only the clip runner may start a trace
   if (panel === 'start') setPanel('world');
   setMode(ray ? 'ray' : 'render');
   const my = job;
-  msg.textContent = ray ? 'Building ray tracing structures...' : 'Rendering...';
-  setTimeout(() => requestAnimationFrame(() => {
+  if (!turbo) msg.textContent = ray ? 'Building ray tracing structures...' : 'Rendering...';
+  const run = () => {
     if (my !== job) return;
     const t0 = performance.now();
     sky.position.copy(camera.position);
@@ -2235,29 +2249,35 @@ function renderFinal(ray, onDone) {
     const t1 = performance.now();
     const step = () => {
       if (my !== job) return;
-      // one band per frame keeps each GPU submission short
-      const bh = Math.ceil(H / BANDS), y0 = H - (band + 1) * bh;
-      tracer.material.uniforms.frame.value = pass * BANDS + band;
-      renderer.setRenderTarget(accRT);
-      renderer.setScissorTest(true); renderer.setScissor(0, Math.max(0, y0), W, Math.min(bh, H - Math.max(0, y0)));
-      renderer.render(traceScene, postCam);
-      renderer.setScissorTest(false);
-      blit();
-      if (++band === BANDS) {
-        band = 0; pass++;
-        // Fine: from pass 16, check every 8 passes and stop once the image has stopped changing
-        if (traceQuality === 'fine' && pass >= 16 && pass % 8 === 0) {
-          const snap = accSnapshot();
-          if (lastSnap) { let d = 0; for (let i = 0; i < snap.length; i++) d += Math.abs(snap[i] - lastSnap[i]); settled = d / snap.length < 0.0015; }
-          lastSnap = snap;
+      const tick0 = performance.now();
+      do {
+        // one band per submission keeps each GPU command short
+        const bh = Math.ceil(H / BANDS), y0 = H - (band + 1) * bh;
+        tracer.material.uniforms.frame.value = pass * BANDS + band;
+        renderer.setRenderTarget(accRT);
+        renderer.setScissorTest(true); renderer.setScissor(0, Math.max(0, y0), W, Math.min(bh, H - Math.max(0, y0)));
+        renderer.render(traceScene, postCam);
+        renderer.setScissorTest(false);
+        if (++band === BANDS) {
+          band = 0; pass++;
+          // Fine: from pass 16, check every 8 passes and stop once the image has stopped changing
+          if (traceQuality === 'fine' && pass >= 16 && pass % 8 === 0) {
+            const snap = accSnapshot();
+            if (lastSnap) { let d = 0; for (let i = 0; i < snap.length; i++) d += Math.abs(snap[i] - lastSnap[i]); settled = d / snap.length < 0.0015; }
+            lastSnap = snap;
+          }
         }
-      }
-      msg.textContent = `Ray tracing (${qLabel}) - pass ${pass + (band ? 1 : 0)}/${MAXP} - ${(info.triangles / 1e6).toFixed(2)}M tris, setup ${tBuild.toFixed(1)}s`;
-      if (pass < MAXP && !settled) requestAnimationFrame(step);
-      else { msg.textContent = `Ray trace complete (${qLabel}) - ${pass} passes${settled ? ', settled early' : ''} in ${((performance.now() - t1) / 1000).toFixed(1)} sec - ${MOD}E saves it, Esc to edit`; renderDone = true; }
+        if (turbo) renderer.readRenderTargetPixels(accRT, 0, 0, 1, 1, syncBuf);   // returns when the GPU has finished, so the clock below measures real work
+      } while (turbo && pass < MAXP && !settled && my === job && performance.now() - tick0 < TURBO_MS);
+      const finished = !(pass < MAXP && !settled);
+      if (!turbo || finished) blit();   // a clip only needs the finished frame on the canvas
+      if (!turbo) msg.textContent = `Ray tracing (${qLabel}) - pass ${pass + (band ? 1 : 0)}/${MAXP} - ${(info.triangles / 1e6).toFixed(2)}M tris, setup ${tBuild.toFixed(1)}s`;
+      if (pass < MAXP && !settled) (turbo ? defer : requestAnimationFrame)(step);
+      else { if (!turbo) msg.textContent = `Ray trace complete (${qLabel}) - ${pass} passes${settled ? ', settled early' : ''} in ${((performance.now() - t1) / 1000).toFixed(1)} sec - ${MOD}E saves it, Esc to edit`; renderDone = true; }
     };
-    requestAnimationFrame(step);
-  }), 30);
+    (turbo ? defer : requestAnimationFrame)(step);
+  };
+  if (turbo) defer(run); else setTimeout(() => requestAnimationFrame(run), 30);
 }
 
 // Animation: renders one ray-traced frame at loop position t in [0,1). spec = { orbit: degrees swept over the loop (360 = full turn) or [from, to] degrees,
@@ -2265,21 +2285,296 @@ function renderFinal(ray, onDone) {
 // zoom: lens magnification reached at the end of the loop (>1 zooms in, <1 zooms out; the FOV narrows/widens at a steady apparent rate) }.
 // Resolves when the frame is finished; scripts/animate.mjs calls this once per frame.
 let animBase = null;
-function renderFrame(spec, t) {
-  if (!animBase) animBase = JSON.parse(JSON.stringify(doc.camera));
-  // focus: [x,y,z] or an object's name; the camera circles it and looks at it (default: the camera's own target)
+// Places the camera (and the trace-time offsets) for loop position t, starting from `base`; the maths is in motion.js. Shared by the traced
+// frames and the raster preview so both move identically. focus: [x,y,z] or an object's name (default: the base camera's own target).
+function applyMotion(base, spec, t, cam = doc.camera) {
   let focus = spec.focus;
   if (typeof focus === 'string') { const o = doc.objects.find(o => o.name === focus); focus = o ? o.pos : null; }
-  const { pos } = animBase, target = Array.isArray(focus) ? focus : animBase.target, [o0, o1] = Array.isArray(spec.orbit) ? spec.orbit : [0, spec.orbit || 0], a = (o0 + (o1 - o0) * t) * Math.PI / 180;
-  const dx = pos[0] - target[0], dz = pos[2] - target[2], c = Math.cos(a), s = Math.sin(a);
-  doc.camera.pos = [target[0] + dx * c - dz * s, pos[1], target[2] + dx * s + dz * c];
-  doc.camera.target = target.slice();
-  const fov0 = animBase.fov || 50, m = Math.pow(spec.zoom || 1, t);
-  doc.camera.fov = 2 * Math.atan(Math.tan(fov0 * Math.PI / 360) / m) * 180 / Math.PI;
-  applyCamera(); updateMoonLod();
+  Object.assign(cam, cameraAt(base, { ...spec, focus }, t));
+  applyCamera(cam); updateMoonLod();
   Object.assign(anim, { cx: (spec.clouds || 0) * t, cz: 0, sky: (spec.sky || 0) * t, water: (spec.water || 0) * t });
+}
+function renderFrame(spec, t) {
+  if (!animBase) animBase = JSON.parse(JSON.stringify(doc.camera));
+  applyMotion(animBase, spec, t);
+  turbo = true;   // the script never looks at the build-up
   renderDone = false;
   return new Promise(res => { renderFinal(true); const poll = () => renderDone ? res() : setTimeout(poll, 50); poll(); });
+}
+
+// ---------- Animate: preview a camera move in the fast raster view, then ray trace it frame by frame into a video ----------
+// The panel is one flow: Setup (pick a motion, scrub or play the raster preview) -> Render clip -> Done (play it, download it).
+// It never edits the document: the camera and its zoom live in the preview only (the zoom is part of the undo history).
+// While a clip renders, clipLock keeps everything else from starting a trace or changing the scene; Esc or Cancel stops it.
+let clipLock = false, clipAllow = false, animPos = null;   // animPos: where the panel was last dragged to
+const MEDIABUNNY = 'https://unpkg.com/mediabunny@1.66.0/dist/bundles/mediabunny.min.mjs';   // loaded only when a clip is rendered
+const fmtDur = s => s < 90 ? `${Math.max(1, Math.round(s))} s` : `${Math.floor(s / 60)} min ${Math.round(s % 60)} s`;
+
+// Minimal uncompressed zip, the fallback when the browser can't encode video: the clip comes out as a folder of PNG frames.
+const CRC_T = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+const crc32 = u8 => { let c = ~0; for (let i = 0; i < u8.length; i++) c = CRC_T[(c ^ u8[i]) & 255] ^ (c >>> 8); return ~c >>> 0; };
+function zipStore(files) {
+  const enc = new TextEncoder(), parts = [], central = []; let off = 0, csize = 0;
+  for (const f of files) {
+    const name = enc.encode(f.name), crc = crc32(f.data), sz = f.data.length;
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(12, 0x21, true);   // version 2.0, stored, date 1980-01-01
+    lh.setUint32(14, crc, true); lh.setUint32(18, sz, true); lh.setUint32(22, sz, true); lh.setUint16(26, name.length, true);
+    parts.push(lh.buffer, name, f.data);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(14, 0x21, true);
+    ch.setUint32(16, crc, true); ch.setUint32(20, sz, true); ch.setUint32(24, sz, true); ch.setUint16(28, name.length, true); ch.setUint32(42, off, true);
+    central.push(ch.buffer, name); off += 30 + name.length + sz; csize += 46 + name.length;
+  }
+  const end = new DataView(new ArrayBuffer(22));
+  end.setUint32(0, 0x06054b50, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true); end.setUint32(12, csize, true); end.setUint32(16, off, true);
+  return new Blob([...parts, ...central, end.buffer], { type: 'application/zip' });
+}
+
+// Clip encoder: H.264 mp4 if the browser can (WebCodecs), else VP9 webm, else a zip of PNGs. Frames go straight in, so memory stays flat.
+async function makeClipEncoder(w, h, fps) {
+  const ew = w & ~1, eh = h & ~1;   // H.264 needs even sides: the frame is copied into an even canvas
+  let mb = null;
+  try { mb = await import(MEDIABUNNY); } catch (e) { console.warn('video encoder library did not load', e); }
+  if (mb && typeof VideoEncoder !== 'undefined') {
+    for (const [codec, Format, ext, mime] of [['avc', mb.Mp4OutputFormat, 'mp4', 'video/mp4'], ['vp9', mb.WebMOutputFormat, 'webm', 'video/webm']]) {
+      if (!(await mb.canEncodeVideo(codec, { width: ew, height: eh, frameRate: fps }).catch(() => false))) continue;   
+      const cv = new OffscreenCanvas(ew, eh), g = cv.getContext('2d');
+      const output = new mb.Output({ format: new Format(), target: new mb.BufferTarget() });
+      const source = new mb.CanvasSource(cv, { codec, bitrate: Math.max(1e6, Math.round(ew * eh * fps * 0.5)), hardwareAcceleration: 'prefer-software' });   // ~0.5 bit/pixel/frame: the software encoder undershoots a quality preset and smears the fine detail   // the default and 'prefer-hardware' both stalled ~4 s at the 4th frame while the hardware encoder spun up; software starts at once and keeps up
+      output.addVideoTrack(source, { frameRate: fps });
+      await output.start();
+      return {
+        ext, video: true,
+        async add(src, i) { g.drawImage(src, 0, 0); await source.add(i / fps, 1 / fps); },
+        async finish() { await output.finalize(); return { blob: new Blob([output.target.buffer], { type: mime }), ext }; },
+        async cancel() { await output.cancel(); },
+      };
+    }
+  }
+  const files = [];
+  return {
+    ext: 'zip', video: false,
+    async add(src, i) { const b = await new Promise(r => src.toBlob(r, 'image/png')); files.push({ name: `frame_${String(i).padStart(4, '0')}.png`, data: new Uint8Array(await b.arrayBuffer()) }); },
+    async finish() { return { blob: zipStore(files), ext: 'zip' }; },
+    async cancel() { files.length = 0; },
+  };
+}
+
+// the middle of an object's bounding box (an object's own pos can be its base or corner), for circling it
+function objCenter(o) {
+  const r = roots.get(o.id), box = r ? new THREE.Box3().setFromObject(r) : null;
+  return box && !box.isEmpty() ? box.getCenter(new THREE.Vector3()).toArray() : o.pos.slice();
+}
+function openAnimate() {
+  if (!doc || $('win').querySelector('#pvDlg')) return;
+  if (mode !== 'edit') setMode('edit');
+  const base = JSON.parse(JSON.stringify(doc.camera)), cam = {}, esc = x => String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const maxSecs = Math.floor(CLIP.maxFrames / CLIP.fps);
+  const d = document.createElement('div'); d.className = 'dialog'; d.id = 'pvDlg';
+  d.innerHTML = `<div class="title"><span>Animate</span><span class="tb"><b data-c="x">×</b></span></div>
+    <div class="body">
+      <div class="pvdone" hidden><video controls loop></video><div class="pvnote"></div>
+        <div class="pvbar"><button data-c="save"><b>Download</b></button><button data-c="back">Back to setup</button><button data-c="x">Close</button></div></div>
+      <div class="pvmain">
+        <div class="pvgrid">
+          <span>Motion</span><select id="pvMo">${PRESETS.map((p, i) => `<option value="${i}">${p.label}</option>`).join('')}</select>
+          <span>Center</span><select id="pvCen"></select>
+          <span>Amount</span><span class="pvf"><input type="number" id="pvAmt" step="0.05"><span id="pvUnit"></span></span>
+          <span>Length</span><span class="pvf"><input type="number" id="pvSec" min="1" max="${maxSecs}" value="${CLIP.seconds}"><span>seconds · ${CLIP.fps} fps</span></span>
+          <span>Also</span><span class="pvf pvwide"><label><input type="checkbox" id="pvCl"> Clouds drift</label><label><input type="checkbox" id="pvWa"> Water ripples</label></span>
+        </div>
+        <div class="pvinfo"></div>
+        <div class="pvbar pv-setup"><button data-c="play"><b>Play</b></button><input type="range" id="pvT" min="0" max="1000" value="0"><span class="pvtime"></span><button data-c="render"><b>Render clip…</b></button><button data-c="x">Close</button></div>
+        <div class="pv-run" hidden><canvas class="pvlive"></canvas><div class="pvcol"><div class="pvprog"><i></i></div><span class="pvrun"></span><div class="pvbtns"><button data-c="go" hidden><b>Start</b></button><button data-c="cancel">Cancel</button></div></div></div>
+        <div class="hint pvhint"></div>
+      </div>
+    </div>`;
+  const shield = document.createElement('div'); shield.hidden = true;   // while a clip renders it swallows every click outside the panel, in either skin
+  shield.style.cssText = 'position:fixed;inset:0;z-index:29;cursor:progress;';
+  $('win').append(shield, d);
+  // Draggable by its title bar in either skin. It starts docked at the bottom centre of the view; once moved it keeps its place for next time.
+  const placeAt = (left, top) => {   // left/top are relative to the panel's container (the app window in the classic skin, the page in Bryce)
+    const par = d.offsetParent || document.documentElement, w = d.offsetWidth;
+    const L = Math.min(Math.max(left, 100 - w), par.clientWidth - 100), T = Math.min(Math.max(top, 0), par.clientHeight - 28);   // keep at least 100 px of the title bar inside the container (the close box takes the last 22)
+    Object.assign(d.style, { left: L + 'px', top: T + 'px', bottom: 'auto', transform: 'none' }); animPos = { left: L, top: T };
+  };
+  if (animPos) placeAt(animPos.left, animPos.top);
+  const bar = d.querySelector('.title');
+  bar.addEventListener('pointerdown', e => {
+    if (e.button !== 0 || e.target.closest('[data-c]')) return;   // the close box is a button, not a handle
+    const pr = (d.offsetParent || document.documentElement).getBoundingClientRect(), r = d.getBoundingClientRect(), dx = e.clientX - r.left, dy = e.clientY - r.top;
+    bar.setPointerCapture(e.pointerId); e.preventDefault();
+    const move = ev => placeAt(ev.clientX - dx - pr.left, ev.clientY - dy - pr.top);
+    const up = () => { bar.removeEventListener('pointermove', move); bar.removeEventListener('pointerup', up); bar.removeEventListener('pointercancel', up); };
+    bar.addEventListener('pointermove', move); bar.addEventListener('pointerup', up); bar.addEventListener('pointercancel', up);
+  });
+  const q = s => d.querySelector(s), mo = q('#pvMo'), amt = q('#pvAmt'), secIn = q('#pvSec'), scrub = q('#pvT'), cen = q('#pvCen'), clBox = q('#pvCl'), waBox = q('#pvWa'), timeEl = q('.pvtime'), play = q('[data-c=play]');
+  const info = q('.pvinfo'), hint = q('.pvhint'), runInfo = q('.pvrun'), fill = q('.pvprog i'), goBtn = q('[data-c=go]'), video = q('video'), note = q('.pvnote');
+  let t = 0, playing = false, t0 = 0, raf = 0, ticks = 0, tickT = performance.now(), fps = 0;
+  let state = 'setup', cancelled = false, confirmRes = null, result = null, blobUrl = null;
+  const preset = () => PRESETS[+mo.value], secs = () => Math.min(maxSecs, Math.max(1, +secIn.value || CLIP.seconds)), frames = () => Math.round(secs() * CLIP.fps);
+  // Center: the camera's own target, or the selected object (the camera then circles and looks at it). It follows the selection live,
+  // until the user explicitly picks "Camera target".
+  let centerMode = isObj() ? 'sel' : 'cam', pickedCam = false, focus;
+  const refreshCenter = () => {
+    if (!pickedCam) centerMode = isObj() ? 'sel' : 'cam';
+    if (centerMode === 'sel' && !isObj()) centerMode = 'cam';
+    focus = centerMode === 'sel' ? objCenter(sel) : undefined;
+    cen.innerHTML = `<option value="cam">Camera target</option><option value="sel"${isObj() ? '' : ' disabled'}>${isObj() ? 'Selected: ' + esc(sel.name) : 'Selected object (none selected)'}</option>`;
+    cen.value = centerMode;
+  };
+  const hideGizmo = () => { gizmo.getHelper().visible = false; };   // keep the selection box, lose the drag handles
+  // Weather: clouds (sky clouds or cloud layers) and water ripples drift over the clip, if the scene has them
+  const cloudObjs = doc.objects.filter(o => o.type === 'clouds');
+  const hasClouds = doc.sky.clouds !== false || cloudObjs.length > 0, hasWater = ['water', 'pool'].includes(surfaceOf(doc.terrain));   // the tracer ripples both with the water seed
+  clBox.checked = hasClouds; clBox.disabled = !hasClouds; clBox.parentNode.title = hasClouds ? '' : 'This scene has no clouds';
+  waBox.checked = hasWater; waBox.disabled = !hasWater; waBox.parentNode.title = hasWater ? '' : 'This scene has no water surface';
+  // The raster preview shows the same drift by nudging the sky and water seeds and the cloud layers' origin; doc values stay untouched.
+  const setDrift = (cx, sk, wa) => {
+    skyMat.uniforms.seed.value = doc.sky.cloudSeed + sk; water.material.uniforms.seed.value = doc.sky.waterSeed + wa;
+    for (const o of cloudObjs) { const u = roots.get(o.id)?.userData.clouds?.material.uniforms; if (u) u.origin.value.set(o.pos[0] + cx, o.pos[2]); }
+  };
+  const amount = () => { const a = +amt.value; return (preset().unit === '× zoom' ? a > 0 : a !== 0) ? a : preset().amt; };   // a zero or negative zoom is meaningless
+  const spec = () => ({
+    ...preset().spec(amount()), ...(focus ? { focus } : {}),
+    ...(clBox.checked ? { clouds: DRIFT.clouds * secs(), sky: DRIFT.sky * secs() } : {}), ...(waBox.checked ? { water: DRIFT.water * secs() } : {}),
+  });
+  const quality = () => QUALITY[traceQuality][1];
+  const setInfo = () => {
+    const n = frames(), big = Math.max(W, H) > CLIP.maxSide;
+    info.textContent = `${quality()} quality · ${W} × ${H} · ${n} frames (change quality and size in the toolbar)`;
+    info.classList.toggle('warn', big || traceQuality === 'fine');
+    if (state === 'setup') hint.textContent = big ? `Clips are limited to ${CLIP.maxSide} px on the longest side: pick a smaller size.`
+      : traceQuality === 'fine' ? 'Fine quality is slow for a clip. Draft or Normal is a good first try.' : 'The preview is a quick raster view: reflections, glass and the exact look only appear in the rendered clip.';
+  };
+  const show = () => {
+    applyMotion(base, spec(), t, cam); setDrift(anim.cx, anim.sky, anim.water);
+    scrub.value = Math.round(t * 1000); dirty = true; setInfo();
+    timeEl.textContent = `${(t * secs()).toFixed(1)} / ${secs()} s${playing ? ` · ${fps} fps` : ''}`;
+  };
+  const tick = now => {
+    if (!playing) return;
+    t = ((now - t0) / 1000 / secs()) % 1;
+    ticks++; if (now - tickT >= 500) { fps = Math.round(ticks * 1000 / (now - tickT)); ticks = 0; tickT = now; }
+    show(); raf = requestAnimationFrame(tick);
+  };
+  const setPlaying = on => {
+    playing = on; play.firstChild.textContent = on ? 'Pause' : 'Play'; cancelAnimationFrame(raf);
+    if (on) { const now = performance.now(); t0 = now - t * secs() * 1000; ticks = 0; tickT = now; raf = requestAnimationFrame(tick); } else show();
+  };
+  const onSelect = e => { if (state === 'setup' && e.detail === 'select') { refreshCenter(); hideGizmo(); show(); } };
+  const onVisible = () => { if (state === 'run') hint.textContent = document.hidden ? 'Keep this tab visible: browsers pause rendering in background tabs.' : ''; };
+  const view = s => {   // which part of the panel shows
+    state = s;
+    q('.pvmain').hidden = s === 'done'; q('.pvdone').hidden = s !== 'done';
+    q('.pv-setup').hidden = s !== 'setup'; q('.pv-run').hidden = s === 'setup';
+    goBtn.hidden = s !== 'confirm';
+    d.querySelectorAll('.pvgrid select, .pvgrid input').forEach(e => e.disabled = s !== 'setup' || (e === amt && preset().key === 'still') || (e === clBox && !hasClouds) || (e === waBox && !hasWater));
+    $('win').classList.toggle('cliplock', s === 'run' || s === 'confirm'); shield.hidden = !(s === 'run' || s === 'confirm');
+  };
+  const releaseUrl = () => { if (blobUrl) { URL.revokeObjectURL(blobUrl); blobUrl = null; } video.removeAttribute('src'); };
+  const backToPreview = () => {   // the raster edit view again, with the preview camera and the selection box but no handles
+    if (mode !== 'edit') setMode('edit');
+    orbit.enabled = false; gizmo.enabled = false; hideGizmo(); msg.textContent = 'Animate - Space plays, Esc closes';
+    show();
+  };
+  // The scene was replaced (New, Open, Undo...) while the panel was open: its new camera is already in place, so don't put the old one back.
+  const onDoc = e => { if (e.detail === 'doc' && state !== 'run' && state !== 'confirm') close(false); };
+  const close = (restore = true) => {
+    if (state === 'run' || state === 'confirm') return;
+    playing = false; cancelAnimationFrame(raf); releaseUrl(); shield.remove(); setDrift(0, 0, 0); Object.assign(anim, { cx: 0, cz: 0, sky: 0, water: 0 });   // not setPlaying(false): that would redraw the preview camera
+    document.removeEventListener('terrascape:change', onSelect); document.removeEventListener('terrascape:change', onDoc); document.removeEventListener('visibilitychange', onVisible);
+    $('qualitySel').removeEventListener('change', show); $('resSel').removeEventListener('change', show);
+    $('win').classList.remove('cliplock');
+    previewing = false; if (restore) applyCamera(base);   // doc.camera was never touched, so just put the view back
+    gizmo.enabled = true; gizmo.getHelper().visible = isObj() && mode === 'edit'; orbit.enabled = true; dirty = true;
+    msg.textContent = 'Edit'; d.remove(); canvas.focus({ preventScroll: true });
+  };
+  const stopClip = () => { cancelled = true; if (confirmRes) confirmRes(false); job++; };   // job++ ends a trace in progress
+
+  const renderClip = async () => {
+    const n = frames(), clipSpec = spec(), loop = !!preset().loop;
+    if (Math.max(W, H) > CLIP.maxSide) { setInfo(); return; }
+    setPlaying(false); cancelled = false; confirmRes = null; result = null;
+    // The main view keeps showing the raster picture it had while frames are traced under it (the trace repaints the canvas every pass, which
+    // flashes). A still copy sits over the canvas, and the panel shows each finished frame instead.
+    const ov = document.createElement('canvas'); ov.width = W; ov.height = H; ov.getContext('2d').drawImage(canvas, 0, 0);
+    Object.assign(ov.style, { position: 'absolute', left: canvas.offsetLeft + 'px', top: canvas.offsetTop + 'px', width: canvas.offsetWidth + 'px', height: canvas.offsetHeight + 'px', zIndex: 2, pointerEvents: 'none' });
+    ov.style.imageRendering = getComputedStyle(canvas).imageRendering;   // scale it exactly as the canvas is scaled
+    canvas.after(ov);
+    const live = q('.pvlive'), lw = 220, lh = Math.round(lw * H / W); live.width = lw; live.height = lh; live.style.height = lh + 'px';
+    const lctx = live.getContext('2d'); lctx.drawImage(ov, 0, 0, lw, lh);
+    const dropOv = () => requestAnimationFrame(() => requestAnimationFrame(() => ov.remove()));   // after the edit view has repainted underneath
+    view('run'); fill.style.width = '0'; runInfo.textContent = 'Preparing the video encoder…'; hint.textContent = '';
+    msg.textContent = 'Rendering the clip - Esc cancels'; setDrift(0, 0, 0); clipLock = true; turbo = true; $('btnRender').disabled = $('qualitySel').disabled = $('resSel').disabled = true;
+    let enc = null, wake = null, aborted = false, failed = null;
+    try {
+      enc = await makeClipEncoder(W, H, CLIP.fps);
+      wake = await navigator.wakeLock?.request('screen').catch(() => null) ?? null;
+      let avg = 0, last = performance.now();   // frame 0 carries one-off start-up cost (shader compile), so frame 1 replaces it as the basis of the estimate
+      for (let i = 0; i < n && !cancelled; i++) {
+        applyMotion(base, clipSpec, timeAt(i, n, loop), cam);
+        renderDone = false; clipAllow = true; renderFinal(true); clipAllow = false;
+        const my = job;   // renderFinal's setMode has already bumped it; anything that changes it later (Esc, Cancel, Edit) ends the frame
+        while (!renderDone && job === my) await new Promise(r => setTimeout(r, 25));
+        if (!renderDone) { aborted = !cancelled; break; }
+        await enc.add(canvas, i);
+        lctx.drawImage(canvas, 0, 0, lw, lh);   // the panel's preview refreshes only when a frame is finished
+        const now = performance.now(), dt = (now - last) / 1000; last = now;
+        avg = i < 2 ? dt : avg * 0.7 + dt * 0.3;
+        fill.style.width = `${Math.round(100 * (i + 1) / n)}%`;
+        runInfo.textContent = `Frame ${i + 1} / ${n}${i + 1 < n ? ` · about ${fmtDur(avg * (n - i - 1))} left` : ''}`;
+        if (i === 1 && n > 2 && avg * (n - 2) > 30) {   // a long job: say what it costs and let the user decide
+          view('confirm'); runInfo.textContent = `Each frame takes about ${avg.toFixed(1)} s: roughly ${fmtDur(avg * (n - 2))} more for ${n} frames. Start?`;
+          if (!await new Promise(res => { confirmRes = res; })) break;
+          confirmRes = null; view('run'); last = performance.now();
+        }
+      }
+      if (!cancelled && !aborted) { runInfo.textContent = 'Finishing the file…'; result = await enc.finish(); enc = null; }
+    } catch (err) { console.error(err); failed = err; }
+    finally {
+      if (enc) await enc.cancel().catch(() => {});
+      clipLock = clipAllow = turbo = false; Object.assign(anim, { cx: 0, cz: 0, sky: 0, water: 0 });
+      $('btnRender').disabled = $('qualitySel').disabled = $('resSel').disabled = false; wake?.release?.().catch?.(() => {});
+    }
+    if (!d.isConnected) { ov.remove(); return; }
+    if (result) {
+      releaseUrl(); blobUrl = URL.createObjectURL(result.blob);
+      video.hidden = !(result.ext === 'mp4' || result.ext === 'webm'); if (!video.hidden) { video.src = blobUrl; video.muted = true; video.play().catch(() => {}); }
+      note.textContent = result.ext === 'zip' ? `This browser can't encode video, so the ${n} frames are saved as PNG images in a zip.`
+        : `${n} frames · ${(n / CLIP.fps).toFixed(1)} s · ${(result.blob.size / 1e6).toFixed(1)} MB .${result.ext}`;
+      if (mode !== 'edit') setMode('edit'); view('done');
+      orbit.enabled = false; gizmo.enabled = false; hideGizmo(); applyCamera(base); dirty = true; msg.textContent = 'Clip ready'; dropOv();
+      return;
+    }
+    view('setup'); backToPreview(); dropOv();
+    hint.textContent = failed ? `Couldn't make the clip: ${failed.message || failed}` : aborted ? 'The render was stopped.' : 'Cancelled.';
+  };
+
+  mo.onchange = () => { q('#pvUnit').textContent = preset().unit; amt.value = preset().key === 'still' ? '' : preset().amt; amt.disabled = preset().key === 'still'; show(); };
+  clBox.onchange = waBox.onchange = () => show();
+  cen.onchange = () => { pickedCam = cen.value === 'cam'; centerMode = cen.value; refreshCenter(); show(); };
+  amt.oninput = secIn.oninput = () => show();
+  scrub.oninput = () => { t = scrub.value / 1000; if (playing) t0 = performance.now() - t * secs() * 1000; show(); };
+  d.addEventListener('click', e => {
+    const c = e.target.closest('[data-c]'); if (!c) return;
+    ({ play: () => setPlaying(!playing), render: renderClip, cancel: stopClip, go: () => confirmRes && confirmRes(true), close: () => close(), x: () => close(),
+      back: () => { releaseUrl(); view('setup'); backToPreview(); },
+      save: () => { const a = document.createElement('a'); a.href = blobUrl; a.download = `${doc.name || 'untitled'}-${preset().key}.${result.ext}`; a.click(); } })[c.dataset.c]?.();
+  });
+  const esc1 = () => { if (state === 'run' || state === 'confirm') stopClip(); else close(); };
+  d._close = esc1;   // the global Esc handler closes the top dialog through this
+  d.addEventListener('keydown', e => {
+    e.stopPropagation();
+    if (e.key === 'Escape') esc1();
+    if (e.key === ' ' && state === 'setup' && e.target.tagName !== 'INPUT') { e.preventDefault(); setPlaying(!playing); }
+  });
+  document.addEventListener('terrascape:change', onSelect); document.addEventListener('terrascape:change', onDoc); document.addEventListener('visibilitychange', onVisible);
+  $('qualitySel').addEventListener('change', show); $('resSel').addEventListener('change', show);
+  previewing = true; orbit.enabled = false; gizmo.enabled = false; hideGizmo();
+  msg.textContent = 'Animate - Space plays, Esc closes';
+  q('#pvUnit').textContent = preset().unit; amt.value = preset().amt; refreshCenter(); view('setup'); show(); play.focus();
 }
 
 // Save Image: the canvas holds the finished picture at the output size (preserveDrawingBuffer keeps it readable)
@@ -2326,6 +2621,7 @@ function fitView() {
   camera.aspect = a; camera.updateProjectionMatrix();
 }
 function setResolution(key) {
+  if (clipLock) return;   // the encoder is fixed to the size the clip started at
   resKey = key;
   const dpr = window.devicePixelRatio || 1;
   [W, H] = RES[key] || [Math.round(800 * dpr), Math.round(600 * dpr)];
@@ -2342,6 +2638,7 @@ function setResolution(key) {
   if (mode === 'edit') dirty = true; else renderFinal(mode === 'ray');
 }
 $('resSel').addEventListener('change', e => {
+  if (clipLock) { e.target.value = resKey; return; }
   if (e.target.value === 'custom') { e.target.value = resKey; return customSize(); }
   setResolution(e.target.value);
 });
@@ -2372,7 +2669,7 @@ function customSize() {
   d.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') d.querySelector('[data-c=ok]').click(); if (e.key === 'Escape') d.remove(); });
   wIn.focus(); wIn.select();
 }
-function setColors(m) { colorMode = m; post.uniforms.mode.value = m; if (mode === 'edit') dirty = true; else blit(); }
+function setColors(m) { if (clipLock) return; colorMode = m; post.uniforms.mode.value = m; if (mode === 'edit') dirty = true; else blit(); }
 
 // ---------- Scene presets and appearance ----------
 const LOOK_TIMES = { day: 'Day', dusk: 'Dusk', night: 'Night' }, LOOK_WEATHER = { clear: 'Clear', cloudy: 'Cloudy', hazy: 'Hazy' };
@@ -2681,6 +2978,7 @@ function menuSpec() {
     ],
     Render: [
       ['Render Image', () => renderFinal(true), 'Enter'], ['Edit Scene', () => setMode('edit'), 'Esc', mode === 'edit'], ['Quick Snapshot', () => renderFinal(false)], sep,
+      ['Animate…', openAnimate], sep,
       ['Save Image…', saveImage, MOD + 'E'],
     ],
     Help: [['Controls', () => dialog('Controls', HELP)], ['About Terrascape', () => dialog('About Terrascape',
@@ -2747,7 +3045,8 @@ $('btnAdd').onclick = e => { e.stopPropagation(); if (openMenu === e.currentTarg
 $('btnNew').onclick = () => openScenePresets();
 $('btnUndo').onclick = undo; $('btnRedo').onclick = redo;
 $('btnRender').onclick = () => renderFinal(true);
-$('qualitySel').onchange = e => { traceQuality = e.target.value; if (mode === 'ray') renderFinal(true); };
+$('btnAnimate').onclick = openAnimate;
+$('qualitySel').onchange = e => { if (clipLock) { e.target.value = traceQuality; return; } traceQuality = e.target.value; if (mode === 'ray') renderFinal(true); };
 $('btnEdit').onclick = () => setMode('edit');
 $('btnSaveImg').onclick = saveImage;
 addEventListener('keydown', e => {
@@ -2784,7 +3083,7 @@ window.terrascape = {
   get gizmoMode() { return gizmo.mode; }, get traceQuality() { return traceQuality; }, get resKey() { return resKey; },
   get colorMode() { return colorMode; }, get renderDone() { return renderDone; }, get size() { return [W, H]; },
   TYPES, MATS, MODELS, PALETTES, LOOK_TIMES, LOOK_WEATHER, TOBJ_DEFAULTS, FLOAT_DEFAULTS,
-  renderFrame, create, openBrowser, showWorld, openScenePresets, renderFinal, setMode, saveImage, setGizmo, duplicate, deleteSel,
+  renderFrame, openAnimate, create, openBrowser, showWorld, openScenePresets, renderFinal, setMode, saveImage, setGizmo, duplicate, deleteSel,
   dropToGround, frameSel, select, undo, redo, skyChange, setLookValue, currentLook, randomSun, newLandscapePattern,
   setColors, toggleSkin, buildObject, makeMaterial,
   redraw() { dirty = true; },
