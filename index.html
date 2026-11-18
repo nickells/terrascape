@@ -61,6 +61,7 @@
   .row{display:grid;grid-template-columns:54px 1fr;align-items:center;gap:3px;margin:3px 0;}
   .xyz{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;}
   .xyz input{width:100%;}
+  .row .lock{padding:0 2px;min-width:0;font-size:10px;line-height:14px;opacity:.55;} .row .lock.on{opacity:1;}
   .xyz input[type=number]{-moz-appearance:textfield;} .xyz input::-webkit-inner-spin-button,.xyz input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   .xyz input[data-ax='0']{border-left-color:#c03030;} .xyz input[data-ax='1']{border-left-color:#20a020;} .xyz input[data-ax='2']{border-left-color:#3050d0;}
   .axes{margin:4px 0 -2px;} .axes span{text-align:center;color:#404040;font-size:10px;}
@@ -814,7 +815,18 @@ function loadModel(key) {
     const o = g.scene, box = new THREE.Box3().setFromObject(o), size = box.getSize(new V3());
     const ctr = box.getCenter(new V3());
     o.position.set(-ctr.x, -box.min.y, -ctr.z);
-    o.traverse(n => { if (n.isMesh) { n.castShadow = n.receiveShadow = true; } });
+    o.traverse(n => {
+      if (!n.isMesh) return;
+      n.castShadow = n.receiveShadow = true;
+      // A "blended" material whose colour map is a JPEG has no alpha to blend with (the glass mask was baked away on export), so it draws as an
+      // opaque pane showing a dark patch of the texture: the grandfather clock's face was hidden behind one. Make it clear glass instead.
+      const blind = m => m && m.transparent && m.alphaTest === 0 && m.map && m.map.userData.mimeType === 'image/jpeg';
+      if (!Array.isArray(n.material) && blind(n.material)) {
+        n.material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.05, metalness: 0, transparent: true, opacity: 0.12, depthWrite: false, side: THREE.DoubleSide });
+        n.material.userData.trace = { kind: KIND.glass, col: new THREE.Color(1, 1, 1), p: [0, 1, 2000, 1.5] };
+        n.castShadow = false;
+      }
+    });
     const wrap = new THREE.Group(); wrap.add(o); wrap.userData.h = size.y;
     // unknown models get a real-world size: glTF is in metres, about 10 scene units to the metre
     if (!MODELS[key]) MODELS[key] = { id, label: key, h: Math.min(60, Math.max(1.5, size.y * 10)) };
@@ -1786,6 +1798,7 @@ $('lensIn').addEventListener('change', e => { setLens(+e.target.value, true); e.
 // ---------- object inspector ----------
 const insp = $('inspector');
 const R2D = 180 / Math.PI;
+let scaleLock = false, scaleBase = null;   // inspector Scale lock: edit one axis and the other two follow, keeping their proportions
 const num = (f, v, step) => { const ax = f.split('.')[1]; return `<input type="number" data-f="${f}" step="${step}" value="${v}"${ax ? ` data-ax="${ax}" title="${'XYZ'[ax]}"` : ''}>`; };
 function renderInspector() {
   if (!sel) {
@@ -1818,7 +1831,7 @@ function renderInspector() {
     <div class="row"><span>Position</span><div class="xyz">${[0, 1, 2].map(i => num('pos.' + i, o.pos[i].toFixed(1), 0.5)).join('')}</div></div>
     ${isCloud ? '' : isLamp ? `<div class="row"><span>Bulb size</span>${num('size', o.scale[0].toFixed(2), 0.1)}</div>` : `
     <div class="row"><span>Rotate°</span><div class="xyz">${[0, 1, 2].map(i => num('rot.' + i, (o.rot[i] * R2D).toFixed(0), 5)).join('')}</div></div>
-    <div class="row"><span>Scale</span><div class="xyz">${[0, 1, 2].map(i => num('scale.' + i, o.scale[i].toFixed(2), 0.1)).join('')}</div></div>`}
+    <div class="row"><span>Scale <button class="lock${scaleLock ? ' on' : ''}" data-a="slock" aria-pressed="${scaleLock}" title="${scaleLock ? 'Locked: changing one value scales all three together. Click to unlock.' : 'Unlocked: each axis scales on its own. Click to scale all three together.'}">${scaleLock ? '🔗' : '⛓'}</button></span><div class="xyz">${[0, 1, 2].map(i => num('scale.' + i, o.scale[i].toFixed(2), 0.1)).join('')}</div></div>`}
     <div class="grid2 actions">${isCloud ? '' : '<button data-a="ground">Drop to ground</button>'}<button data-a="frame">Frame (F)</button>
     <button data-a="dup" title="${MOD}D">Duplicate</button><button data-a="del" title="Delete key">Delete</button></div>`;
 }
@@ -1875,9 +1888,17 @@ insp.addEventListener('input', e => {
   }
   const [k, i] = f.split('.'), n = parseFloat(v);
   if (!isFinite(n)) return;
+  if (k === 'scale' && scaleLock) {
+    // scale from the values when the field was focused, so a half-typed number (0 on the way to 0.5) can't squash the proportions
+    const base = scaleBase || (scaleBase = sel.scale.slice()), r = Math.max(0.01, n) / base[+i];
+    sel.scale = base.map(b => Math.max(0.01, b * r));
+    insp.querySelectorAll('input[data-f^="scale."]').forEach(el => { if (el !== e.target) el.value = sel.scale[+el.dataset.f.split('.')[1]].toFixed(2); });
+    syncTransform(sel); selBox.setFromObject(roots.get(sel.id)); dirty = true; return;
+  }
   sel[k][+i] = k === 'rot' ? n / R2D : k === 'scale' ? Math.max(0.01, n) : n;
   syncTransform(sel); selBox.setFromObject(roots.get(sel.id)); dirty = true;
 });
+insp.addEventListener('focusin', e => { if (sel && e.target.dataset.f?.startsWith('scale.')) scaleBase = sel.scale.slice(); });
 insp.addEventListener('change', e => {
   if (e.target.dataset.tf) { clearTimeout(tobjTimer); rebuildKeepSel(sel); updateReflections(); return; }
   if (e.target.type === 'number') updateReflections(); });
@@ -1885,6 +1906,7 @@ insp.addEventListener('click', e => {
   if (e.target.closest('button') && mode !== 'edit') setMode('edit');
   if (e.target.dataset.mode) { setGizmo(e.target.dataset.mode); return; }
   const a = e.target.dataset.a; if (!a) return;
+  if (a === 'slock') { scaleLock = !scaleLock; scaleBase = null; renderInspector(); return; }
   if (a === 'creseed') { sel.cloud = { ...CLOUD_DEFAULTS, ...sel.cloud, cseed: Math.random() * 100 }; updateCloudUniforms(sel); return; }
   if (a === 'treseed') { sel.terrain = { ...TOBJ_DEFAULTS, ...sel.terrain, tseed: (Math.random() * 1e6) | 0 }; rebuildKeepSel(sel); renderInspector(); updateReflections(); return; }
   ({ ground: dropToGround, frame: frameSel, dup: duplicate, del: deleteSel })[a]();
