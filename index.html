@@ -2386,7 +2386,7 @@ function openAnimate() {
         </div>
         <div class="pvinfo"></div>
         <div class="pvbar pv-setup"><button data-c="play"><b>Play</b></button><input type="range" id="pvT" min="0" max="1000" value="0"><span class="pvtime"></span><button data-c="render"><b>Render clip…</b></button><button data-c="x">Close</button></div>
-        <div class="pv-run" hidden><canvas class="pvlive"></canvas><div class="pvcol"><div class="pvprog"><i></i></div><span class="pvrun"></span><div class="pvbtns"><button data-c="go" hidden><b>Start</b></button><button data-c="cancel">Cancel</button></div></div></div>
+        <div class="pv-run" hidden><canvas class="pvlive"></canvas><div class="pvcol"><div class="pvprog"><i></i></div><span class="pvrun"></span><div class="pvbtns"><button data-c="go" hidden><b>Continue</b></button><button data-c="cancel">Cancel</button></div></div></div>
         <div class="hint pvhint"></div>
       </div>
     </div>`;
@@ -2525,8 +2525,8 @@ function openAnimate() {
         avg = i < 2 ? dt : avg * 0.7 + dt * 0.3;
         fill.style.width = `${Math.round(100 * (i + 1) / n)}%`;
         runInfo.textContent = `Frame ${i + 1} / ${n}${i + 1 < n ? ` · about ${fmtDur(avg * (n - i - 1))} left` : ''}`;
-        if (i === 1 && n > 2 && avg * (n - 2) > 30) {   // a long job: say what it costs and let the user decide
-          view('confirm'); runInfo.textContent = `Each frame takes about ${avg.toFixed(1)} s: roughly ${fmtDur(avg * (n - 2))} more for ${n} frames. Start?`;
+        if (i === 1 && n > 2 && avg * n > 60) {   // only a long job asks first: say what it costs and let the user decide
+          view('confirm'); runInfo.textContent = `This will take about ${fmtDur(avg * n)} (${n} frames, ${avg.toFixed(1)} s each).`;
           if (!await new Promise(res => { confirmRes = res; })) break;
           confirmRes = null; view('run'); last = performance.now();
         }
