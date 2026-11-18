@@ -2261,7 +2261,8 @@ function renderFinal(ray, onDone) {
 }
 
 // Animation: renders one ray-traced frame at loop position t in [0,1). spec = { orbit: degrees swept over the loop (360 = full turn) or [from, to] degrees,
-// clouds: world units of drift over the loop, water: ripple travel in noise cells over the loop, sky: sky-cloud drift in noise units }.
+// clouds: world units of drift over the loop, water: ripple travel in noise cells over the loop, sky: sky-cloud drift in noise units,
+// zoom: lens magnification reached at the end of the loop (>1 zooms in, <1 zooms out; the FOV narrows/widens at a steady apparent rate) }.
 // Resolves when the frame is finished; scripts/animate.mjs calls this once per frame.
 let animBase = null;
 function renderFrame(spec, t) {
@@ -2273,7 +2274,9 @@ function renderFrame(spec, t) {
   const dx = pos[0] - target[0], dz = pos[2] - target[2], c = Math.cos(a), s = Math.sin(a);
   doc.camera.pos = [target[0] + dx * c - dz * s, pos[1], target[2] + dx * s + dz * c];
   doc.camera.target = target.slice();
-  applyCamera();
+  const fov0 = animBase.fov || 50, m = Math.pow(spec.zoom || 1, t);
+  doc.camera.fov = 2 * Math.atan(Math.tan(fov0 * Math.PI / 360) / m) * 180 / Math.PI;
+  applyCamera(); updateMoonLod();
   Object.assign(anim, { cx: (spec.clouds || 0) * t, cz: 0, sky: (spec.sky || 0) * t, water: (spec.water || 0) * t });
   renderDone = false;
   return new Promise(res => { renderFinal(true); const poll = () => renderDone ? res() : setTimeout(poll, 50); poll(); });
