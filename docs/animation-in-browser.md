@@ -11,8 +11,8 @@ for a visitor to make the same clips on the public site with no Node, Playwright
   Bryce skin's Render shelf. One flow: pick a motion, play or scrub the raster preview, **Render clip…**, then play and download.
 - **Shared maths** in `motion.js` (presets, `cameraAt`, `timeAt`), covered by `tests/motion.test.mjs`. `renderFrame` and the CLI
   use it too; the CLI's output is byte-identical to before.
-- **Clip runner:** renders frame 0, shows the cost, and asks to continue only if the whole clip is estimated at over 60 s; progress, ETA and
-  Cancel; Esc cancels too. While it runs, everything that could change the scene or start another trace is locked.
+- **Clip runner:** starts straight away and shows progress, an estimate of the time left (from frame 1 on, since frame 0 carries one-off
+  start-up cost) and Cancel; Esc cancels too. While it runs, everything that could change the scene or start another trace is locked.
 - **Encoder:** mediabunny 1.66.0 loaded from unpkg only when a clip is rendered: H.264 mp4 via WebCodecs, VP9 webm if H.264 isn't
   available, else a zip of PNG frames (written in `index.html`, no library). Even sides are enforced by copying each frame into an
   even canvas.

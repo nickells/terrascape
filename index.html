@@ -2386,7 +2386,7 @@ function openAnimate() {
         </div>
         <div class="pvinfo"></div>
         <div class="pvbar pv-setup"><button data-c="play"><b>Play</b></button><input type="range" id="pvT" min="0" max="1000" value="0"><span class="pvtime"></span><button data-c="render"><b>Render clip…</b></button><button data-c="x">Close</button></div>
-        <div class="pv-run" hidden><canvas class="pvlive"></canvas><div class="pvcol"><div class="pvprog"><i></i></div><span class="pvrun"></span><div class="pvbtns"><button data-c="go" hidden><b>Continue</b></button><button data-c="cancel">Cancel</button></div></div></div>
+        <div class="pv-run" hidden><canvas class="pvlive"></canvas><div class="pvcol"><div class="pvprog"><i></i></div><span class="pvrun"></span><div class="pvbtns"><button data-c="cancel">Cancel</button></div></div></div>
         <div class="hint pvhint"></div>
       </div>
     </div>`;
@@ -2410,9 +2410,9 @@ function openAnimate() {
     bar.addEventListener('pointermove', move); bar.addEventListener('pointerup', up); bar.addEventListener('pointercancel', up);
   });
   const q = s => d.querySelector(s), mo = q('#pvMo'), amt = q('#pvAmt'), secIn = q('#pvSec'), scrub = q('#pvT'), cen = q('#pvCen'), clBox = q('#pvCl'), waBox = q('#pvWa'), timeEl = q('.pvtime'), play = q('[data-c=play]');
-  const info = q('.pvinfo'), hint = q('.pvhint'), runInfo = q('.pvrun'), fill = q('.pvprog i'), goBtn = q('[data-c=go]'), video = q('video'), note = q('.pvnote');
+  const info = q('.pvinfo'), hint = q('.pvhint'), runInfo = q('.pvrun'), fill = q('.pvprog i'), video = q('video'), note = q('.pvnote');
   let t = 0, playing = false, t0 = 0, raf = 0, ticks = 0, tickT = performance.now(), fps = 0;
-  let state = 'setup', cancelled = false, confirmRes = null, result = null, blobUrl = null;
+  let state = 'setup', cancelled = false, result = null, blobUrl = null;
   const preset = () => PRESETS[+mo.value], secs = () => Math.min(maxSecs, Math.max(1, +secIn.value || CLIP.seconds)), frames = () => Math.round(secs() * CLIP.fps);
   // Center: the camera's own target, or the selected object (the camera then circles and looks at it). It follows the selection live,
   // until the user explicitly picks "Camera target".
@@ -2469,9 +2469,8 @@ function openAnimate() {
     state = s;
     q('.pvmain').hidden = s === 'done'; q('.pvdone').hidden = s !== 'done';
     q('.pv-setup').hidden = s !== 'setup'; q('.pv-run').hidden = s === 'setup';
-    goBtn.hidden = s !== 'confirm';
     d.querySelectorAll('.pvgrid select, .pvgrid input').forEach(e => e.disabled = s !== 'setup' || (e === amt && preset().key === 'still') || (e === clBox && !hasClouds) || (e === waBox && !hasWater));
-    $('win').classList.toggle('cliplock', s === 'run' || s === 'confirm'); shield.hidden = !(s === 'run' || s === 'confirm');
+    $('win').classList.toggle('cliplock', s === 'run'); shield.hidden = s !== 'run';
   };
   const releaseUrl = () => { if (blobUrl) { URL.revokeObjectURL(blobUrl); blobUrl = null; } video.removeAttribute('src'); };
   const backToPreview = () => {   // the raster edit view again, with the preview camera and the selection box but no handles
@@ -2480,9 +2479,9 @@ function openAnimate() {
     show();
   };
   // The scene was replaced (New, Open, Undo...) while the panel was open: its new camera is already in place, so don't put the old one back.
-  const onDoc = e => { if (e.detail === 'doc' && state !== 'run' && state !== 'confirm') close(false); };
+  const onDoc = e => { if (e.detail === 'doc' && state !== 'run') close(false); };
   const close = (restore = true) => {
-    if (state === 'run' || state === 'confirm') return;
+    if (state === 'run') return;
     playing = false; cancelAnimationFrame(raf); releaseUrl(); shield.remove(); setDrift(0, 0, 0); Object.assign(anim, { cx: 0, cz: 0, sky: 0, water: 0 });   // not setPlaying(false): that would redraw the preview camera
     document.removeEventListener('terrascape:change', onSelect); document.removeEventListener('terrascape:change', onDoc); document.removeEventListener('visibilitychange', onVisible);
     $('qualitySel').removeEventListener('change', show); $('resSel').removeEventListener('change', show);
@@ -2491,12 +2490,12 @@ function openAnimate() {
     gizmo.enabled = true; gizmo.getHelper().visible = isObj() && mode === 'edit'; orbit.enabled = true; dirty = true;
     msg.textContent = 'Edit'; d.remove(); canvas.focus({ preventScroll: true });
   };
-  const stopClip = () => { cancelled = true; if (confirmRes) confirmRes(false); job++; };   // job++ ends a trace in progress
+  const stopClip = () => { cancelled = true; job++; };   // job++ ends a trace in progress
 
   const renderClip = async () => {
     const n = frames(), clipSpec = spec(), loop = !!preset().loop;
     if (Math.max(W, H) > CLIP.maxSide) { setInfo(); return; }
-    setPlaying(false); cancelled = false; confirmRes = null; result = null;
+    setPlaying(false); cancelled = false; result = null;
     // The main view keeps showing the raster picture it had while frames are traced under it (the trace repaints the canvas every pass, which
     // flashes). A still copy sits over the canvas, and the panel shows each finished frame instead.
     const ov = document.createElement('canvas'); ov.width = W; ov.height = H; ov.getContext('2d').drawImage(canvas, 0, 0);
@@ -2524,12 +2523,7 @@ function openAnimate() {
         const now = performance.now(), dt = (now - last) / 1000; last = now;
         avg = i < 2 ? dt : avg * 0.7 + dt * 0.3;
         fill.style.width = `${Math.round(100 * (i + 1) / n)}%`;
-        runInfo.textContent = `Frame ${i + 1} / ${n}${i + 1 < n ? ` · about ${fmtDur(avg * (n - i - 1))} left` : ''}`;
-        if (i === 1 && n > 2 && avg * n > 60) {   // only a long job asks first: say what it costs and let the user decide
-          view('confirm'); runInfo.textContent = `This will take about ${fmtDur(avg * n)} (${n} frames, ${avg.toFixed(1)} s each).`;
-          if (!await new Promise(res => { confirmRes = res; })) break;
-          confirmRes = null; view('run'); last = performance.now();
-        }
+        runInfo.textContent = `Frame ${i + 1} / ${n}${i + 1 < n ? (i < 1 ? ' · estimating the time…' : ` · about ${fmtDur(avg * (n - i - 1))} left`) : ''}`;   // frame 0 carries start-up cost, so the estimate starts at frame 1
       }
       if (!cancelled && !aborted) { runInfo.textContent = 'Finishing the file…'; result = await enc.finish(); enc = null; }
     } catch (err) { console.error(err); failed = err; }
@@ -2559,11 +2553,11 @@ function openAnimate() {
   scrub.oninput = () => { t = scrub.value / 1000; if (playing) t0 = performance.now() - t * secs() * 1000; show(); };
   d.addEventListener('click', e => {
     const c = e.target.closest('[data-c]'); if (!c) return;
-    ({ play: () => setPlaying(!playing), render: renderClip, cancel: stopClip, go: () => confirmRes && confirmRes(true), close: () => close(), x: () => close(),
+    ({ play: () => setPlaying(!playing), render: renderClip, cancel: stopClip, close: () => close(), x: () => close(),
       back: () => { releaseUrl(); view('setup'); backToPreview(); },
       save: () => { const a = document.createElement('a'); a.href = blobUrl; a.download = `${doc.name || 'untitled'}-${preset().key}.${result.ext}`; a.click(); } })[c.dataset.c]?.();
   });
-  const esc1 = () => { if (state === 'run' || state === 'confirm') stopClip(); else close(); };
+  const esc1 = () => { if (state === 'run') stopClip(); else close(); };
   d._close = esc1;   // the global Esc handler closes the top dialog through this
   d.addEventListener('keydown', e => {
     e.stopPropagation();
