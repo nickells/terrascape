@@ -49,7 +49,7 @@ left.innerHTML = `
   <button class="bz-nano" title="Last render · click to render again"><canvas width="116" height="87"></canvas><span>no render yet</span></button>
   <div class="bz-views" aria-label="Camera views">
     <button data-view="top" title="View from above">Top</button><button data-view="front" title="View from the front">Front</button>
-    <button data-view="side" title="View from the side">Side</button><button data-view="iso" title="Three-quarter view">¾</button>
+    <button data-view="side" title="View from the side">Side</button><button data-view="iso" title="Three-quarter view">${Icon('box')}</button>
   </div>
   <div class="bz-pad" aria-label="Move camera">
     <button class="bz-ar up" data-pan="0,1" title="Raise camera"></button>
@@ -62,11 +62,11 @@ left.innerHTML = `
     <button class="bz-ar fw" data-fly="1" title="Fly forward"></button><button class="bz-ar bk" data-fly="-1" title="Fly back"></button>
   </div>
   <div class="bz-ball" title="Trackball: drag to orbit the camera around its target"></div>
-  <div class="bz-round"><button data-zoom="1.12" title="Zoom out">−</button><button data-zoom="0.89" title="Zoom in">+</button></div>
+  <div class="bz-round"><button data-zoom="1.12" title="Zoom out">${Icon('minus')}</button><button data-zoom="0.89" title="Zoom in">${Icon('plus')}</button></div>
   <button class="bz-render" title="Render (Enter)"><i></i></button>
   <div class="bz-lcd" aria-live="off"><b class="t">00:00.0</b><span class="p">READY</span><span class="s"></span></div>`;
 const round = left.querySelector('.bz-round');
-for (const [id, glyph] of [['btnUndo', '↶'], ['btnRedo', '↷']]) { const b = $(id); b.textContent = glyph; round.append(b); }
+for (const [id, glyph] of [['btnUndo', 'undo-2'], ['btnRedo', 'redo-2']]) { const b = $(id); b.innerHTML = Icon(glyph); round.append(b); }
 
 const shelf = h('div', 'bz-shelf');
 shelf.innerHTML = '<div class="bz-hint"></div><div class="bz-tiles"></div>';
@@ -74,11 +74,11 @@ const hint = shelf.querySelector('.bz-hint'), tiles = shelf.querySelector('.bz-t
 
 const viewWrap = h('div', 'bz-viewwrap');
 const float = h('div', 'bz-float');
-float.innerHTML = '<div class="bz-fhead"><span class="bz-ftitle"></span><button class="bz-fdock"></button><button class="bz-fmin" title="Roll up">▴</button></div><div class="bz-fbody"></div>';
+float.innerHTML = '<div class="bz-fhead"><span class="bz-ftitle"></span><button class="bz-fdock"></button><button class="bz-fmin" title="Roll up">'+Icon('chevron-up')+'</button></div><div class="bz-fbody"></div>';
 const fbody = float.querySelector('.bz-fbody');
 fbody.append($('startPage'), $('worldPage'), $('objPage'));
 const btnEdit = $('btnEdit');   // look it up before the move: $() only finds elements in the page
-btnEdit.textContent = '◀ Back to edit';
+btnEdit.innerHTML = Icon('arrow-left') + ' Back to edit';
 viewWrap.append(well, btnEdit);
 
 const stage = h('div', 'bz-stage');
@@ -110,7 +110,7 @@ const icons = {};   // key -> data URL of a little rendered object
 const tile = (key, hintText, inner, extra = '') =>
   `<button class="bz-tile ${extra}" data-k="${key}" data-hint="${hintText}" aria-label="${hintText}">${inner}</button>`;
 const img = key => icons[key] ? `<img src="${icons[key]}" alt="" draggable="false">` : `<span class="bz-ph"></span>`;
-const group = (label, html, cls = '') => `<div class="bz-group ${cls}"><div class="bz-gt">${html}</div><div class="bz-gl">${label}</div></div>`;
+const group = (label, html, cls = '', style = '') => `<div class="bz-group ${cls}"><div class="bz-gt"${style ? ` style="${style}"` : ''}>${html}</div><div class="bz-gl">${label}</div></div>`;
 
 const CREATE = [
   ['Landscape', [['terrain', 'Hill: a terrain patch'], ['floater', 'Floating isle'], ['clouds', 'Cloud layer'], ['lamp', 'Lamp: a point light'], ['@floor', 'Infinite plane: floor or water']]],
@@ -151,11 +151,11 @@ function renderShelf() {
     html = group('Palette', Object.keys(P).map(k => {
       const p = P[k];
       return tile('pal:' + k, `Palette: ${k[0].toUpperCase() + k.slice(1)}`, `<i class="bz-chip" style="background:linear-gradient(${p.zenith} 0%, ${p.horizon} 52%, ${p.high} 53%, ${p.mid} 66%, ${p.low} 80%, ${p.water} 81%)"></i>`, `bz-sw${L.pal === k ? ' on' : ''}`);
-    }).join(''), 'bz-pals')
+    }).join(''), 'bz-pals', `grid-template-columns: repeat(${Math.ceil(Object.keys(P).length / 2)}, 20px)`)   // two rows however many palettes there are
       + group('Time', Object.entries(T.LOOK_TIMES).map(([k, v]) => tile('time:' + k, `Time: ${v}`, `<i class="bz-mini t-${k}"></i>`, `bz-sq${L.time === k ? ' on' : ''}`)).join(''))
       + group('Weather', Object.entries(T.LOOK_WEATHER).map(([k, v]) => tile('weather:' + k, `Weather: ${v}`, `<i class="bz-mini w-${k}"></i>`, `bz-sq${L.weather === k ? ' on' : ''}`)).join(''))
       + group('Sun', `<div class="bz-dial" data-hint="Sun dial: drag the sun. Top = in front of the camera, centre = overhead" role="slider" aria-label="Sun position" tabindex="0"><i class="bz-sun"></i></div>`)
-      + group('Dice', tile('rsun', 'Random sun position', '<i class="bz-die">⚄</i>', 'bz-sq') + tile('rterr', 'New terrain pattern', '<i class="bz-die">⛰</i>', 'bz-sq'));
+      + group('Dice', tile('rsun', 'Random sun position', '<i class="bz-die">' + Icon('dice-5') + '</i>', 'bz-sq') + tile('rterr', 'New terrain pattern', '<i class="bz-die">' + Icon('mountain') + '</i>', 'bz-sq'));
   } else {
     const q = T.traceQuality, r = T.resKey, c = T.colorMode;
     html = group('Go', tile('go', 'Ray traced render (Enter)', '<i class="bz-orb red"></i>', 'bz-sq') + tile('snap', 'Quick snapshot (raster)', '<i class="bz-orb amber"></i>', 'bz-sq'))
@@ -242,29 +242,32 @@ tiles.addEventListener('click', e => {
 const camYaw = () => { const f = T.orbit.target.clone().sub(T.camera.position); return Math.atan2(f.x, -f.z) * 180 / Math.PI; };
 function placeSun() {
   const d = tiles.querySelector('.bz-dial'); if (!d || !T.doc) return;
-  const s = T.doc.sky, a = (s.az - camYaw()) * Math.PI / 180, r = (1 - s.elev / 90) * 26;
+  const s = T.doc.sky, a = (s.az - camYaw()) * Math.PI / 180, r = Math.min(26, (1 - s.elev / 90) * 26);   // a sun set below the horizon by the clock rests on the dial's rim
   const sun = d.querySelector('.bz-sun');
   sun.style.transform = `translate(${Math.sin(a) * r}px, ${-Math.cos(a) * r}px)`;
-  d.classList.toggle('night', !!s.night);
+  d.classList.toggle('night', s.anchor ? s.elev < -6 : !!s.night);
 }
-let dialRaf = 0;
+let dialRaf = 0, sunDrag = false;
+// Every sky change redraws the shelf, which replaces the dial element, so the drag can't live on the dial: it follows the pointer on window,
+// the shelf is left alone while it lasts, and it redraws once when the button comes up.
+const dialMove = ev => {
+  const d = tiles.querySelector('.bz-dial'); if (!d) return;
+  const r = d.getBoundingClientRect(), x = ev.clientX - r.left - r.width / 2, y = ev.clientY - r.top - r.height / 2;
+  const rad = Math.min(1, Math.hypot(x, y) / 26), az = Math.atan2(x, -y) * 180 / Math.PI + camYaw();
+  cancelAnimationFrame(dialRaf);
+  dialRaf = requestAnimationFrame(() => {
+    ensureEdit();
+    T.skyChange(s => { s.elev = Math.max(1, Math.min(85, 90 * (1 - rad))); s.az = ((az + 540) % 360) - 180; });
+    placeSun();
+  });
+};
+const dialEnd = () => { if (!sunDrag) return; sunDrag = false; if (tab === 'sky') renderShelf(); };   // a pending last move still lands (and redraws) after this
 tiles.addEventListener('pointerdown', e => {
-  const d = e.target.closest('.bz-dial'); if (!d) return;
-  e.preventDefault(); d.setPointerCapture(e.pointerId);
-  const move = ev => {
-    const r = d.getBoundingClientRect(), x = ev.clientX - r.left - r.width / 2, y = ev.clientY - r.top - r.height / 2;
-    const rad = Math.min(1, Math.hypot(x, y) / 26), az = Math.atan2(x, -y) * 180 / Math.PI + camYaw();
-    cancelAnimationFrame(dialRaf);
-    dialRaf = requestAnimationFrame(() => {
-      ensureEdit();
-      T.skyChange(s => { s.elev = Math.max(1, Math.min(85, 90 * (1 - rad))); s.az = ((az + 540) % 360) - 180; });
-      placeSun();
-    });
-  };
-  move(e);
-  d.onpointermove = move;
-  d.onpointerup = d.onpointercancel = () => { d.onpointermove = null; };
+  if (!e.target.closest('.bz-dial')) return;
+  e.preventDefault(); sunDrag = true; dialMove(e);
 });
+addEventListener('pointermove', ev => { if (sunDrag) dialMove(ev); });
+addEventListener('pointerup', dialEnd); addEventListener('pointercancel', dialEnd);
 
 // ---------- camera: trackball, pan cross, fly pair, zoom ----------
 const V = () => new T.THREE.Vector3();
@@ -348,7 +351,7 @@ function placeFloat() {
   float.classList.toggle('dock', !!fstate.dock);
   win.classList.toggle('bz-docked', !!fstate.dock);
   float.classList.toggle('min', !!fstate.min);
-  dockBtn.textContent = fstate.dock ? '⇱' : '⇥';
+  dockBtn.innerHTML = Icon(fstate.dock ? 'picture-in-picture-2' : 'panel-right');
   dockBtn.title = fstate.dock ? 'Float over the view' : 'Dock beside the view';
   if (fstate.dock) { float.style.left = float.style.top = ''; return; }
   const wr = win.getBoundingClientRect(), vr = viewWrap.getBoundingClientRect();
@@ -519,7 +522,7 @@ document.addEventListener('terrascape:change', e => {
   if (what === 'world' && tab !== 'sky' && tab !== 'render') { tab = 'sky'; renderShelf(); }
   if (what === 'select' && T.sel && (tab === 'sky' || tab === 'render')) { tab = 'edit'; renderShelf(); }
   else if (what === 'select' && tab === 'edit') renderShelf();
-  if (what === 'sky' || what === 'doc') { if (tab === 'sky') renderShelf(); }
+  if (what === 'sky' || what === 'doc') { if (tab === 'sky' && !sunDrag) renderShelf(); }
   if (what === 'mode' && tab === 'render') renderShelf();
   syncFloat();
 });

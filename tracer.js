@@ -109,7 +109,7 @@ export function createTracer(noiseGLSL) {
     uniforms: {
       bvh: { value: bvhStruct }, nrmTex: { value: nrmTex }, colTex: { value: colTex }, uvTex: { value: uvTex }, leafTex: { value: blank },
       camWorld: { value: new THREE.Matrix4() }, invProj: { value: new THREE.Matrix4() }, res: { value: new THREE.Vector2() }, frame: { value: 0 },
-      sunDir: { value: new THREE.Vector3() }, sunLight: { value: new THREE.Color() }, hemiSky: { value: new THREE.Color() }, hemiGround: { value: new THREE.Color() },
+      sunDir: { value: new THREE.Vector3() }, glowDir: { value: new THREE.Vector3() }, starM: { value: new THREE.Matrix3() }, moonDir: { value: new THREE.Vector3() }, moonCol: { value: new THREE.Color() }, sunVis: { value: 1 }, moonVis: { value: 0 }, sunLight: { value: new THREE.Color() }, hemiSky: { value: new THREE.Color() }, hemiGround: { value: new THREE.Color() },
       lampPos: { value: V3(3) }, lampLight: { value: V3(3) }, lampTint: { value: V3(3) },
       sph: { value: V4(NS) }, sphMat: { value: new Array(NS).fill(0) }, nSph: { value: 0 },
       mCol: { value: V4(NM) }, mP: { value: V4(NM) }, mN1: { value: V4(NM) }, mN2: { value: V4(NM) }, mMt: { value: V4(NM) }, mTx: { value: Array.from({ length: NM }, () => new THREE.Vector4(-1, -1, -1, 0)) }, texArr: { value: null },
@@ -138,7 +138,7 @@ export function createTracer(noiseGLSL) {
       uniform sampler2D nrmTex, colTex, uvTex, leafTex;
       uniform mat4 camWorld, invProj;
       uniform vec2 res; uniform float frame;
-      uniform vec3 sunDir, sunLight, hemiSky, hemiGround;
+      uniform vec3 sunDir, glowDir, moonDir, moonCol, sunLight, hemiSky, hemiGround; uniform float sunVis, moonVis; uniform mat3 starM;   // sunDir: the light's direction; glowDir: where the sun is (it can sit below the horizon); moonDir: the moon
       uniform vec3 lampPos[3], lampLight[3], lampTint[3];
       uniform vec4 sph[NS]; uniform int sphMat[NS]; uniform int nSph;
       uniform vec4 mCol[NM], mP[NM], mN1[NM], mN2[NM], mMt[NM], mTx[NM];
@@ -165,20 +165,21 @@ export function createTracer(noiseGLSL) {
       vec3 skyColor(vec3 d){
         float y = max(d.y, 0.);
         vec3 col = mix(horizon, zenith, pow(y, .45));
-        float s = max(dot(d, sunDir), 0.);
-        col += skySun * (pow(s, 6.)*.35 + pow(s, 60.)*.6) * (1. - .8 * night);
+        float s = max(dot(d, glowDir), 0.), sm = max(dot(d, moonDir), 0.);
+        col += skySun * (pow(s, 6.)*.35 + pow(s, 60.)*.6) * (1. - night);
+        col += moonCol * (pow(sm, 6.)*.35 + pow(sm, 60.)*.6) * .2 * night;
         if (d.y > 0. && night > 0.) {
-          vec3 cell = floor(d * 420.);
+          vec3 cell = floor((starM * d) * 420.);   // the star pattern turns with the sky
           col += step(.9975, sh3(cell)) * (.35 + .65 * sh3(cell + 7.)) * smoothstep(0., .2, d.y) * night;
         }
-        if (night > 0.) { vec4 mo = moonDisc(d, sunDir); col = mix(col, mo.rgb * skySun, mo.a); }   // behind the clouds
+        if (moonVis > 0.) { vec4 mo = moonDisc(d, moonDir); col = mix(col, mo.rgb * moonCol, mo.a * moonVis * smoothstep(-.06, -.02, d.y)); }   // behind the clouds
         if (d.y > 0.) {
           vec2 p = d.xz / (d.y + .05) * 1.4 + skySeed;
           float c = smoothstep(.48, .8, fbmSky(p)) * skyClouds;
-          vec3 cc = mix(horizon*1.05, vec3(1.), .5 + .5*s) * mix(1., .12, night);
+          vec3 cc = mix(horizon*1.05, vec3(1.), .5 + .5*mix(s, sm, night)) * mix(1., .12, night);   // clouds brighten toward the sun by day, the moon by night
           col = mix(col, cc, c * smoothstep(0., .25, d.y) * .9);
         }
-        if (night < .5) col += skySun * smoothstep(.9993, .9996, s) * 3.;
+        col += skySun * smoothstep(.9993, .9996, s) * 3. * sunVis * smoothstep(-.06, -.02, d.y);
         return col;
       }
 
@@ -836,7 +837,9 @@ export function createTracer(noiseGLSL) {
 
     // lights, sky, fog, water
     const { sun, hemi, lamps, skyU, waterU, fog } = ctx;
-    u.sunDir.value.copy(skyU.sunDir.value);
+    u.sunDir.value.copy(ctx.lightDir || skyU.sunDir.value);   // the light: the sun by day, the moon by night
+    u.glowDir.value.copy(skyU.sunDir.value); u.moonDir.value.copy(skyU.moonDir.value); u.moonCol.value.copy(skyU.moonCol.value);
+    u.sunVis.value = skyU.sunVis.value; u.moonVis.value = skyU.moonVis.value; u.starM.value.copy(skyU.starM.value);
     u.sunLight.value.copy(sun.color).multiplyScalar(sun.intensity);
     u.hemiSky.value.copy(hemi.color).multiplyScalar(hemi.intensity);
     u.hemiGround.value.copy(hemi.groundColor).multiplyScalar(hemi.intensity);
@@ -848,7 +851,8 @@ export function createTracer(noiseGLSL) {
       u.lampTint.value[i].set(l.halo.material.color.r, l.halo.material.color.g, l.halo.material.color.b);
     }
     u.fogCol.value.copy(fog.color); u.fogDensity.value = fog.density;
-    u.night.value = ctx.night ? 1 : 0;
+    const nightF = ctx.nightF ?? (ctx.night ? 1 : 0);   // 0 day .. 1 night, continuous through twilight
+    u.night.value = nightF;
     u.hasWater.value = ctx.water === false ? 0 : 1; u.waterY.value = ctx.waterY || 0;
     u.floorMode.value = ctx.floor ? ctx.floor.mode : 0;
     if (ctx.floor) { u.floorA.value.copy(ctx.floor.a); u.floorB.value.copy(ctx.floor.b); u.floorTile.value = ctx.floor.tile; u.poolDepth.value = ctx.floor.depth || 6; }
@@ -859,7 +863,7 @@ export function createTracer(noiseGLSL) {
     clouds.forEach((c, i) => {
       u.cPos.value[i].set(c.pos[1], c.pos[0], c.pos[2], c.cseed);
       u.cPrm.value[i].set(c.coverage, c.softness, c.opacity, c.size);
-      u.cCol.value[i].set(c.color.r, c.color.g, c.color.b).multiplyScalar(ctx.night ? 0.12 : 1);
+      u.cCol.value[i].set(c.color.r, c.color.g, c.color.b).multiplyScalar(nightF >= 1 ? 0.12 : nightF <= 0 ? 1 : 1 - 0.88 * nightF);
     });
     u.zenith.value.copy(skyU.zenith.value); u.horizon.value.copy(skyU.horizon.value);
     u.skySun.value.copy(skyU.sunCol.value); u.skySeed.value = skyU.seed.value;

@@ -24,6 +24,37 @@ for a visitor to make the same clips on the public site with no Node, Playwright
 - **The five hook problems:** 1-3 are avoided by the panel (own base camera, a scratch camera object, `job` for cancel) and the
   document is never touched; the CLI's `renderFrame` hook is unchanged. 4 is a hint plus a screen wake lock. 5 (per-frame
   setup cost) is not done.
+- **Dolly zoom** (*Dolly zoom: push in / pull back*, 1.6× by default): the camera moves toward or away from the centre while the lens zooms the
+  other way, so the centre keeps its size and the background stretches or squeezes around it. Pure maths in `cameraAt` (`dolly`), so the preview,
+  the panel clip and the script hook all agree; it honours *Center* (the selected object), and the lens never opens wider than 120°.
+- **Sun movement:** a checkbox (off by default) that moves the sun over the clip. A sun is a latitude, a declination (the time of year) and a local solar
+  clock time, so the panel has a **Start** and an **End** clock, presets built from sunrise and sunset (*Golden hour*, *Sunrise*, *Sunset into night*,
+  *Sunrise to sunset*) and a *sun height* slider: a line drawing of a sun on a hill that goes from a low mound to a tall peak, which sets how high the sun climbs at noon for this clip (the time of year, in effect). Frame 0 is exactly the edit view: an unedited start clock keeps the scene's own sun exact (the field only
+  shows it rounded to the minute), and the clocks are clip-only, so the document's sun is never written. Latitude has no control of its own (it is abstract, and the sun-height
+  slider says what it would): it is the document's (`doc.sky.lat`, 40 unless a scene file says otherwise), so the clip and the Sky tab always agree about
+  what time it is. End before start runs into the next day;
+  the same time twice is a whole day. A preset for a scene whose own sun has no real sunrise here borrows the nearest real time of year.
+- **Day into night:** the sky is no longer day or night. `skyGrade` (`motion.js`) turns the sun's height into night, golden-hour warmth, how much sun is
+  left and how much moonlight there is, as 0..1 amounts that are the identity at the scene's own sun. `celestial()` in `index.html` applies them to the
+  sky colours, fog, ambient light, light strength and cloud-layer light for the raster view and the tracer alike: stars and the moon fade in through
+  twilight, the sun's afterglow stays where it set, and the moon rises opposite the sun and takes over as the light. The light hands over at the horizon,
+  where both are zero, so shadows never come from below ground. Scenes that don't use the clock or the checkbox still render byte for byte as before
+  (the old day/night flag path).
+- **Sky clock in the Sky tab and the Animate panel:** a small pixel graph (`skyClock` in `index.html`) is the control. Across is the whole solar day,
+  midnight to midnight; up is height in the sky, with the horizon across the middle. The sun's height through the day is a wave, solid above the horizon
+  and dotted below; the moon, which always stands opposite the sun, is the mirror-image wave. The square on the sun's peak sets how high it climbs at noon
+  (drag it up or down). The track along the bottom is the time: in the Sky tab one thumb, in Animate a start and an end handle with the clip's span shaded
+  (drag a handle, or the span to move both). Arrow keys do the same. It draws pixel by pixel into a canvas the size of its CSS box, shown with pixelated
+  scaling, so it is never anti-aliased. The Sky tab also has a Clock field, Animate its Start and End fields; there is no date anywhere, as the noon
+  height is what a season means here. The sun is still `doc.sky.az/elev` and the clock reads and writes it.
+  The Compass slider (`doc.sky.north`, 0 when absent, so older scenes are unchanged) is the scene azimuth true north points to: the clock reads the sun
+  in true azimuths (`sunClock`/`sunAtClock`/`starMatrix` take a `north` argument), so turning the compass swings the sun's whole path round the scene,
+  and a clip's sun with it, without changing its time, its noon height or the stars' pole. That is how a sunset is aimed at a spot in the frame. The first write records `doc.sky.anchor`
+  (the sun height and night flag the scene started from), so touching it leaves the picture alone until the sun actually moves. The Time presets and
+  Random sun clear the anchor and go back to the plain sky.
+- **Stars turn with the sky:** the star pattern is fixed to the celestial sphere, which turns about the same pole axis as the sun at 15° an hour, so stars wheel
+  correctly over a clip or as the clock is dragged (`starMatrix` in `motion.js`, a `mat3` in both sky shaders). Scenes outside the clock use the identity, so
+  their stars are where they always were.
 - **Clouds and water:** *Clouds drift* and *Water ripples* checkboxes in the panel (on by default when the scene has them; pools count
   as water), combinable with any camera move or *Camera still*, and shown in the raster preview too. Amounts are per second of clip
   (`DRIFT` in `motion.js`), matching the script's defaults for a 5 s clip.

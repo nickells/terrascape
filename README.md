@@ -40,6 +40,7 @@ the furnished preset to its saved composition and camera.
 imports a publicly downloadable FurniMesh model, optimizes its textures and updates
 the searchable catalog. It uses Python 3 and macOS `sips`; no API key is needed.
 The app includes 60 curated furniture pieces and a CC0 oil palm, with actual-model previews.
+Interface icons are from [Lucide](https://lucide.dev) (ISC licence).
 The library browses all sources together; provenance and licenses remain attached to each model. Run `npm install`
 and `npm run seed:furnimesh` to rebuild the selection in
 `assets/furnimesh/seed.json`. See `assets/furnimesh/README.md` for the review

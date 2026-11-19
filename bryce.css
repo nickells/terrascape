@@ -147,7 +147,7 @@ html.bryce .bz-key:hover svg { transform: translateY(-3px); }
 html.bryce .bz-key.on svg { stroke: #ffab8a; background: linear-gradient(#3a3a40, #55555c); box-shadow: inset 0 2px 3px rgba(0,0,0,.7), 0 1px 1px rgba(255,255,255,.2); }
 
 /* sky tiles */
-html.bryce .bz-pals .bz-gt { display: grid; grid-template-columns: repeat(11, 20px); gap: 3px; margin-bottom: 3px; }
+html.bryce .bz-pals .bz-gt { display: grid; gap: 3px; margin-bottom: 3px; }
 html.bryce .bz-tile.bz-sw { width: 20px; height: 24px; align-items: stretch; }
 html.bryce .bz-chip { width: 20px; height: 24px; border-radius: 3px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.5), 0 2px 3px rgba(0,0,0,.5); transition: transform .08s; }
 html.bryce .bz-sw:hover .bz-chip { transform: translateY(-2px) scale(1.12); }
@@ -307,3 +307,13 @@ html.bryce .phgrid { border: 1px solid #000; }
 html.bryce .bz-mac, html.bryce .bz-left, html.bryce .bz-shelf, html.bryce .bz-fhead { user-select: none; -webkit-user-select: none; }
 html.bryce .bz-round button:disabled { color: #8e8a86; }
 html.bryce .status #modeLbl { flex: 0 0 104px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* inspector Scale lock: a fixed box, so pressing it (which drops the border on other float buttons) never nudges the row */
+html.bryce .bz-float .row .lock { border: 0; }
+
+/* Lucide icons (icons.js) in place of the old text glyphs */
+html.bryce .bz-round .ic { width: 14px; height: 14px; stroke-width: 2.25; }
+html.bryce .bz-views .ic { width: 12px; height: 12px; vertical-align: -2px; }
+html.bryce .bz-fdock .ic, html.bryce .bz-fmin .ic { width: 12px; height: 12px; stroke-width: 2.5; vertical-align: -2px; }
+html.bryce .bz-die .ic { width: 22px; height: 22px; stroke-width: 2; vertical-align: 0; }
+html.bryce #btnEdit .ic { width: 12px; height: 12px; stroke-width: 2.5; vertical-align: -2px; }

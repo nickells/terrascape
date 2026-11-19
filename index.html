@@ -16,7 +16,11 @@
   .dropdown{position:absolute;z-index:40;max-height:540px;overflow-y:auto;background:#c0c0c0;border:2px solid;border-color:#fff #000 #000 #fff;box-shadow:inset -1px -1px #808080,2px 2px 0 rgba(0,0,0,.3);padding:2px;min-width:190px;}
   .dropdown .item{display:flex;justify-content:space-between;gap:18px;padding:3px 8px 3px 20px;position:relative;white-space:nowrap;cursor:default;}
   .dropdown .item:hover{background:#000080;color:#fff;}
-  .dropdown .item.checked::before{content:"✓";position:absolute;left:6px;}
+  .dropdown .item.checked::before{content:"";position:absolute;left:5px;top:50%;width:11px;height:11px;margin-top:-5px;background:currentColor;
+    -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/contain no-repeat;
+    mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/contain no-repeat;}
+  .ic{width:1em;height:1em;vertical-align:-.15em;flex:none;pointer-events:none;}   /* Lucide icons (icons.js) */
+  .title .tb b .ic{width:9px;height:9px;vertical-align:-1px;stroke-width:3;}
   .dropdown .item .k{opacity:.75;}
   .dropdown .item.off{color:#808080;} .dropdown .item.off:hover{background:none;color:#808080;}
   .dropdown .item.head{color:#404040;font-weight:bold;padding-left:8px;} .dropdown .item.head:hover{background:none;color:#404040;}
@@ -61,7 +65,7 @@
   .row{display:grid;grid-template-columns:54px 1fr;align-items:center;gap:3px;margin:3px 0;}
   .xyz{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;}
   .xyz input{width:100%;}
-  .row .lock{padding:0 2px;min-width:0;font-size:10px;line-height:14px;opacity:.55;} .row .lock.on{opacity:1;}
+  .row .lock{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:18px;height:18px;padding:0;margin-left:1px;vertical-align:middle;} .row .lock .ic{width:12px;height:12px;} .row .lock svg{display:block;pointer-events:none;}
   .xyz input[type=number]{-moz-appearance:textfield;} .xyz input::-webkit-inner-spin-button,.xyz input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
   .xyz input[data-ax='0']{border-left-color:#c03030;} .xyz input[data-ax='1']{border-left-color:#20a020;} .xyz input[data-ax='2']{border-left-color:#3050d0;}
   .axes{margin:4px 0 -2px;} .axes span{text-align:center;color:#404040;font-size:10px;}
@@ -125,6 +129,12 @@
   #pvDlg{top:auto;bottom:10px;transform:translateX(-50%);width:540px;max-width:none;} #pvDlg [hidden]{display:none !important;}
   #pvDlg .body{padding:8px 10px;} #pvDlg .title{cursor:move;user-select:none;touch-action:none;}
   #pvDlg .pvgrid{display:grid;grid-template-columns:auto 1fr auto 1fr;gap:4px 8px;align-items:center;}
+  #pvDlg [hidden]{display:none !important;}
+  #pvDlg .pvsunbox{display:flex;flex-direction:column;gap:4px;margin-top:6px;} #pvDlg .pvsuncol{flex:1;min-width:0;display:grid;grid-template-columns:auto 1fr;gap:4px 8px;align-items:center;}
+  #pvDlg .pvsuncol input[type=time]{width:84px;} #pvDlg .pvsuntimes{grid-template-columns:auto auto auto auto;justify-content:start;} #pvDlg .pvsuncol select{min-width:0;width:100%;}
+  /* the sky clock (skyClock): a pixel canvas, never smoothed, with its labels laid over it */
+  .skyclock{position:relative;width:100%;margin:2px 0 4px;user-select:none;} .skyclock canvas{display:block;image-rendering:pixelated;touch-action:none;outline:none;}
+  .skyclock canvas:focus-visible{outline:1px dotted currentColor;outline-offset:1px;} .skyclock span{position:absolute;font-size:10px;line-height:10px;pointer-events:none;white-space:nowrap;} .skyclock .skytick{bottom:0;transform:translateX(-50%);opacity:.75;}
   #pvDlg .pvf{display:flex;align-items:center;gap:5px;} #pvDlg .pvf input{width:64px;} #pvDlg .pvf input[type=checkbox]{width:auto;margin:0;} #pvDlg .pvwide{gap:14px;grid-column:2/-1;} #pvDlg .pvwide label{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
   #pvDlg .pvinfo{margin-top:6px;font-size:11px;color:#404040;} #pvDlg .pvinfo.warn{color:#8a3b00;}
   #pvDlg .pvbar{display:flex;align-items:center;gap:8px;margin-top:6px;} #pvDlg .pvbar input[type=range]{flex:1;min-width:0;} #pvDlg .pvtime{min-width:96px;text-align:right;white-space:nowrap;}
@@ -145,31 +155,32 @@
   if (ui === 'bryce') document.documentElement.classList.add('bryce');
 })();
 </script>
+<script src="icons.js"></script>
 <link rel="stylesheet" href="bryce.css">
 <script defer src="bryce.js"></script>
 </head>
 <body>
 <div class="win loading" id="win">
-  <div class="title"><span>Terrascape 2.0 - [<span id="docname">untitled</span>]</span><span class="tb"><b>_</b><b>□</b><b>×</b></span></div>
+  <div class="title"><span>Terrascape 2.0 - [<span id="docname">untitled</span>]</span><span class="tb"><b><i data-i="minus"></i></b><b><i data-i="square"></i></b><b><i data-i="x"></i></b></span></div>
   <div class="menubar" id="menubar"></div>
   <div class="toolbar" aria-label="Scene and output">
     <button id="btnNew">New Scene…</button>
     <button id="btnUndo" title="Undo" aria-label="Undo" disabled>Undo</button>
     <button id="btnRedo" title="Redo" aria-label="Redo" disabled>Redo</button>
     <span class="spacer"></span>
-    <button id="btnEdit" title="Return to editing (Esc)" hidden>◀ Edit scene</button>
+    <button id="btnEdit" title="Return to editing (Esc)" hidden><i data-i="arrow-left"></i> Edit scene</button>
     <label>Quality <select id="qualitySel" aria-label="Render quality"><option value="draft">Draft</option><option value="normal" selected>Normal</option><option value="fine">Fine</option></select></label>
     <select id="resSel" aria-label="Image size" title="Image size">
       <option value="400">400 × 300</option><option value="640">640 × 480</option><option value="800">800 × 600</option><option value="full">Full resolution</option><option value="custom">Custom size…</option>
     </select>
-    <button id="btnRender" title="Ray traced render (Enter)">✦ Render</button>
+    <button id="btnRender" title="Ray traced render (Enter)"><i data-i="sparkle"></i> Render</button>
     <button id="btnAnimate" title="Preview a camera move and render it as a short video">Animate…</button>
     <button id="btnSaveImg" title="Save the current render (Ctrl+E)" hidden>Save Image…</button>
   </div>
   <div class="main">
     <div class="side">
       <div class="ppage" id="startPage"><fieldset id="start"></fieldset>
-        <button class="big" id="startDone" style="width:100%;flex:none"><b>Use this scene →</b></button></div>
+        <button class="big" id="startDone" style="width:100%;flex:none"><b>Use this scene <i data-i="arrow-right"></i></b></button></div>
       <div class="ppage" id="worldPage" style="display:none"><fieldset id="world"></fieldset></div>
     </div>
     <div class="well"><canvas id="view" tabindex="0"></canvas>
@@ -182,7 +193,7 @@
       <div class="ppage" id="objPage">
       <fieldset class="object-list"><legend>Objects</legend>
         <div class="listbox" id="objList" role="listbox" tabindex="0" aria-label="Scene objects"></div>
-        <button id="btnAdd" aria-haspopup="menu" aria-expanded="false">+ Add ▾</button>
+        <button id="btnAdd" aria-haspopup="menu" aria-expanded="false"><i data-i="plus"></i> Add <i data-i="chevron-down"></i></button>
       </fieldset>
       <fieldset id="inspector"></fieldset>
       </div>
@@ -206,7 +217,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
 import { createTracer, KIND, MOON_GLSL, MOON_R } from './tracer.js';
-import { PRESETS, CLIP, DRIFT, cameraAt, timeAt } from './motion.js';
+import { PRESETS, CLIP, DRIFT, SUN, cameraAt, timeAt, sunAtClock, sunClock, dayTimes, skyGrade, starMatrix, noonElev, declForNoon, noonSide, defaultLat } from './motion.js';
 import { startPixelEmoji } from './emoji.js';
 import { SAVED_SCENES, loadSavedScene } from './saved-scenes.js';
 import { getLocalCatalogue, getFurniMeshCatalogue, getModelCatalogues, isIndexedModel, getIndexedModel } from './model-catalog.js';
@@ -410,10 +421,10 @@ const PALETTES = {
 // sky dome with gradient, sun, and a stratus cloud layer
 const skyMat = new THREE.ShaderMaterial({
   side: THREE.BackSide, depthWrite: false,
-  uniforms: { sunDir: { value: new THREE.Vector3() }, zenith: { value: new THREE.Color() }, horizon: { value: new THREE.Color() }, sunCol: { value: new THREE.Color() }, seed: { value: 0 }, night: { value: 0 }, clouds: { value: 1 }, moonTex: { value: null }, hasMoon: { value: 0 }, moonLod: { value: 0 } },
+  uniforms: { sunDir: { value: new THREE.Vector3() }, starM: { value: new THREE.Matrix3() }, moonDir: { value: new THREE.Vector3() }, moonCol: { value: new THREE.Color() }, sunVis: { value: 1 }, moonVis: { value: 0 }, zenith: { value: new THREE.Color() }, horizon: { value: new THREE.Color() }, sunCol: { value: new THREE.Color() }, seed: { value: 0 }, night: { value: 0 }, clouds: { value: 1 }, moonTex: { value: null }, hasMoon: { value: 0 }, moonLod: { value: 0 } },
   vertexShader: `varying vec3 vDir; void main(){ vDir = position; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
   fragmentShader: `
-    varying vec3 vDir; uniform vec3 sunDir, zenith, horizon, sunCol; uniform float seed, night, clouds;
+    varying vec3 vDir; uniform vec3 sunDir, moonDir, zenith, horizon, sunCol, moonCol; uniform float seed, night, clouds, sunVis, moonVis; uniform mat3 starM;
     float sh3(vec3 p){ p = fract(p * .1031); p += dot(p, p.zyx + 31.32); return fract((p.x + p.y) * p.z); }
     ${MOON_GLSL}
     float h(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
@@ -424,20 +435,21 @@ const skyMat = new THREE.ShaderMaterial({
       vec3 d = normalize(vDir);
       float y = max(d.y, 0.);
       vec3 col = mix(horizon, zenith, pow(y, .45));
-      float s = max(dot(d, sunDir), 0.);
-      col += sunCol * (pow(s, 6.)*.35 + pow(s, 60.)*.6) * (1. - .8 * night);
+      float s = max(dot(d, sunDir), 0.), sm = max(dot(d, moonDir), 0.);
+      col += sunCol * (pow(s, 6.)*.35 + pow(s, 60.)*.6) * (1. - night);       // the sun's glow, still there after it sets
+      col += moonCol * (pow(sm, 6.)*.35 + pow(sm, 60.)*.6) * .2 * night;      // the moon's halo
       if (d.y > 0. && night > 0.) {   // stars: a sparse scatter of cells across the sky
-        vec3 cell = floor(d * 420.);
+        vec3 cell = floor((starM * d) * 420.);   // the star pattern turns with the sky
         col += step(.9975, sh3(cell)) * (.35 + .65 * sh3(cell + 7.)) * smoothstep(0., .2, d.y) * night;
       }
-      if (night > 0.) { vec4 mo = moonDisc(d, sunDir); col = mix(col, mo.rgb * sunCol, mo.a); }   // behind the clouds
+      if (moonVis > 0.) { vec4 mo = moonDisc(d, moonDir); col = mix(col, mo.rgb * moonCol, mo.a * moonVis * smoothstep(-.06, -.02, d.y)); }   // behind the clouds
       if (d.y > .0) {
         vec2 p = d.xz / (d.y + .05) * 1.4 + seed;
         float c = smoothstep(.48, .8, fbm(p)) * clouds;
-        vec3 cc = mix(horizon*1.05, vec3(1.), .5 + .5*s) * mix(1., .12, night);
+        vec3 cc = mix(horizon*1.05, vec3(1.), .5 + .5*mix(s, sm, night)) * mix(1., .12, night);   // clouds brighten toward the sun by day, the moon by night
         col = mix(col, cc, c * smoothstep(0., .25, d.y) * .9);
       }
-      if (night < .5) col += sunCol * smoothstep(.9993, .9996, s) * 3.;
+      col += sunCol * smoothstep(.9993, .9996, s) * 3. * sunVis * smoothstep(-.06, -.02, d.y);
       gl_FragColor = vec4(col, 1.);
     }`,
 });
@@ -1480,27 +1492,66 @@ function buildTerrain(pal) {
   if (terrainGeo.boundsTree) terrainGeo.disposeBoundsTree();
 }
 scene.fog = new THREE.FogExp2(0xffffff, 0.001);
+// animation offsets applied at trace time only (the document is untouched): cloud drift in world units, sky/water noise shifts, and a moving sun
+// (sun: null, or { decl, lat, time }: the sun's declination, the latitude and the solar clock time it has reached)
+const anim = { cx: 0, cz: 0, sky: 0, water: 0, sun: null };
 const MOON = new THREE.Color(0.75, 0.82, 1);
+const WARM_SUN = new THREE.Color(1, 0.55, 0.25), WARM_HORIZON = new THREE.Color(1, 0.62, 0.38);
+const sunVecOf = (az, el) => { const e = THREE.MathUtils.degToRad(el), a = THREE.MathUtils.degToRad(az); return new V3(Math.sin(a) * Math.cos(e), Math.sin(e), -Math.cos(a) * Math.cos(e)); };
+// The sun the document means: in a night scene its az/elev is really the moon, so the sun is on the far side, below the horizon. A scene whose sun has
+// been set by the clock (doc.sky.anchor) has its real sun in az/elev, whether above the horizon or not; the anchor remembers the sun height and night
+// flag the scene started from, so the sky grade stays the identity there: touching the clock never changes the picture until the sun actually moves.
+const docSun = () => { const s = doc.sky; return s.night && !s.anchor ? { az: s.az + 180, elev: -s.elev } : { az: s.az, elev: s.elev }; };
+// Where the sun, the moon and the light are, and how night, golden hour and light strength grade the sky, for this moment.
+// Two sources: a plain scene (the old day/night flag), or a real sun (a scene set by the clock, or a clip moving the sun: a clock time at a declination and
+// latitude), graded relative to the scene's anchor sun so the first frame looks like the edit view.
+function celestial() {
+  const s = doc.sky;
+  if (!anim.sun && !s.anchor) {
+    const d = sunVecOf(s.az, s.elev), night = !!s.night;
+    return { sun: d, moon: d, light: d, n: night ? 1 : 0, w: 0, sunI: 2.6, moonI: 0.45, useSun: !night, sunVis: night ? 0 : 1, moonVis: night ? 1 : 0, star: STAR_ID };
+  }
+  const own = docSun(), p = anim.sun ? sunAtClock(anim.sun.decl, anim.sun.time, anim.sun.lat, skyNorth()) : own;
+  const anchor = s.anchor || { elev: own.elev, night: !!s.night }, g = skyGrade(p.elev, anchor.elev, anchor.night);
+  // the stars have turned by however long the sun has run since the scene's own sun (the anchor's clock time, or the clip's start)
+  const L = anim.sun ? anim.sun.lat : skyLat(), N = skyNorth(), T = anim.sun ? anim.sun.time : sunClock(p.az, p.elev, L, N).time, T0 = s.anchor?.time ?? sunClock(own.az, own.elev, L, N).time;
+  const sun = sunVecOf(p.az, p.elev), moon = sun.clone().negate(), useSun = p.elev > 0;   // sun and moon each light only from above the horizon; both fade to nothing there
+  return { sun, moon, light: useSun ? sun : moon, n: g.n, w: g.w, sunI: 2.6 * g.sunK, moonI: 0.45 * g.moonK, useSun,
+    sunVis: 1 - THREE.MathUtils.smoothstep(g.n, 0.3, 0.7), moonVis: THREE.MathUtils.smoothstep(g.n, 0, 0.4), star: Math.abs(T - T0) < 1e-9 ? STAR_ID : starMatrix(L, T - T0, N) };
+}
+let skyNow = { n: 0, light: new V3(0, 1, 0) };   // what the last applySky set: the trace needs the night amount and the light's direction
+const STAR_ID = [1, 0, 0, 0, 1, 0, 0, 0, 1];
+// The scene's latitude: its own if it has one, otherwise the hemisphere its sun is in (see defaultLat). Setting the clock records it, so it never flips as the sun moves.
+const skyNorth = () => doc.sky.north || 0;   // the compass: the scene azimuth true north points to (see sunAtClock)
+const skyLat = () => doc.sky.lat ?? defaultLat(docSun().az - skyNorth());
+const mixc = (a, b, t) => t <= 0 ? a : t >= 1 ? b : a.clone().lerp(b, t);
 function applySky(pal) {
-  const s = doc.sky, night = !!s.night;
-  // at night the palette's sky colours sink toward deep blue and the sun becomes a pale moon
+  const s = doc.sky, c = celestial(), n = c.n;
+  // at night the palette's sky colours sink toward deep blue and the sun becomes a pale moon; twilight is a blend of the two
   const NIGHT = { zenith: [0x02040c, 0.1], horizon: [0x0b1428, 0.12], sun: [MOON.getHex(), 0] };
-  const C = k => night && NIGHT[k] ? new THREE.Color(NIGHT[k][0]).lerp(new THREE.Color(pal[k]), NIGHT[k][1]) : new THREE.Color(pal[k]);
-  const e = THREE.MathUtils.degToRad(s.elev), a = THREE.MathUtils.degToRad(s.az);
-  const sunDir = new V3(Math.sin(a) * Math.cos(e), Math.sin(e), -Math.cos(a) * Math.cos(e));
-  const su = skyMat.uniforms;
-  su.sunDir.value.copy(sunDir); su.zenith.value.copy(C('zenith')); su.horizon.value.copy(C('horizon')); su.sunCol.value.copy(C('sun')); su.seed.value = s.cloudSeed; su.night.value = night ? 1 : 0; su.clouds.value = s.clouds === false ? 0 : 1;
+  const nightCol = k => NIGHT[k] ? new THREE.Color(NIGHT[k][0]).lerp(new THREE.Color(pal[k]), NIGHT[k][1]) : new THREE.Color(pal[k]);
+  const C = k => {
+    let col = new THREE.Color(pal[k]);
+    if (c.w > 0 && k === 'sun') col.lerp(WARM_SUN, 0.85 * c.w);       // golden hour: a warm sun and a warm horizon
+    if (c.w > 0 && k === 'horizon') col.lerp(WARM_HORIZON, 0.45 * c.w);
+    return n <= 0 ? col : n >= 1 ? nightCol(k) : col.lerp(nightCol(k), n);
+  };
+  const light = c.light, su = skyMat.uniforms;
+  su.sunDir.value.copy(c.sun); su.moonDir.value.copy(c.moon); su.zenith.value.copy(C('zenith')); su.horizon.value.copy(C('horizon')); su.sunCol.value.copy(C('sun'));
+  su.moonCol.value.copy(nightCol('sun')); su.sunVis.value = c.sunVis; su.moonVis.value = c.moonVis; su.starM.value.fromArray(c.star);
+  su.seed.value = s.cloudSeed; su.night.value = n; su.clouds.value = s.clouds === false ? 0 : 1;
   scene.fog.color.copy(C('horizon')); scene.fog.density = s.fog;
-  sun.color.copy(C('sun')); sun.intensity = night ? 0.45 : 2.6;
-  hemi.color.copy(C('zenith')).lerp(night ? MOON : WHITE, 0.5); hemi.intensity = (night ? 0.12 : 0.6) * (s.ambient ?? 1);   // ambient: fill light for interiors the sun barely reaches
+  sun.color.copy(C('sun')); sun.intensity = c.useSun ? c.sunI : c.moonI;
+  hemi.color.copy(C('zenith')).lerp(mixc(WHITE, MOON, n), 0.5); hemi.intensity = (n >= 1 ? 0.12 : n <= 0 ? 0.6 : 0.6 - 0.48 * n) * (s.ambient ?? 1);   // ambient: fill light for interiors the sun barely reaches
   hemi.groundColor.copy(new THREE.Color(pal.mid)).multiplyScalar(0.5);
-  for (const r of roots.values()) if (r.userData.clouds) r.userData.clouds.material.uniforms.light.value = night ? 0.12 : 1;
+  for (const r of roots.values()) if (r.userData.clouds) r.userData.clouds.material.uniforms.light.value = n >= 1 ? 0.12 : n <= 0 ? 1 : 1 - 0.88 * n;
   const wu = water.material.uniforms;
   wu.waterCol.value.copy(C('water')).multiplyScalar(0.5);
-  wu.sunDir.value.copy(sunDir); wu.sunCol.value.copy(C('sun'));
+  wu.sunDir.value.copy(light); wu.sunCol.value.copy(C('sun'));
   wu.fogCol.value.copy(scene.fog.color); wu.fogDensity.value = scene.fog.density; wu.seed.value = s.waterSeed;
   const tgt = new V3().fromArray(doc.camera.target).setY(0);
-  sun.target.position.copy(tgt); sun.position.copy(tgt).addScaledVector(sunDir, 1500);
+  sun.target.position.copy(tgt); sun.position.copy(tgt).addScaledVector(light, 1500);
+  skyNow = { n, light };
 }
 function applyEnvironment() {
   if (doc && doc.terrain) terrain.visible = doc.terrain.land !== false;
@@ -1659,7 +1710,7 @@ canvas.addEventListener('pointerup', e => {
   if (!downAt) return;
   const moved = Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]); downAt = null;
   if (moved > 4 || e.button !== 0) return;
-  if (mode !== 'edit') { if (renderDone) msg.textContent = `Esc or ◀ Back to Edit to keep editing · ${MOD}E saves the image`; return; }
+  if (mode !== 'edit') { if (renderDone) msg.textContent = `Esc or Back to Edit to keep editing · ${MOD}E saves the image`; return; }
   if (gizmo.dragging || gizmo.axis) return;
   pick(e);
 });
@@ -1798,6 +1849,10 @@ $('lensIn').addEventListener('change', e => { setLens(+e.target.value, true); e.
 // ---------- object inspector ----------
 const insp = $('inspector');
 const R2D = 180 / Math.PI;
+// Lucide icons (lucide.dev, ISC licence): lock / lock-open
+const svgIcon = d => `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="${d}"/></svg>`;
+const ICON_LOCK = svgIcon('M7 11V7a5 5 0 0 1 10 0v4'), ICON_UNLOCK = svgIcon('M7 11V7a5 5 0 0 1 9.9-1');
+const scaleLockTip = () => scaleLock ? 'Locked: changing one value scales all three together. Click to unlock.' : 'Unlocked: each axis scales on its own. Click to scale all three together.';
 let scaleLock = false, scaleBase = null;   // inspector Scale lock: edit one axis and the other two follow, keeping their proportions
 const num = (f, v, step) => { const ax = f.split('.')[1]; return `<input type="number" data-f="${f}" step="${step}" value="${v}"${ax ? ` data-ax="${ax}" title="${'XYZ'[ax]}"` : ''}>`; };
 function renderInspector() {
@@ -1812,14 +1867,14 @@ function renderInspector() {
   const cloudRows = !isCloud ? '' : `<div class="hint">A cloud layer at this height. Stack several at different heights.</div>
     ${CLOUD_SLIDERS.map(([k, label, lo, hi, st]) => `<div class="slider"><div><span>${label}</span><span data-v="${k}">${(+CL[k]).toFixed(2)}</span></div>
       <input type="range" data-cf="${k}" min="${lo}" max="${hi}" step="${st}" value="${CL[k]}"></div>`).join('')}
-    <div class="row"><span>Pattern</span><button data-a="creseed">🎲 New pattern</button></div>`;
+    <div class="row"><span>Pattern</span><button data-a="creseed">${Icon('dice-5')} New pattern</button></div>`;
   const matOpts = Object.entries(MATS).filter(([k]) => isTerr || k !== 'land').map(([k, v]) => `<option value="${k}" ${o.mat === k ? 'selected' : ''}>${v}</option>`).join('');
   const T = { ...(isFloat ? FLOAT_DEFAULTS : TOBJ_DEFAULTS), ...o.terrain };
   const terrRows = !isTerr ? '' : `
     ${isFloat ? '' : `<div class="row"><span>Shape</span><select data-tf="shape">${Object.entries(SHAPES).map(([k, v]) => `<option value="${k}" ${T.shape === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>`}
     ${(isFloat ? FLOAT_SLIDERS : TOBJ_SLIDERS).map(([k, label, lo, hi, st]) => `<div class="slider"><div><span>${label}</span><span data-v="${k}">${(+T[k]).toFixed(st < 1 ? 2 : 0)}</span></div>
       <input type="range" data-tf="${k}" min="${lo}" max="${hi}" step="${st}" value="${T[k]}"></div>`).join('')}
-    <div class="row"><span>Seed</span><div style="display:grid;grid-template-columns:1fr auto;gap:3px"><input type="number" data-tf="tseed" value="${T.tseed}"><button data-a="treseed" title="New random seed">🎲</button></div></div>`;
+    <div class="row"><span>Seed</span><div style="display:grid;grid-template-columns:1fr auto;gap:3px"><input type="number" data-tf="tseed" value="${T.tseed}"><button data-a="treseed" title="New random seed">${Icon('dice-5')}</button></div></div>`;
   insp.innerHTML = `<legend>${isModel ? ((MODELS[o.model] || {}).label || o.name) : TYPES[o.type]}</legend>${modeButtons(isCloud ? ['translate'] : isLamp ? ['translate', 'scale'] : ['translate', 'rotate', 'scale'])}
     <div class="row"><span>Name</span><input type="text" data-f="name" value="${o.name.replace(/"/g, '&quot;')}"></div>
     ${isModel ? `<div class="hint">${MODELS[o.model]?.source || 'Poly Haven'} · ${MODELS[o.model]?.license || 'CC0'}</div>` : isLamp || isCloud ? '' : `<div class="row"><span>Material</span><select data-f="mat">${matOpts}</select></div>`}
@@ -1831,7 +1886,7 @@ function renderInspector() {
     <div class="row"><span>Position</span><div class="xyz">${[0, 1, 2].map(i => num('pos.' + i, o.pos[i].toFixed(1), 0.5)).join('')}</div></div>
     ${isCloud ? '' : isLamp ? `<div class="row"><span>Bulb size</span>${num('size', o.scale[0].toFixed(2), 0.1)}</div>` : `
     <div class="row"><span>Rotate°</span><div class="xyz">${[0, 1, 2].map(i => num('rot.' + i, (o.rot[i] * R2D).toFixed(0), 5)).join('')}</div></div>
-    <div class="row"><span>Scale <button class="lock${scaleLock ? ' on' : ''}" data-a="slock" aria-pressed="${scaleLock}" title="${scaleLock ? 'Locked: changing one value scales all three together. Click to unlock.' : 'Unlocked: each axis scales on its own. Click to scale all three together.'}">${scaleLock ? '🔗' : '⛓'}</button></span><div class="xyz">${[0, 1, 2].map(i => num('scale.' + i, o.scale[i].toFixed(2), 0.1)).join('')}</div></div>`}
+    <div class="row"><span style="white-space:nowrap">Scale <button class="lock${scaleLock ? ' pressed' : ''}" data-a="slock" aria-pressed="${scaleLock}" title="${scaleLockTip()}">${scaleLock ? ICON_LOCK : ICON_UNLOCK}</button></span><div class="xyz">${[0, 1, 2].map(i => num('scale.' + i, o.scale[i].toFixed(2), 0.1)).join('')}</div></div>`}
     <div class="grid2 actions">${isCloud ? '' : '<button data-a="ground">Drop to ground</button>'}<button data-a="frame">Frame (F)</button>
     <button data-a="dup" title="${MOD}D">Duplicate</button><button data-a="del" title="Delete key">Delete</button></div>`;
 }
@@ -1906,7 +1961,11 @@ insp.addEventListener('click', e => {
   if (e.target.closest('button') && mode !== 'edit') setMode('edit');
   if (e.target.dataset.mode) { setGizmo(e.target.dataset.mode); return; }
   const a = e.target.dataset.a; if (!a) return;
-  if (a === 'slock') { scaleLock = !scaleLock; scaleBase = null; renderInspector(); return; }
+  if (a === 'slock') {   // flip in place: re-rendering the inspector would jolt the layout
+    scaleLock = !scaleLock; scaleBase = null;
+    const b = e.target.closest('button'); b.classList.toggle('pressed', scaleLock); b.setAttribute('aria-pressed', scaleLock); b.title = scaleLockTip(); b.innerHTML = scaleLock ? ICON_LOCK : ICON_UNLOCK;
+    return;
+  }
   if (a === 'creseed') { sel.cloud = { ...CLOUD_DEFAULTS, ...sel.cloud, cseed: Math.random() * 100 }; updateCloudUniforms(sel); return; }
   if (a === 'treseed') { sel.terrain = { ...TOBJ_DEFAULTS, ...sel.terrain, tseed: (Math.random() * 1e6) | 0 }; rebuildKeepSel(sel); renderInspector(); updateReflections(); return; }
   ({ ground: dropToGround, frame: frameSel, dup: duplicate, del: deleteSel })[a]();
@@ -1931,8 +1990,7 @@ const TERRAIN_SLIDERS = [
 ];
 const WORLD_TABS = ['Ground', 'Sky', 'Look'];
 const SKY_SLIDERS = [
-  ['elev', 'Sun height', 1, 85, 1, v => v.toFixed(0) + '°'],
-  ['az', 'Sun direction', -180, 180, 1, v => v.toFixed(0) + '°'],
+  ['north', 'Compass', -180, 180, 1, v => v.toFixed(0) + '°'],   // turns the sun's whole path round the scene: its time and day stay (see skyNorth)
   ['fog', 'Haze', 0.0002, 0.003, 0.0001, v => (v * 1000).toFixed(1)],
   ['ambient', 'Fill light', 0.2, 3, 0.05, v => (+v).toFixed(2)],
 ];
@@ -1944,7 +2002,7 @@ wp.addEventListener('toggle', e => {
   if (e.target.open) worldDetails.add(e.target.dataset.section); else worldDetails.delete(e.target.dataset.section);
 }, true);
 function currentLook() {
-  return { pal: doc.palette, time: doc.sky.night ? 'night' : doc.sky.elev < 12 ? 'dusk' : 'day',
+  return { pal: doc.palette, time: (doc.sky.anchor ? doc.sky.elev < -6 : doc.sky.night) ? 'night' : doc.sky.elev < 12 ? 'dusk' : 'day',
     weather: doc.sky.fog >= .0015 ? 'hazy' : doc.sky.clouds !== false || doc.objects.some(o => o.type === 'clouds' && o.auto) ? 'cloudy' : 'clear' };
 }
 function lookSelect(key, label, options, value) {
@@ -1959,8 +2017,10 @@ function skyTab() {
   const S = doc.sky, L = currentLook();
   return lookSelect('time', 'Time', LOOK_TIMES, L.time) + lookSelect('weather', 'Weather', LOOK_WEATHER, L.weather)
     + `<div class="section-label">Lighting &amp; atmosphere</div>`
+    + `<div data-sunday></div>`   // the sky clock that sets the sun's time and noon height (see skyClock), always shown
+    + `<div data-sunclock></div>`
     + SKY_SLIDERS.map(([k, label, lo, hi, st, fmt]) =>
-      `<div class="slider" title="${label}"><div><span>${label}</span><span data-v="s-${k}">${fmt(S[k] ?? 1)}</span></div><input aria-label="${label}" type="range" data-s="${k}" min="${lo}" max="${hi}" step="${st}" value="${S[k] ?? 1}"></div>`).join('')
+      `<div class="slider" title="${label}"><div><span>${label}</span><span data-v="s-${k}">${fmt(S[k] ?? (k === 'north' ? 0 : 1))}</span></div><input aria-label="${label}" type="range" data-s="${k}" min="${lo}" max="${hi}" step="${st}" value="${S[k] ?? (k === 'north' ? 0 : 1)}"></div>`).join('')
     + section('sky-pattern', 'Cloud pattern', `<label><input type="checkbox" data-s="clouds" ${S.clouds !== false ? 'checked' : ''}> Sky clouds</label><button data-t="clouds" style="width:100%;margin-top:4px">New cloud pattern</button>`);
 }
 function lookTab() {
@@ -1990,6 +2050,7 @@ function renderWorld() {
     <div class="tabs">${WORLD_TABS.map(t => `<button data-tab="${t}" class="${t === landTab ? 'on' : ''}">${t}</button>`).join('')}</div>
     <div class="tabpage">${{ Ground: ground, Sky: skyTab(), Look: lookTab() }[landTab]}</div>`;
   wp.scrollTop = top;
+  wp.querySelectorAll('[data-sunclock]').forEach(h => mountSunClock(h, wp.querySelector('[data-sunday]')));
 }
 function setPanel(p) {
   panel = p;
@@ -2004,12 +2065,14 @@ function showWorld(tab) {
   if (tab) landTab = ['Land', 'Water', 'Surface'].includes(tab) ? 'Ground' : tab;
   setPanel('world'); emit('world');
 }
-let terrTimer = 0;
+// Sliders fire many input events a second. Apply the latest value once per display frame while the thumb is moving (a debounce would wait for it to
+// stop, so nothing would change until release). Rebuilding the terrain can take longer than a frame; then input piles up and only the newest value is used.
+let terrRaf = 0, terrLabel = '';
 function regenTerrain(label = 'Terrain updated') {
-  clearTimeout(terrTimer);
-  terrTimer = setTimeout(() => { applyEnvironment(); msg.textContent = label; }, 40);
+  terrLabel = label;
+  if (!terrRaf) terrRaf = requestAnimationFrame(() => { terrRaf = 0; applyEnvironment(); msg.textContent = terrLabel; });
 }
-let skyTimer = 0;
+let skyRaf = 0;
 wp.addEventListener('input', e => {
   if (e.target.matches('input,select') && mode !== 'edit') setMode('edit');
   const sk = e.target.dataset.s;
@@ -2017,9 +2080,10 @@ wp.addEventListener('input', e => {
     if (sk === 'night') { doc.sky.night = e.target.checked; applyEnvironment(); updateReflections(); return; }
     if (sk === 'clouds') { doc.sky.clouds = e.target.checked; applyEnvironment(); updateReflections(); return; }
     const row = SKY_SLIDERS.find(r => r[0] === sk);
+    if (sk === 'north') { const v = +e.target.value; doc.sky.az = ((doc.sky.az + v - (doc.sky.north || 0) + 540) % 360) - 180; }   // the sun turns with the compass
     doc.sky[sk] = +e.target.value;
     wp.querySelector(`[data-v="s-${sk}"]`).textContent = row[5](doc.sky[sk]);
-    clearTimeout(skyTimer); skyTimer = setTimeout(applyEnvironment, 20);
+    if (!skyRaf) skyRaf = requestAnimationFrame(() => { skyRaf = 0; applyEnvironment(); });
     return;
   }
   const k = e.target.dataset.t; if (!k) return;
@@ -2069,7 +2133,7 @@ canvas.addEventListener('dblclick', e => {
 });
 
 // ---------- object list ----------
-const GLYPH = { floater: '⌓', sphere: '●', cube: '■', cylinder: '▮', cone: '▲', torus: '◯', pyramid: '△', octahedron: '◆', arch: '∩', archwall: '⌂', column: '║', lamp: '✺', clouds: '☁', terrain: '⛰', model: '✿' };
+const GLYPH = { floater: 'layers', sphere: 'circle', cube: 'box', cylinder: 'cylinder', cone: 'cone', torus: 'torus', pyramid: 'pyramid', octahedron: 'gem', arch: 'castle', archwall: 'brick-wall', column: 'landmark', lamp: 'lightbulb', clouds: 'cloud', terrain: 'mountain', model: 'package' };
 function renderList() {
   const el = $('objList'); if (!el || !doc) return;
   const escape = value => String(value).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -2078,8 +2142,8 @@ function renderList() {
     const extra = o.type === 'clouds' ? `y ${o.pos[1].toFixed(0)}` : '';
     const detail = [o.name, TYPES[o.type] || 'Model', modelName && modelName !== o.name ? modelName : ''].filter(Boolean).join(' · ');
     return `<div class="li${sel === o ? ' sel' : ''}${o.hidden ? ' hid' : ''}" data-id="${o.id}" id="object-${o.id}" role="option" aria-selected="${sel === o}" title="${escape(detail)}">
-      <span class="g">${GLYPH[o.type] || '?'}</span><span class="nm">${escape(o.name)}</span>${extra ? `<span class="x">${extra}</span>` : ''}
-      <span class="eye" data-eye="${o.id}" title="${o.hidden ? 'Show' : 'Hide'}">${o.hidden ? '–' : '👁'}</span></div>`;
+      <span class="g">${Icon(GLYPH[o.type] || 'box')}</span><span class="nm">${escape(o.name)}</span>${extra ? `<span class="x">${extra}</span>` : ''}
+      <span class="eye" data-eye="${o.id}" title="${o.hidden ? 'Show' : 'Hide'}">${Icon(o.hidden ? 'eye-off' : 'eye')}</span></div>`;
   };
   el.innerHTML = doc.objects.length ? doc.objects.map(row).join('') : '<div class="hint" style="padding:4px">No objects yet. Use Add below to place one.</div>';
   const s2 = el.querySelector('.li.sel');
@@ -2203,8 +2267,6 @@ const TURBO_MS = 60, syncBuf = new Float32Array(4);
 const deferCh = new MessageChannel(), deferred = [];
 deferCh.port1.onmessage = () => deferred.shift()?.();
 const defer = f => { deferred.push(f); deferCh.port2.postMessage(0); };   // next task, without waiting for a display frame (and not paused in a background tab)
-// animation offsets applied at trace time only (the document is untouched): cloud drift in world units, sky/water noise shifts
-const anim = { cx: 0, cz: 0, sky: 0, water: 0 };
 
 function traceContext() {
   const spheres = [], lamps = [];
@@ -2218,7 +2280,7 @@ function traceContext() {
   const cloudMeshes = doc.objects.filter(o => o.type === 'clouds' && roots.has(o.id)).map(o => roots.get(o.id).children[0]);
   const surf = surfaceOf(doc.terrain), fc = floorColors(PALETTES[doc.palette] || PALETTES.desert, surf);
   return { scene, camera, spheres, skip: new Set([sky, water, floorMesh, ...cloudMeshes]), water: surf !== 'none', waterY: WY(),
-    floor: FLOOR_MODE[surf] ? { mode: FLOOR_MODE[surf], a: new THREE.Color(fc[0]), b: new THREE.Color(fc[1]), tile: doc.terrain.floorTile || DEFAULT_TILE[surf] || 20, depth: POOL_DEPTH } : null, clouds, night: !!doc.sky.night, heightFields: doc.terrain.land === false ? [] : [terrain], patches: doc.objects.filter(o => o.type === 'terrain' && roots.get(o.id)?.visible).map(o => roots.get(o.id).children[0]), sun, hemi, lamps: lamps.slice(0, 3),
+    floor: FLOOR_MODE[surf] ? { mode: FLOOR_MODE[surf], a: new THREE.Color(fc[0]), b: new THREE.Color(fc[1]), tile: doc.terrain.floorTile || DEFAULT_TILE[surf] || 20, depth: POOL_DEPTH } : null, clouds, night: !!doc.sky.night, nightF: skyNow.n, lightDir: skyNow.light, heightFields: doc.terrain.land === false ? [] : [terrain], patches: doc.objects.filter(o => o.type === 'terrain' && roots.get(o.id)?.visible).map(o => roots.get(o.id).children[0]), sun, hemi, lamps: lamps.slice(0, 3),
     skyU: { ...skyMat.uniforms, seed: { value: doc.sky.cloudSeed + anim.sky } }, waterU: { ...water.material.uniforms, seed: { value: doc.sky.waterSeed + anim.water } }, fog: scene.fog };
 }
 
@@ -2309,12 +2371,15 @@ function renderFinal(ray, onDone) {
 let animBase = null;
 // Places the camera (and the trace-time offsets) for loop position t, starting from `base`; the maths is in motion.js. Shared by the traced
 // frames and the raster preview so both move identically. focus: [x,y,z] or an object's name (default: the base camera's own target).
+let prevSun = false;
 function applyMotion(base, spec, t, cam = doc.camera) {
   let focus = spec.focus;
   if (typeof focus === 'string') { const o = doc.objects.find(o => o.name === focus); focus = o ? o.pos : null; }
   Object.assign(cam, cameraAt(base, { ...spec, focus }, t));
   applyCamera(cam); updateMoonLod();
-  Object.assign(anim, { cx: (spec.clouds || 0) * t, cz: 0, sky: (spec.sky || 0) * t, water: (spec.water || 0) * t });
+  Object.assign(anim, { cx: (spec.clouds || 0) * t, cz: 0, sky: (spec.sky || 0) * t, water: (spec.water || 0) * t, sun: spec.sun ? { decl: spec.sun.decl, lat: spec.sun.lat, time: spec.sun.from + (spec.sun.to - spec.sun.from) * t } : null });
+  if (spec.sun || prevSun) applySky(PALETTES[doc.palette] || PALETTES.desert);   // the sky follows a moving sun (and goes back when the motion ends)
+  prevSun = !!spec.sun;
 }
 function renderFrame(spec, t) {
   if (!animBase) animBase = JSON.parse(JSON.stringify(doc.camera));
@@ -2324,11 +2389,175 @@ function renderFrame(spec, t) {
   return new Promise(res => { renderFinal(true); const poll = () => renderDone ? res() : setTimeout(poll, 50); poll(); });
 }
 
+const fmtClock = h => { const m = Math.round((((h % 24) + 24) % 24) * 60) % 1440; return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`; };
+const parseClock = v => { const [h, m] = v.split(':').map(Number); return h + m / 60; };
+
+// ---------- sky clock: the sun's and the moon's day as a small pixel graph, with a time axis and a noon handle ----------
+// Across is the whole solar day, midnight to midnight; up is height in the sky, with the horizon across the middle. The sun's height through the day is
+// a wave, solid above the horizon and dotted below it; the moon, which always stands opposite the sun, is the mirror-image wave, so whichever is up is
+// the one drawn solid. A dotted line and the sun and moon mark the time get() gives. The square on the sun's peak is how high it climbs at noon (what a
+// latitude or a season means to someone placing a sun): drag it up or down. The track along the bottom is the time: drag anywhere across the clock. In a
+// clip (get() gives from and to) the track has a start and an end handle and the span between them is shaded; drag a handle, or the span to move both.
+// Arrow keys: left and right for the time (or the span), up and down for the noon height; Shift for bigger steps.
+// It is drawn a pixel at a time into a canvas the size of its CSS box and shown with pixelated scaling, so nothing is anti-aliased at any screen density.
+// get() -> { decl, lat, time, from?, to? }; set(change, done) applies { h?, time?, from?, to? }; done is true when a drag ends or the clock loses focus
+// after keys, so a caller can save the change then. tip is the tooltip.
+function skyClock(get, set, tip) {
+  const el = document.createElement('div'); el.className = 'skyclock'; el.title = tip;
+  el.innerHTML = `<canvas tabindex="0" role="group" aria-label="Sun and moon through the day. Left and right arrows change the time; up and down arrows change how high the sun climbs at noon."></canvas>
+    <span class="skynoon"></span>${[0, 6, 12, 18, 24].map(h => `<span class="skytick" data-h="${h}">${h}</span>`).join('')}`;
+  const cv = el.querySelector('canvas'), g = cv.getContext('2d'), noonLab = el.querySelector('.skynoon'), ticks = el.querySelectorAll('.skytick');
+  const PAD = 6, TOP = 3, HALF = 34, HY = TOP + 7 + HALF, TRACK = HY + HALF + 9, H = TRACK + 6, LO = 5, HI = 90;   // horizon and track rows; noon heights the handle sets
+  const clampH = h => Math.max(LO, Math.min(HI, h)), mod = t => ((t % 24) + 24) % 24;
+  let geo = null;   // what the last draw put where, for the pointer
+  const draw = () => {
+    const w = Math.floor(el.clientWidth); if (w < 60) return;
+    if (cv.width !== w || cv.height !== H) { cv.width = w; cv.height = H; cv.style.width = `${w}px`; cv.style.height = `${H}px`; }
+    const d = get(), GW = w - 2 * PAD - 1, XN = t => PAD + Math.round(t / 24 * GW), X = t => XN(mod(t)), Y = e => HY - Math.round(e / 90 * HALF);
+    const m = getComputedStyle(cv).color.match(/[\d.]+/g), C = a => `rgba(${m[0]},${m[1]},${m[2]},${a})`;
+    const P = (x, y) => g.fillRect(x, y, 1, 1), clip = d.from != null, span = clip ? d.to - d.from : 0, inWin = t => clip && mod(t - d.from) <= span;
+    g.clearRect(0, 0, w, H);
+    const el24 = Array.from({ length: GW + 1 }, (_, i) => sunAtClock(d.decl, i / GW * 24, d.lat).elev);
+    if (clip) { g.fillStyle = C(0.13); for (let i = 0; i <= GW; i++) if (inWin(i / GW * 24)) g.fillRect(PAD + i, TOP, 1, TRACK - TOP - 4); }
+    g.fillStyle = C(1); g.fillRect(PAD - 3, HY, GW + 7, 1);   // horizon
+    const curve = (sign, solid, dots) => {   // a wave: a connected line where it is up, every third pixel where it is down
+      let py = null;
+      for (let i = 0; i <= GW; i++) {
+        const e = sign * el24[i], y = Y(e), x = PAD + i;
+        if (e < 0) { if (i % 3 === 0) { g.fillStyle = dots; P(x, y); } py = null; continue; }
+        g.fillStyle = solid;
+        if (py === null || Math.abs(y - py) <= 1) P(x, y); else { const a = y > py ? py + 1 : y, b = y > py ? y : py - 1; g.fillRect(x, a, 1, b - a + 1); }
+        py = y;
+      }
+    };
+    curve(-1, C(0.45), C(0.3)); curve(1, C(1), C(0.45));   // the moon under the sun
+    const noon = noonElev(d.decl, d.lat), px = X(12), py = Y(Math.max(-90, Math.min(90, noon)));
+    const tx = X(d.time), e = sunAtClock(d.decl, d.time, d.lat).elev;
+    g.fillStyle = C(0.5); for (let y = TOP; y < TRACK - 3; y += 2) P(tx, y);   // now
+    const clear = (x, y, cw, ch) => {   // clears a patch of sky behind a marker, keeping a clip's shading
+      g.clearRect(x, y, cw, ch); if (!clip) return;
+      g.fillStyle = C(0.13); const y0 = Math.max(y, TOP), y1 = Math.min(y + ch, TRACK - 4);
+      for (let c = x; c < x + cw; c++) if (c >= PAD && c <= PAD + GW && y1 > y0 && inWin((c - PAD) / GW * 24)) g.fillRect(c, y0, 1, y1 - y0);
+    };
+    const sun = (x, y, a) => {
+      clear(x - 2, y - 1, 5, 3); clear(x - 1, y - 2, 3, 5); g.fillStyle = C(a);
+      for (const [i, j] of [[3, 0], [3, 1], [2, 2], [1, 3], [0, 3], [5, 0], [6, 0], [4, 4]]) for (const [u, v] of [[i, j], [j, i]]) for (const [sx, sy] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) P(x + sx * u, y + sy * v);
+    };
+    const moon = (x, y, a) => {   // a full moon: a round 9-pixel disc (anything smaller reads as a diamond)
+      for (const [dy, r] of [[-4, 2], [-3, 3], [-2, 4], [-1, 4], [0, 4], [1, 4], [2, 4], [3, 3], [4, 2]]) { clear(x - r, y + dy, 2 * r + 1, 1); g.fillStyle = C(a); g.fillRect(x - r, y + dy, 2 * r + 1, 1); }
+    };
+    if (e >= 0) { moon(tx, Y(-e), 0.3); sun(tx, Y(e), 1); } else { sun(tx, Y(e), 0.35); moon(tx, Y(-e), 1); }
+    // the noon handle, on top of everything so it can always be grabbed: a bar on the peak with an arrow above and below, each row with a pixel of clear sky
+    // either side so the curve doesn't run into it
+    for (const [dy, r] of [[-6, 0], [-5, 1], [-4, 2], [-1, 2], [0, 2], [1, 2], [4, 2], [5, 1], [6, 0]]) { clear(px - r - 1, py + dy, 2 * r + 3, 1); g.fillStyle = C(1); g.fillRect(px - r, py + dy, 2 * r + 1, 1); }
+    // the time track
+    g.fillStyle = C(0.6); g.fillRect(PAD, TRACK, GW + 1, 1);
+    g.fillStyle = C(1); for (const h of [0, 6, 12, 18, 24]) g.fillRect(XN(h), TRACK + 2, 1, 2);
+    let xs = 0, xe = 0;
+    if (clip) {
+      xs = X(d.from); xe = X(d.to);
+      for (let i = 0; i <= GW; i++) if (inWin(i / GW * 24)) g.fillRect(PAD + i, TRACK - 1, 1, 3);
+      g.fillRect(xs, TRACK - 4, 1, 9); g.fillRect(xs, TRACK - 4, 3, 1); g.fillRect(xs, TRACK + 4, 3, 1);           // [ start
+      g.fillRect(xe, TRACK - 4, 1, 9); g.fillRect(xe - 2, TRACK - 4, 3, 1); g.fillRect(xe - 2, TRACK + 4, 3, 1);   // ] end
+    } else {
+      g.fillRect(tx - 3, TRACK - 5, 7, 6); g.fillRect(tx - 2, TRACK + 1, 5, 1); g.fillRect(tx - 1, TRACK + 2, 3, 1); P(tx, TRACK + 3);   // a pointed thumb
+      g.clearRect(tx - 2, TRACK - 4, 5, 4);
+    }
+    // the noon height, centred over the grip in the open sky above the peak; a peak too near the top has it underneath, inside the hump
+    noonLab.textContent = `${Math.round(noon)}°`; noonLab.style.left = `${px}px`; noonLab.style.transform = 'translateX(-50%)';
+    noonLab.style.top = `${py - 19 >= 0 ? py - 19 : py + 9}px`;
+    for (const t of ticks) t.style.left = `${XN(+t.dataset.h)}px`;
+    el.style.height = `${H + 12}px`;
+    geo = { d, GW, X, T: x => Math.max(0, Math.min(24 - 1e-6, (x - PAD) / GW * 24)), px, py, xs, xe, clip, inWin, noon };
+  };
+  // pointer: the noon handle moves up and down; in a clip, a handle moves its end of the span and the span moves both; anywhere else sets the time (or,
+  // in a clip, brings the nearer end of the span there)
+  const pos = e => { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) * cv.width / r.width, y: (e.clientY - r.top) * cv.height / r.height }; };
+  const hit = p => {
+    if (!geo) return null;
+    if (Math.abs(p.x - geo.px) <= 5 && Math.abs(p.y - geo.py) <= 8) return 'h';
+    if (!geo.clip) return 'time';
+    const low = p.y >= TRACK - 8;
+    if (low && Math.abs(p.x - geo.xs) <= 4) return 'from'; if (low && Math.abs(p.x - geo.xe) <= 4) return 'to';
+    return geo.inWin(geo.T(p.x)) ? 'move' : 'jump';
+  };
+  cv.addEventListener('pointermove', e => { if (!dragging) cv.style.cursor = hit(pos(e)) === 'h' ? 'ns-resize' : 'ew-resize'; });
+  let dragging = false, pending = null;
+  cv.addEventListener('pointerdown', e => {
+    if (e.button !== 0 || !geo) return;
+    cv.setPointerCapture(e.pointerId); e.preventDefault(); pending = null;   // the drag saves whatever keys changed before it, with its own change
+    const p0 = pos(e), d0 = geo.d, T = geo.T, t0 = T(p0.x), h0 = clampH(geo.noon);
+    let mode = hit(p0), last = null;
+    if (mode === 'jump') { const ds = Math.abs(mod(t0 - d0.from + 12) - 12), de = Math.abs(mod(t0 - d0.to + 12) - 12); mode = ds <= de ? 'from' : 'to'; }
+    const to = p => {
+      const t = T(p.x);
+      if (mode === 'h') return { h: Math.round(clampH(h0 + (p0.y - p.y) * 90 / HALF)) };
+      if (mode === 'time') return { time: t };
+      if (mode === 'move') { const dt = t - t0; return { from: d0.from + dt, to: d0.to + dt }; }
+      const span = mode === 'from' ? mod(d0.to - t) : mod(t - d0.from); if (span < 0.25) return last;   // an end never passes the other
+      return mode === 'from' ? { from: t, to: d0.to } : { from: d0.from, to: d0.from + span };
+    };
+    const apply = c => { if (!c || JSON.stringify(c) === JSON.stringify(last)) return; last = c; set(c, false); draw(); };
+    const move = ev => apply(to(pos(ev)));
+    const up = () => { cv.removeEventListener('pointermove', move); cv.removeEventListener('pointerup', up); cv.removeEventListener('pointercancel', up); dragging = false; if (last) set(last, true); };
+    dragging = true; if (mode !== 'h' && mode !== 'move') apply(to(p0));
+    cv.addEventListener('pointermove', move); cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+  });
+  const flush = () => { if (pending) { const f = pending; pending = null; f(); } };
+  cv.addEventListener('keydown', e => {
+    const k = { ArrowLeft: -1, ArrowRight: 1, ArrowDown: -1, ArrowUp: 1 }[e.key]; if (!k || !geo) return;
+    e.preventDefault();
+    const d = get(), big = e.shiftKey ? 4 : 1, across = e.key === 'ArrowLeft' || e.key === 'ArrowRight';
+    const c = !across ? { h: Math.round(clampH(noonElev(d.decl, d.lat) + k * big)) } : d.from != null ? { from: d.from + k * 0.25 * big, to: d.to + k * 0.25 * big } : { time: mod(d.time + k * 0.25 * big) };
+    set(c, false); pending = () => set({}, true); draw();
+  });
+  cv.addEventListener('blur', flush);
+  new ResizeObserver(() => draw()).observe(el);
+  draw(); return { el, sync: draw };
+}
+
+// ---------- Sun clock (Sky tab): set the sun by its day (the drawing) and its time of day ----------
+// The sun stays what it is (doc.sky.az / elev); the drawing and the Time field read its day and clock time at this latitude, and writing them moves it
+// along its day or to a higher or lower one. The first write records the anchor (see docSun), so nothing about the picture changes until the sun does.
+// A time left as the field already shows it is not a change, as the field is rounded to the minute and the sun is exact.
+function mountSunClock(host, dayHost) {
+  const lat = skyLat, own = () => { const o = docSun(); return sunClock(o.az, o.elev, lat(), skyNorth()); };
+  host.innerHTML = `<div class="row"><span>Clock</span><input type="time" data-sc="time" aria-label="Sun clock time"></div>`;   // "Time" is taken by the Day / Dusk / Night look above
+  const tIn = host.querySelector('[data-sc=time]'), shownTime = () => fmtClock(own().time);
+  tIn.value = shownTime();
+  const write = change => {
+    if (mode !== 'edit') setMode('edit');
+    const o = docSun(), L = lat(), N = skyNorth(), cur = sunClock(o.az, o.elev, L, N), p = sunAtClock(change.decl ?? cur.decl, change.time ?? cur.time, L, N);
+    skyChange(s => { if (!s.anchor) { s.anchor = { elev: o.elev, night: !!s.night, time: cur.time }; s.lat = s.lat ?? L; } s.night = false; s.az = p.az; s.elev = p.elev; });
+  };
+  tIn.addEventListener('change', () => { if (tIn.value && tIn.value !== shownTime()) write({ time: parseClock(tIn.value) }); });
+  // A drag on the drawing moves the sun's day (its declination) up or down and the sun through its day (its time), both at once. They are written live and
+  // cheaply while they happen, because the full redraw would rebuild this panel under the pointer; the sun is captured once per gesture, keeps whatever the
+  // gesture has changed so far, and the full redraw runs when it ends.
+  let gesture = null, raf = 0;
+  const live = change => {
+    const o = docSun(), L = lat(); if (!gesture) { const cur = sunClock(o.az, o.elev, L, skyNorth()); gesture = { o, time: cur.time, decl: cur.decl, side: noonSide(cur.decl, L), t0: cur.time }; }
+    if (change.h != null) gesture.decl = declForNoon(change.h, L, gesture.side); if (change.time != null) gesture.time = change.time;
+    const p = sunAtClock(gesture.decl, gesture.time, L, skyNorth()), s = doc.sky;
+    if (mode !== 'edit') setMode('edit');
+    if (!s.anchor) { s.anchor = { elev: gesture.o.elev, night: !!s.night, time: gesture.t0 }; s.lat = s.lat ?? L; }
+    s.night = false; s.az = p.az; s.elev = p.elev;
+    cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { applyEnvironment(); tIn.value = shownTime(); });
+  };
+  const commit = () => { if (!gesture) return; gesture = null; updateReflections(); renderWorld(); emit('sky'); };
+  const height = skyClock(() => { const c = own(); return { decl: c.decl, lat: lat(), time: c.time }; },
+    (change, done) => { live(change); if (done) commit(); }, 'Drag across to set the time of day; drag the square on the peak up or down to set how high the sun climbs at noon');
+  dayHost.append(height.el);
+}
+
 // ---------- Animate: preview a camera move in the fast raster view, then ray trace it frame by frame into a video ----------
 // The panel is one flow: Setup (pick a motion, scrub or play the raster preview) -> Render clip -> Done (play it, download it).
 // It never edits the document: the camera and its zoom live in the preview only (the zoom is part of the undo history).
 // While a clip renders, clipLock keeps everything else from starting a trace or changing the scene; Esc or Cancel stops it.
 let clipLock = false, clipAllow = false, animPos = null;   // animPos: where the panel was last dragged to
+// The panel's settings as it was last closed, put back the next time it opens (for this session), so a clip can be dialled in, the scene adjusted, and the
+// panel reopened without starting over. A named sun preset is worked out again from the scene as it is then; custom times are kept as they were.
+let animPrefs = null;
 const MEDIABUNNY = 'https://unpkg.com/mediabunny@1.66.0/dist/bundles/mediabunny.min.mjs';   // loaded only when a clip is rendered
 const fmtDur = s => s < 90 ? `${Math.max(1, Math.round(s))} s` : `${Math.floor(s / 60)} min ${Math.round(s % 60)} s`;
 
@@ -2404,7 +2633,14 @@ function openAnimate() {
           <span>Center</span><select id="pvCen"></select>
           <span>Amount</span><span class="pvf"><input type="number" id="pvAmt" step="0.05"><span id="pvUnit"></span></span>
           <span>Length</span><span class="pvf"><input type="number" id="pvSec" min="1" max="${maxSecs}" value="${CLIP.seconds}"><span>seconds · ${CLIP.fps} fps</span></span>
-          <span>Also</span><span class="pvf pvwide"><label><input type="checkbox" id="pvCl"> Clouds drift</label><label><input type="checkbox" id="pvWa"> Water ripples</label></span>
+          <span>Also</span><span class="pvf pvwide"><label><input type="checkbox" id="pvCl"> Clouds drift</label><label><input type="checkbox" id="pvWa"> Water ripples</label><label><input type="checkbox" id="pvSun"> Sun movement</label></span>
+        </div>
+        <div class="pvsunbox" hidden>
+          <div class="pvsuncol">
+            <span>Sun</span><select id="pvSunPre"><option value="scene">From the scene's sun</option><option value="golden">Golden hour</option><option value="rise">Sunrise</option><option value="set">Sunset into night</option><option value="day">Sunrise to sunset</option><option value="custom" hidden>Custom times</option></select>
+          </div>
+          <span class="pvglobehost"></span>
+          <div class="pvsuncol pvsuntimes"><span>Start</span><input type="time" id="pvT0"><span>End</span><input type="time" id="pvT1"></div>
         </div>
         <div class="pvinfo"></div>
         <div class="pvbar pv-setup"><button data-c="play"><b>Play</b></button><input type="range" id="pvT" min="0" max="1000" value="0"><span class="pvtime"></span><button data-c="render"><b>Render clip…</b></button><button data-c="x">Close</button></div>
@@ -2431,8 +2667,8 @@ function openAnimate() {
     const up = () => { bar.removeEventListener('pointermove', move); bar.removeEventListener('pointerup', up); bar.removeEventListener('pointercancel', up); };
     bar.addEventListener('pointermove', move); bar.addEventListener('pointerup', up); bar.addEventListener('pointercancel', up);
   });
-  const q = s => d.querySelector(s), mo = q('#pvMo'), amt = q('#pvAmt'), secIn = q('#pvSec'), scrub = q('#pvT'), cen = q('#pvCen'), clBox = q('#pvCl'), waBox = q('#pvWa'), timeEl = q('.pvtime'), play = q('[data-c=play]');
-  const info = q('.pvinfo'), hint = q('.pvhint'), runInfo = q('.pvrun'), fill = q('.pvprog i'), video = q('video'), note = q('.pvnote');
+  const q = s => d.querySelector(s), mo = q('#pvMo'), amt = q('#pvAmt'), secIn = q('#pvSec'), scrub = q('#pvT'), cen = q('#pvCen'), clBox = q('#pvCl'), waBox = q('#pvWa'), sunBox = q('#pvSun'), preSel = q('#pvSunPre'), t0In = q('#pvT0'), t1In = q('#pvT1'), timeEl = q('.pvtime'), play = q('[data-c=play]');
+  const info = q('.pvinfo'), sunBoxEl = q('.pvsunbox'), hint = q('.pvhint'), runInfo = q('.pvrun'), fill = q('.pvprog i'), video = q('video'), note = q('.pvnote');
   let t = 0, playing = false, t0 = 0, raf = 0, ticks = 0, tickT = performance.now(), fps = 0;
   let state = 'setup', cancelled = false, result = null, blobUrl = null;
   const preset = () => PRESETS[+mo.value], secs = () => Math.min(maxSecs, Math.max(1, +secIn.value || CLIP.seconds)), frames = () => Math.round(secs() * CLIP.fps);
@@ -2457,16 +2693,55 @@ function openAnimate() {
     skyMat.uniforms.seed.value = doc.sky.cloudSeed + sk; water.material.uniforms.seed.value = doc.sky.waterSeed + wa;
     for (const o of cloudObjs) { const u = roots.get(o.id)?.userData.clouds?.material.uniforms; if (u) u.origin.value.set(o.pos[0] + cx, o.pos[2]); }
   };
-  const amount = () => { const a = +amt.value; return (preset().unit === '× zoom' ? a > 0 : a !== 0) ? a : preset().amt; };   // a zero or negative zoom is meaningless
+  const amount = () => { const a = +amt.value; return (preset().unit.startsWith('×') ? a > 0 : a !== 0) ? a : preset().amt; };   // a zero or negative zoom or dolly is meaningless
   const spec = () => ({
     ...preset().spec(amount()), ...(focus ? { focus } : {}),
     ...(clBox.checked ? { clouds: DRIFT.clouds * secs(), sky: DRIFT.sky * secs() } : {}), ...(waBox.checked ? { water: DRIFT.water * secs() } : {}),
+    ...(sunBox.checked ? { sun: sunPlan() } : {}),
   });
+  // Sun movement: a start and an end clock (local solar time), run from the scene's own sun unless a preset or an edited clock says otherwise. The
+  // clocks are clip-only: the document's sun is never touched. Latitude belongs to the document (doc.sky.lat), so the sun and the clocks agree everywhere.
+  // A null start, end or declination means "the scene's own, exactly": the exact value is kept until the user edits it, so frame 0 is the edit view.
+  const lat = skyLat;
+  let sunT0 = null, sunT1 = null, sunDecl = null;
+  const ownSun = () => { const o = docSun(); return sunClock(o.az, o.elev, lat(), skyNorth()); };
+  const sunPlan = () => {
+    const own = ownSun(), from = sunT0 ?? own.time, span = sunT1 === null ? SUN.hours : ((((sunT1 - from) % 24) + 24) % 24) || 24;   // the same time twice is a whole day
+    return { decl: sunDecl ?? own.decl, lat: lat(), from, to: from + span };
+  };
+  // Presets are built from sunrise and sunset. A scene whose own sun has no sunrise here (a polar sun, or higher or lower than any real day) borrows the
+  // nearest real time of year, so a preset always works; the scene's own sun stays exact.
+  const presetPlan = key => {
+    const own = ownSun(); let decl = own.decl; if (Math.abs(decl) > 23.44 || dayTimes(decl, lat()).polar) decl = Math.max(-23.44, Math.min(23.44, decl));
+    const dt = dayTimes(decl, lat()); if (dt.polar) return null;
+    const [a, b] = { golden: [dt.set - 1.5, dt.set + 0.25], rise: [dt.rise - 0.5, dt.rise + 2.5], set: [dt.set - 1, dt.set + 2.5], day: [dt.rise - 0.5, dt.set + 0.5] }[key];
+    return { decl, a: (a + 24) % 24, b: (b + 24) % 24 };
+  };
+  const sunUi = () => {
+    sunBoxEl.hidden = !sunBox.checked; if (!sunBox.checked) return;
+    const p = sunPlan();
+    t0In.value = fmtClock(p.from); t1In.value = fmtClock(p.to);
+    for (const o of preSel.options) if (['golden', 'rise', 'set', 'day'].includes(o.value)) o.disabled = !presetPlan(o.value);
+    height.sync();
+  };
+  // The latitude behind the drawing stays the document's
+  // The drawing shows the clip's span of the day and the sun at the preview's moment; dragging the sun moves the whole span (its length kept) so the
+  // preview's moment follows the pointer across, and dragging up or down changes the clip's day (clip-only, like the clocks).
+  const height = skyClock(() => { const p = sunPlan(); return { decl: p.decl, lat: p.lat, time: p.from + (p.to - p.from) * t, from: p.from, to: p.to }; },
+    ({ h, from, to }) => {
+      if (h == null && from == null) return;
+      if (h != null) sunDecl = declForNoon(h, lat(), noonSide(sunPlan().decl, lat()));
+      if (from != null) { sunT0 = ((from % 24) + 24) % 24; sunT1 = ((to % 24) + 24) % 24; }
+      preSel.value = 'custom'; show();
+    },
+    'Drag the start and end handles, or the span between them, to set when the clip runs; drag the square on the peak up or down to set how high the sun climbs at noon');
+  q('.pvglobehost').replaceWith(height.el);
   const quality = () => QUALITY[traceQuality][1];
   const setInfo = () => {
     const n = frames(), big = Math.max(W, H) > CLIP.maxSide;
     info.textContent = `${quality()} quality · ${W} × ${H} · ${n} frames (change quality and size in the toolbar)`;
     info.classList.toggle('warn', big || traceQuality === 'fine');
+    sunUi();
     if (state === 'setup') hint.textContent = big ? `Clips are limited to ${CLIP.maxSide} px on the longest side: pick a smaller size.`
       : traceQuality === 'fine' ? 'Fine quality is slow for a clip. Draft or Normal is a good first try.' : 'The preview is a quick raster view: reflections, glass and the exact look only appear in the rendered clip.';
   };
@@ -2491,7 +2766,7 @@ function openAnimate() {
     state = s;
     q('.pvmain').hidden = s === 'done'; q('.pvdone').hidden = s !== 'done';
     q('.pv-setup').hidden = s !== 'setup'; q('.pv-run').hidden = s === 'setup';
-    d.querySelectorAll('.pvgrid select, .pvgrid input').forEach(e => e.disabled = s !== 'setup' || (e === amt && preset().key === 'still') || (e === clBox && !hasClouds) || (e === waBox && !hasWater));
+    d.querySelectorAll('.pvgrid select, .pvgrid input, .pvsunbox select, .pvsunbox input').forEach(e => e.disabled = s !== 'setup' || (e === amt && preset().key === 'still') || (e === clBox && !hasClouds) || (e === waBox && !hasWater));
     $('win').classList.toggle('cliplock', s === 'run'); shield.hidden = s !== 'run';
   };
   const releaseUrl = () => { if (blobUrl) { URL.revokeObjectURL(blobUrl); blobUrl = null; } video.removeAttribute('src'); };
@@ -2504,7 +2779,9 @@ function openAnimate() {
   const onDoc = e => { if (e.detail === 'doc' && state !== 'run') close(false); };
   const close = (restore = true) => {
     if (state === 'run') return;
-    playing = false; cancelAnimationFrame(raf); releaseUrl(); shield.remove(); setDrift(0, 0, 0); Object.assign(anim, { cx: 0, cz: 0, sky: 0, water: 0 });   // not setPlaying(false): that would redraw the preview camera
+    animPrefs = { mo: mo.value, amt: amt.value, sec: secIn.value, cl: clBox.checked, wa: waBox.checked, sun: sunBox.checked, pre: preSel.value,
+      t0: sunT0, t1: sunT1, decl: sunDecl, cam: pickedCam };
+    playing = false; cancelAnimationFrame(raf); releaseUrl(); shield.remove(); setDrift(0, 0, 0); Object.assign(anim, { cx: 0, cz: 0, sky: 0, water: 0, sun: null }); prevSun = false; applySky(PALETTES[doc.palette] || PALETTES.desert); dirty = true;   // not setPlaying(false): that would redraw the preview camera
     document.removeEventListener('terrascape:change', onSelect); document.removeEventListener('terrascape:change', onDoc); document.removeEventListener('visibilitychange', onVisible);
     $('qualitySel').removeEventListener('change', show); $('resSel').removeEventListener('change', show);
     $('win').classList.remove('cliplock');
@@ -2551,7 +2828,7 @@ function openAnimate() {
     } catch (err) { console.error(err); failed = err; }
     finally {
       if (enc) await enc.cancel().catch(() => {});
-      clipLock = clipAllow = turbo = false; Object.assign(anim, { cx: 0, cz: 0, sky: 0, water: 0 });
+      clipLock = clipAllow = turbo = false; Object.assign(anim, { cx: 0, cz: 0, sky: 0, water: 0, sun: null }); prevSun = false; applySky(PALETTES[doc.palette] || PALETTES.desert); dirty = true;
       $('btnRender').disabled = $('qualitySel').disabled = $('resSel').disabled = false; wake?.release?.().catch?.(() => {});
     }
     if (!d.isConnected) { ov.remove(); return; }
@@ -2569,9 +2846,16 @@ function openAnimate() {
   };
 
   mo.onchange = () => { q('#pvUnit').textContent = preset().unit; amt.value = preset().key === 'still' ? '' : preset().amt; amt.disabled = preset().key === 'still'; show(); };
-  clBox.onchange = waBox.onchange = () => show();
+  clBox.onchange = waBox.onchange = sunBox.onchange = () => show();
   cen.onchange = () => { pickedCam = cen.value === 'cam'; centerMode = cen.value; refreshCenter(); show(); };
   amt.oninput = secIn.oninput = () => show();
+  t0In.onchange = () => { if (t0In.value) { sunT0 = parseClock(t0In.value); preSel.value = 'custom'; show(); } };
+  t1In.onchange = () => { if (t1In.value) { sunT1 = parseClock(t1In.value); preSel.value = 'custom'; show(); } };
+  preSel.onchange = () => {
+    if (preSel.value === 'scene') sunT0 = sunT1 = sunDecl = null;
+    else if (preSel.value !== 'custom') { const pl = presetPlan(preSel.value); if (pl) { sunT0 = pl.a; sunT1 = pl.b; sunDecl = pl.decl; } }
+    show();
+  };
   scrub.oninput = () => { t = scrub.value / 1000; if (playing) t0 = performance.now() - t * secs() * 1000; show(); };
   d.addEventListener('click', e => {
     const c = e.target.closest('[data-c]'); if (!c) return;
@@ -2590,7 +2874,15 @@ function openAnimate() {
   $('qualitySel').addEventListener('change', show); $('resSel').addEventListener('change', show);
   previewing = true; orbit.enabled = false; gizmo.enabled = false; hideGizmo();
   msg.textContent = 'Animate - Space plays, Esc closes';
-  q('#pvUnit').textContent = preset().unit; amt.value = preset().amt; refreshCenter(); view('setup'); show(); play.focus();
+  amt.value = preset().amt;
+  if (animPrefs) {   // the settings the panel was last closed with (see animPrefs); clouds and water only if this scene has them
+    const p = animPrefs;
+    mo.value = p.mo; amt.value = p.amt; secIn.value = p.sec; clBox.checked = p.cl && hasClouds; waBox.checked = p.wa && hasWater; sunBox.checked = p.sun;
+    pickedCam = p.cam; preSel.value = p.pre;
+    if (p.pre === 'custom') { sunT0 = p.t0; sunT1 = p.t1; sunDecl = p.decl; }
+    else if (p.pre !== 'scene') { const pl = presetPlan(p.pre); if (pl) { sunT0 = pl.a; sunT1 = pl.b; sunDecl = pl.decl; } else preSel.value = 'scene'; }
+  }
+  q('#pvUnit').textContent = preset().unit; amt.disabled = preset().key === 'still'; refreshCenter(); view('setup'); show(); play.focus();
 }
 
 // Save Image: the canvas holds the finished picture at the output size (preserveDrawingBuffer keeps it readable)
@@ -2691,6 +2983,7 @@ function setColors(m) { if (clipLock) return; colorMode = m; post.uniforms.mode.
 const LOOK_TIMES = { day: 'Day', dusk: 'Dusk', night: 'Night' }, LOOK_WEATHER = { clear: 'Clear', cloudy: 'Cloudy', hazy: 'Hazy' };
 // Look = palette, time of day and weather, applied on top of any scene
 function applyTime(d, time) {
+  if (d.sky.anchor) { delete d.sky.anchor; if (d.sky.elev < 1) d.sky.elev = 16 + (d.sky.cloudSeed % 4); }   // the presets go back to the plain day / dusk / night sky, with the sun or moon above the horizon
   d.sky.night = time === 'night';
   if (time === 'dusk') d.sky.elev = 3 + (d.sky.cloudSeed % 3);
   else if (time === 'day' && d.sky.elev < 12) d.sky.elev = 18 + (d.sky.cloudSeed % 15);
@@ -2762,8 +3055,8 @@ function renderStart() {
     </details><div class="section-label">Arrangement</div>
     ${start.world === 'emptyfloor' ? '<div class="hint">An infinite tiled floor. Use Add to place your first object.</div>' : isScene ? `<div class="hint">${W.description || `${W.label} has its own composition.`}</div>` : `<select data-s="layout">${['random', 'Centrepiece', 'Colonnade', 'Rule of thirds', 'Stone circle', 'Still life', 'Empty'].map(k => `<option value="${k}" ${start.layout === k ? 'selected' : ''}>${k === 'random' ? 'Any (random)' : k}</option>`).join('')}</select>`}
     ${W.file ? '<button data-s="restore" style="width:100%;margin-top:4px">Restore saved scene</button>' : ''}
-    ${start.world === 'emptyfloor' || W.file ? '' : '<button data-s="reroll" style="width:100%;margin-top:4px" title="Keep this scene type and look; try another arrangement">🎲 Another arrangement</button>'}
-    <button data-s="surprise" style="width:100%;margin-top:12px" title="Choose a random scene and arrangement">🎲 Surprise me</button>`;
+    ${start.world === 'emptyfloor' || W.file ? '' : '<button data-s="reroll" style="width:100%;margin-top:4px" title="Keep this scene type and look; try another arrangement">' + Icon('dice-5') + ' Another arrangement</button>'}
+    <button data-s="surprise" style="width:100%;margin-top:12px" title="Choose a random scene and arrangement">${Icon('dice-5')} Surprise me</button>`;
 }
 $('start').addEventListener('toggle', e => { if (e.target.id === 'startLook') startLookOpen = e.target.open; }, true);
 $('startDone').onclick = () => { landTab = 'Ground'; setPanel('world'); canvas.focus(); msg.textContent = 'Edit the ground, sky and colors on the left; select or add objects on the right.'; };
@@ -2911,7 +3204,7 @@ addEventListener('beforeunload', e => { if (histKey && histKey !== savedKey) e.p
 // ---------- Sky & Fog quick controls ----------
 function skyChange(fn) { fn(doc.sky); applyEnvironment(); updateReflections(); renderWorld(); if (mode !== 'edit') renderFinal(mode === 'ray'); emit('sky'); }
 function setPalette(p) { doc.palette = p; applyEnvironment(); updateReflections(); renderWorld(); if (mode !== 'edit') renderFinal(mode === 'ray'); emit('sky'); msg.textContent = `Palette: ${p[0].toUpperCase() + p.slice(1)}`; }
-const randomSun = () => skyChange(s => { s.elev = 8 + Math.random() * 30; s.az = (Math.random() - 0.5) * 92; s.cloudSeed = Math.random() * 100; });
+const randomSun = () => skyChange(s => { if (s.anchor) { delete s.anchor; s.night = false; } s.elev = 8 + Math.random() * 30; s.az = (Math.random() - 0.5) * 92; s.cloudSeed = Math.random() * 100; });
 const swatch = p => { const P = PALETTES[p] || {}; return `<div class="sw">${['zenith', 'horizon', 'high', 'mid', 'low', 'water'].map(k => `<i style="background:${P[k]}"></i>`).join('')}</div>`; };
 
 // ---------- dialogs ----------
@@ -3144,5 +3437,6 @@ assetsReady.then(() => {
   }, 30);
 });
 </script>
+<script>Icon.hydrate(document);</script>
 </body>
 </html>
